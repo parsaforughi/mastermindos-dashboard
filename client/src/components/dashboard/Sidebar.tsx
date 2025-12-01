@@ -43,10 +43,10 @@ const getNavItemsForProject = (botId: string, basePath: string) => {
   const projectNavs: Record<string, any[]> = {
     "explainer": [
       { icon: LayoutDashboard, label: "Overview", href: `${basePath}` },
-      { icon: Brain, label: "Learning Modules", href: `${basePath}/conversations` },
-      { icon: MessageSquare, label: "Q&A Session", href: `${basePath}/analytics` },
+      { icon: MessageSquare, label: "Conversations", href: `${basePath}/conversations` },
+      { icon: Activity, label: "Analytics", href: `${basePath}/analytics` },
       { icon: Database, label: "Knowledge Base", href: `${basePath}/knowledge` },
-      { icon: Cpu, label: "AI Settings", href: `${basePath}/settings` },
+      { icon: Cpu, label: "Settings", href: `${basePath}/settings` },
     ],
     "auto-dm": [
       { icon: LayoutDashboard, label: "Overview", href: `${basePath}` },
