@@ -13,7 +13,10 @@ import {
   Command,
   Activity,
   Shield,
-  Database
+  Database,
+  Target,
+  Brain,
+  Mail
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link } from "wouter";
@@ -25,7 +28,7 @@ const projects = [
     id: "ice-ball", 
     name: "Ice Ball", 
     type: "Game Bot", 
-    icon: Globe,
+    icon: Target,
     color: "text-cyan-400",
     gradient: "from-cyan-400 to-blue-600",
     stats: { users: "12.5k", activity: "High" },
@@ -36,7 +39,7 @@ const projects = [
     id: "explainer", 
     name: "Explainer", 
     type: "Education AI", 
-    icon: Zap,
+    icon: Brain,
     color: "text-purple-400",
     gradient: "from-purple-400 to-pink-600",
     stats: { users: "843", activity: "Moderate" },
@@ -47,7 +50,7 @@ const projects = [
     id: "auto-dm", 
     name: "Auto DM", 
     type: "Marketing Automation", 
-    icon: Send,
+    icon: Mail,
     color: "text-green-400",
     gradient: "from-green-400 to-emerald-600",
     stats: { users: "2.1M", activity: "Extreme" },
@@ -58,7 +61,7 @@ const projects = [
     id: "viral-bot", 
     name: "Viral TelegramBot", 
     type: "Social Growth", 
-    icon: Smartphone,
+    icon: TrendingUp,
     color: "text-pink-400",
     gradient: "from-pink-400 to-rose-600",
     stats: { users: "450k", activity: "High" },
