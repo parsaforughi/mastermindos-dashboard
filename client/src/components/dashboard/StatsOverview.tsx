@@ -1,6 +1,6 @@
 import { useStats } from "@/hooks/useExplainerApi";
-import { MessageSquare, Users, Zap, Clock, TrendingUp, Activity, Loader2 } from "lucide-react";
-import { Area, AreaChart, ResponsiveContainer, Tooltip, YAxis } from "recharts";
+import { MessageSquare, Users, Zap, Clock, TrendingUp, Activity, Loader2, ArrowDownLeft, ArrowUpRight } from "lucide-react";
+import { Area, AreaChart, ResponsiveContainer } from "recharts";
 import { cn } from "@/lib/utils";
 
 const latencyData = [
@@ -81,14 +81,20 @@ function StatCard({
 export function StatsOverview() {
   const { data: stats, isLoading } = useStats();
   
+  const totalMessages = (stats?.totalReceived || 0) + (stats?.totalSent || 0);
+  const todayMessages = (stats?.todayReceived || 0) + (stats?.todaySent || 0);
+  const responseRate = stats?.totalReceived 
+    ? Math.round((stats.totalSent / stats.totalReceived) * 100) 
+    : 100;
+  
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6" data-testid="stats-overview">
       <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-0">
         <StatCard 
-          icon={MessageSquare} 
-          label="Total Messages" 
-          value={stats?.totalMessages?.toLocaleString() || "0"} 
-          trend="12%" 
+          icon={ArrowDownLeft} 
+          label="Messages Received" 
+          value={stats?.totalReceived?.toLocaleString() || "0"} 
+          trend={`${stats?.todayReceived || 0} today`}
           trendUp={true}
           colorClass="text-blue-400"
           gradientFrom="bg-blue-500"
@@ -99,10 +105,10 @@ export function StatsOverview() {
       
       <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100">
         <StatCard 
-          icon={Users} 
-          label="Active Users" 
-          value={stats?.activeUsers || 0} 
-          trend="5%" 
+          icon={ArrowUpRight} 
+          label="Messages Sent" 
+          value={stats?.totalSent?.toLocaleString() || "0"} 
+          trend={`${stats?.todaySent || 0} today`}
           trendUp={true}
           colorClass="text-purple-400"
           gradientFrom="bg-purple-500"
@@ -115,9 +121,7 @@ export function StatsOverview() {
         <StatCard 
           icon={Zap} 
           label="Response Rate" 
-          value={`${stats?.responseRate || 0}%`} 
-          trend="0.2%" 
-          trendUp={false}
+          value={`${responseRate}%`} 
           colorClass="text-amber-400"
           gradientFrom="bg-amber-500"
           gradientTo="bg-orange-500"
@@ -131,13 +135,13 @@ export function StatsOverview() {
                 <div className="p-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
                    <Activity className="h-4 w-4" />
                 </div>
-                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Latency</span>
+                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Total</span>
             </div>
             {isLoading ? (
               <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
             ) : (
               <span className="text-lg font-bold font-mono text-emerald-400 shadow-[0_0_15px_-5px_rgba(52,211,153,0.5)]">
-                {stats?.avgResponseTime || "0.0s"}
+                {totalMessages.toLocaleString()}
               </span>
             )}
         </div>

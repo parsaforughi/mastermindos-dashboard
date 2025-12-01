@@ -1,7 +1,6 @@
-import { useConversations, useCreateConversation } from "@/hooks/useExplainerApi";
-import { Circle, Clock, Search, Plus, Loader2 } from "lucide-react";
+import { useConversations } from "@/hooks/useExplainerApi";
+import { Circle, Clock, Search, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 
@@ -13,48 +12,22 @@ export function InboxList({
   onSelect: (id: string) => void 
 }) {
   const { data: conversations, isLoading } = useConversations();
-  const createConversation = useCreateConversation();
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredConversations = conversations?.filter(conv => 
-    conv.userName.toLowerCase().includes(searchQuery.toLowerCase())
+    conv.username.toLowerCase().includes(searchQuery.toLowerCase())
   ) || [];
 
-  const newCount = conversations?.filter(c => c.unreadCount > 0).length || 0;
-
-  const handleNewConversation = () => {
-    const name = `User ${Math.floor(Math.random() * 1000)}`;
-    createConversation.mutate(name, {
-      onSuccess: (newConv) => {
-        onSelect(newConv.id);
-      }
-    });
-  };
+  const totalMessages = conversations?.reduce((sum, c) => sum + c.inboundCount + c.outboundCount, 0) || 0;
 
   return (
     <div className="glass-panel rounded-2xl h-full flex flex-col overflow-hidden" data-testid="inbox-list">
       <div className="p-4 border-b border-white/5 space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="font-display font-semibold">Inbox</h3>
-          <div className="flex items-center gap-2">
-            <span className="text-xs px-2 py-0.5 rounded-full bg-primary/20 text-primary font-medium" data-testid="inbox-new-count">
-              {newCount} new
-            </span>
-            <Button 
-              size="icon" 
-              variant="ghost" 
-              className="h-6 w-6"
-              onClick={handleNewConversation}
-              disabled={createConversation.isPending}
-              data-testid="button-new-conversation"
-            >
-              {createConversation.isPending ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Plus className="h-4 w-4" />
-              )}
-            </Button>
-          </div>
+          <span className="text-xs px-2 py-0.5 rounded-full bg-primary/20 text-primary font-medium" data-testid="inbox-total-messages">
+            {totalMessages} msgs
+          </span>
         </div>
         
         <div className="relative">
@@ -100,30 +73,28 @@ export function InboxList({
                   "h-10 w-10 rounded-full flex items-center justify-center text-sm font-bold border border-white/10",
                   activeId === conv.id ? "bg-primary text-white shadow-lg shadow-primary/40" : "bg-white/5 text-muted-foreground"
                 )}>
-                  {conv.userName.charAt(0)}
+                  {conv.username.charAt(0).toUpperCase()}
                 </div>
-                {conv.status === 'active' && (
-                  <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 bg-green-500 border-2 border-black rounded-full" />
-                )}
+                <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 bg-green-500 border-2 border-black rounded-full" />
               </div>
 
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between mb-0.5">
                   <span className={cn("font-medium text-sm truncate", activeId === conv.id ? "text-white" : "text-foreground")}>
-                    {conv.userName}
+                    @{conv.username}
                   </span>
                   <span className="text-[10px] text-muted-foreground whitespace-nowrap">
-                    {new Date(conv.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    {new Date(conv.lastMessageAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </span>
                 </div>
                 <p className={cn("text-xs truncate", activeId === conv.id ? "text-primary-foreground/80" : "text-muted-foreground")}>
-                  {conv.status === 'active' ? 'Active conversation' : 'Idle'}
+                  {conv.inboundCount} in · {conv.outboundCount} out
                 </p>
               </div>
 
-              {conv.unreadCount > 0 && (
+              {conv.inboundCount > 0 && (
                 <div className="h-5 min-w-[20px] px-1.5 rounded-full bg-primary flex items-center justify-center text-[10px] font-bold text-white shadow-lg shadow-primary/40">
-                  {conv.unreadCount}
+                  {conv.inboundCount}
                 </div>
               )}
             </button>

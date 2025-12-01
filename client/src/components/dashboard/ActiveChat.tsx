@@ -1,5 +1,5 @@
 import { useMessages, useSendMessage } from "@/hooks/useExplainerApi";
-import { Send, Paperclip, MoreVertical, Smile, Bot, User, Sparkles, Loader2 } from "lucide-react";
+import { Send, Paperclip, MoreVertical, Bot, User, Sparkles, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -33,7 +33,6 @@ export function ActiveChat({ conversationId }: { conversationId: string }) {
   const { data: messages, isLoading } = useMessages(conversationId);
   const sendMessage = useSendMessage();
   const [inputText, setInputText] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -43,29 +42,19 @@ export function ActiveChat({ conversationId }: { conversationId: string }) {
         behavior: 'smooth'
       });
     }
-  }, [messages, conversationId, isTyping]);
+  }, [messages, conversationId]);
 
   const handleSend = async () => {
     if (!inputText.trim() || !conversationId) return;
     
     const content = inputText;
     setInputText("");
-    setIsTyping(true);
 
     await sendMessage.mutateAsync({
       conversationId,
-      sender: 'user',
       content,
+      from: 'bot',
     });
-
-    setTimeout(async () => {
-      await sendMessage.mutateAsync({
-        conversationId,
-        sender: 'bot',
-        content: "I've analyzed your request. Based on the current parameters, I recommend proceeding with the enterprise integration tier. This will maximize your throughput efficiency by approximately 45%.",
-      });
-      setIsTyping(false);
-    }, 1500);
   };
 
   return (
@@ -81,7 +70,7 @@ export function ActiveChat({ conversationId }: { conversationId: string }) {
                       Live Session 
                       <span className="px-1.5 py-0.5 rounded bg-primary/10 text-[10px] text-primary border border-primary/20 font-mono">ACTIVE</span>
                     </h3>
-                    <p className="text-xs text-muted-foreground font-mono opacity-70">ID: {conversationId || 'N/A'}</p>
+                    <p className="text-xs text-muted-foreground font-mono opacity-70">@{conversationId || 'N/A'}</p>
                 </div>
             </div>
             <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-white/5 rounded-full transition-colors" data-testid="button-chat-menu">
@@ -104,7 +93,7 @@ export function ActiveChat({ conversationId }: { conversationId: string }) {
               </div>
             ) : (
               messages?.map((msg, idx) => {
-                const isBot = msg.sender === 'bot';
+                const isBot = msg.from === 'bot';
                 const isLastBotMessage = isBot && idx === (messages?.length || 0) - 1;
                 
                 return (
@@ -127,33 +116,20 @@ export function ActiveChat({ conversationId }: { conversationId: string }) {
                             )}>
                                 {isLastBotMessage ? (
                                   <div className="relative">
-                                    <TypewriterText text={msg.content} />
+                                    <TypewriterText text={msg.text} />
                                     <span className="inline-block w-1.5 h-4 ml-0.5 bg-primary animate-pulse align-middle" />
                                   </div>
                                 ) : (
-                                  msg.content
+                                  msg.text
                                 )}
                             </div>
                             <span className="text-[10px] text-muted-foreground/60 font-mono block px-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {isBot ? 'AI Model v2.4' : 'User Client'}
+                                {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {isBot ? 'Bot' : 'User'}
                             </span>
                         </div>
                     </div>
                 )
               })
-            )}
-            
-            {isTyping && (
-              <div className="flex gap-4 mr-auto animate-in fade-in duration-300">
-                 <div className="h-9 w-9 rounded-xl bg-primary/10 border border-primary/30 text-primary flex items-center justify-center shrink-0">
-                    <Bot className="h-5 w-5" />
-                 </div>
-                 <div className="p-4 rounded-2xl rounded-tl-none bg-white/[0.03] border border-white/10 flex items-center gap-1">
-                    <div className="h-1.5 w-1.5 bg-primary rounded-full animate-bounce [animation-delay:-0.3s]" />
-                    <div className="h-1.5 w-1.5 bg-primary rounded-full animate-bounce [animation-delay:-0.15s]" />
-                    <div className="h-1.5 w-1.5 bg-primary rounded-full animate-bounce" />
-                 </div>
-              </div>
             )}
         </div>
 
@@ -168,7 +144,7 @@ export function ActiveChat({ conversationId }: { conversationId: string }) {
                     onChange={(e) => setInputText(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleSend()}
                     className="border-0 bg-transparent focus-visible:ring-0 h-10 text-sm placeholder:text-muted-foreground/40 shadow-none font-medium"
-                    placeholder="Enter command or message..."
+                    placeholder="Send bot response..."
                     disabled={!conversationId || sendMessage.isPending}
                     data-testid="input-message"
                 />
