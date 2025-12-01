@@ -128,7 +128,7 @@ export function useLiveLogs() {
   return { logs, connected };
 }
 
-export { 
+export type { 
   ExplainerConversation, 
   ExplainerMessage, 
   ExplainerStats, 

@@ -6,70 +6,27 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Bot, Terminal, Fingerprint, Save, RefreshCw, Loader2 } from "lucide-react";
-import { useState, useEffect } from "react";
-import { useSession, useUpdateSession, useBotControl, useSeedData } from "@/hooks/useExplainerApi";
+import { Bot, Terminal, Fingerprint, Save, RefreshCw, Loader2, Wifi } from "lucide-react";
+import { useState } from "react";
+import { useHealth, useStats } from "@/hooks/useExplainerApi";
 import { useToast } from "@/hooks/use-toast";
 
 export default function ExplainerSettings() {
-  const { data: session, isLoading } = useSession();
-  const updateSession = useUpdateSession();
-  const botControl = useBotControl();
-  const seedData = useSeedData();
+  const { data: health, isLoading: healthLoading } = useHealth();
+  const { data: stats, isLoading: statsLoading } = useStats();
   const { toast } = useToast();
 
   const [model, setModel] = useState("gpt-4o");
   const [temperature, setTemperature] = useState("0.7");
-  const [systemPrompt, setSystemPrompt] = useState("");
+  const [systemPrompt, setSystemPrompt] = useState("You are Luxirana's helpful assistant. Help customers learn about our natural skincare products.");
 
-  useEffect(() => {
-    if (session) {
-      setModel(session.model || "gpt-4o");
-      setTemperature(session.temperature || "0.7");
-      setSystemPrompt(session.systemPrompt || "");
-    }
-  }, [session]);
+  const isLoading = healthLoading || statsLoading;
+  const isConnected = health?.status === 'ok';
 
   const handleSave = () => {
-    updateSession.mutate(
-      { model, temperature, systemPrompt },
-      {
-        onSuccess: () => {
-          toast({
-            title: "Settings Saved",
-            description: "Bot configuration has been updated successfully.",
-          });
-        },
-        onError: () => {
-          toast({
-            title: "Error",
-            description: "Failed to save settings. Please try again.",
-            variant: "destructive",
-          });
-        },
-      }
-    );
-  };
-
-  const handleReset = () => {
-    botControl.mutate("reset", {
-      onSuccess: () => {
-        toast({
-          title: "Session Reset",
-          description: "Bot session has been reset successfully.",
-        });
-      },
-    });
-  };
-
-  const handleSeedData = () => {
-    seedData.mutate(undefined, {
-      onSuccess: () => {
-        toast({
-          title: "Demo Data Seeded",
-          description: "Sample conversations and logs have been added.",
-        });
-      },
+    toast({
+      title: "Settings Saved",
+      description: "Configuration has been updated locally.",
     });
   };
 
@@ -93,22 +50,11 @@ export default function ExplainerSettings() {
               </div>
               <div className="flex gap-2">
                 <Button 
-                  variant="outline" 
-                  className="gap-2 border-white/10"
-                  onClick={handleSeedData}
-                  disabled={seedData.isPending}
-                  data-testid="button-seed-data"
-                >
-                  {seedData.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
-                  Seed Demo Data
-                </Button>
-                <Button 
                   className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
                   onClick={handleSave}
-                  disabled={updateSession.isPending}
                   data-testid="button-save-settings"
                 >
-                  {updateSession.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                  <Save className="w-4 h-4" />
                   Save Changes
                 </Button>
               </div>
@@ -203,73 +149,45 @@ export default function ExplainerSettings() {
 
                 <div className="space-y-6">
                   
-                  <Card className="p-6 border-white/10 bg-white/5 backdrop-blur-xl" data-testid="card-session-control">
+                  <Card className="p-6 border-white/10 bg-white/5 backdrop-blur-xl" data-testid="card-connection-status">
                     <div className="flex items-center gap-3 mb-6">
-                      <div className="p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-500">
-                        <Fingerprint className="w-5 h-5" />
+                      <div className={`p-2 rounded-lg border ${isConnected ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500' : 'bg-red-500/10 border-red-500/20 text-red-500'}`}>
+                        <Wifi className="w-5 h-5" />
                       </div>
                       <div>
-                        <h3 className="text-lg font-semibold text-white">Session Control</h3>
-                        <p className="text-xs text-muted-foreground">Manage active session context</p>
+                        <h3 className="text-lg font-semibold text-white">API Connection</h3>
+                        <p className="text-xs text-muted-foreground">External bot service status</p>
                       </div>
                     </div>
 
                     <div className="space-y-4">
-                      <div className="space-y-2">
-                        <Label className="text-xs uppercase tracking-wider text-muted-foreground">Current Session ID</Label>
-                        <div className="flex gap-2">
-                          <Input 
-                            value={session?.id || ""}
-                            readOnly
-                            className="bg-black/20 border-white/10 font-mono text-sm text-yellow-400"
-                            data-testid="input-session-id"
-                          />
-                          <Button 
-                            size="icon" 
-                            variant="outline" 
-                            className="shrink-0 border-white/10 hover:bg-white/5" 
-                            title="Generate New Session"
-                            onClick={handleReset}
-                            disabled={botControl.isPending}
-                            data-testid="button-regenerate-session"
-                          >
-                            {botControl.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
-                          </Button>
-                        </div>
-                      </div>
-
-                      <div className="pt-4 border-t border-white/5 space-y-3">
-                        <div className="flex justify-between items-center text-sm">
-                          <span className="text-muted-foreground">Model</span>
-                          <span className="text-white font-mono" data-testid="text-current-model">{session?.model || 'N/A'}</span>
-                        </div>
-                        <div className="flex justify-between items-center text-sm">
-                          <span className="text-muted-foreground">Last Active</span>
-                          <span className="text-white font-mono" data-testid="text-last-active">
-                            {session?.updatedAt ? new Date(session.updatedAt).toLocaleTimeString() : 'N/A'}
-                          </span>
-                        </div>
+                      <div className="pt-2 space-y-3">
                         <div className="flex justify-between items-center text-sm">
                           <span className="text-muted-foreground">Status</span>
                           <Badge 
-                            className={session?.active ? "bg-green-500/20 text-green-400 border-0 hover:bg-green-500/30" : "bg-red-500/20 text-red-400 border-0"}
-                            data-testid="badge-session-status"
+                            className={isConnected ? "bg-green-500/20 text-green-400 border-0 hover:bg-green-500/30" : "bg-red-500/20 text-red-400 border-0"}
+                            data-testid="badge-connection-status"
                           >
-                            {session?.active ? 'Active' : 'Inactive'}
+                            {isConnected ? 'Connected' : 'Disconnected'}
                           </Badge>
                         </div>
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="text-muted-foreground">Conversations</span>
+                          <span className="text-white font-mono" data-testid="text-conversations">{health?.conversations || 0}</span>
+                        </div>
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="text-muted-foreground">Live Clients</span>
+                          <span className="text-white font-mono" data-testid="text-live-clients">{health?.liveClients || 0}</span>
+                        </div>
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="text-muted-foreground">Messages Received</span>
+                          <span className="text-white font-mono">{stats?.totalReceived || 0}</span>
+                        </div>
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="text-muted-foreground">Messages Sent</span>
+                          <span className="text-white font-mono">{stats?.totalSent || 0}</span>
+                        </div>
                       </div>
-
-                      <Button 
-                        variant="destructive" 
-                        className="w-full mt-2 bg-red-500/10 text-red-500 hover:bg-red-500/20 border border-red-500/20"
-                        onClick={handleReset}
-                        disabled={botControl.isPending}
-                        data-testid="button-clear-session"
-                      >
-                        {botControl.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-                        Clear Session Context
-                      </Button>
                     </div>
                   </Card>
 
@@ -278,14 +196,14 @@ export default function ExplainerSettings() {
                     <div className="space-y-4">
                       <div className="space-y-2">
                         <Label className="text-xs text-muted-foreground">Audience Level</Label>
-                        <Select defaultValue="student">
+                        <Select defaultValue="customer">
                           <SelectTrigger className="bg-black/20 border-white/10 h-9" data-testid="select-audience-level">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="academic">Academic</SelectItem>
+                            <SelectItem value="customer">Customer</SelectItem>
                             <SelectItem value="professional">Professional</SelectItem>
-                            <SelectItem value="student">Student</SelectItem>
+                            <SelectItem value="expert">Expert</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -293,11 +211,11 @@ export default function ExplainerSettings() {
                       <div className="space-y-3 pt-2">
                         <label className="flex items-center gap-2 cursor-pointer group">
                           <input type="checkbox" defaultChecked className="w-4 h-4 rounded border-white/20 bg-white/5 checked:bg-primary checked:border-primary transition-colors" data-testid="checkbox-include-examples" />
-                          <span className="text-sm text-muted-foreground group-hover:text-white transition-colors">Include Examples</span>
+                          <span className="text-sm text-muted-foreground group-hover:text-white transition-colors">Include Product Examples</span>
                         </label>
                         <label className="flex items-center gap-2 cursor-pointer group">
                           <input type="checkbox" defaultChecked className="w-4 h-4 rounded border-white/20 bg-white/5 checked:bg-primary checked:border-primary transition-colors" data-testid="checkbox-add-references" />
-                          <span className="text-sm text-muted-foreground group-hover:text-white transition-colors">Add References</span>
+                          <span className="text-sm text-muted-foreground group-hover:text-white transition-colors">Add Product Links</span>
                         </label>
                       </div>
                     </div>
