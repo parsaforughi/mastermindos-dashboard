@@ -206,12 +206,12 @@ export default function ProjectsOverview() {
         </div>
 
         {/* The Core System */}
-        <div className="relative w-[800px] h-[800px] flex items-center justify-center mt-32">
+        <div className="relative w-[1000px] h-[1000px] flex items-center justify-center mt-32">
            
            {/* Orbital Rings */}
            <div className="absolute inset-0 rounded-full border border-white/[0.03] animate-orbit-reverse" style={{ animationDuration: '120s' }} />
-           <div className="absolute inset-[100px] rounded-full border border-white/[0.05] animate-orbit" style={{ animationDuration: '80s' }} />
-           <div className="absolute inset-[200px] rounded-full border border-dashed border-white/[0.08] animate-orbit-reverse" style={{ animationDuration: '60s' }} />
+           <div className="absolute inset-[120px] rounded-full border border-white/[0.05] animate-orbit" style={{ animationDuration: '80s' }} />
+           <div className="absolute inset-[240px] rounded-full border border-dashed border-white/[0.08] animate-orbit-reverse" style={{ animationDuration: '60s' }} />
            
            {/* Central Sun/Core */}
            <div className="relative z-10 animate-pulse-core group cursor-default">
@@ -237,12 +237,13 @@ export default function ProjectsOverview() {
                   key={project.id} 
                   project={project} 
                   index={i} 
-                  total={projects.length} 
+                  total={projects.length}
+                  radius={350}
                 />
               ))}
               
               {/* Add New Node Button (As a satellite) */}
-              <div className="absolute top-1/2 left-1/2 w-0 h-0 flex items-center justify-center" style={{ transform: 'translate(0px, 280px)' }}>
+              <div className="absolute top-1/2 left-1/2 w-0 h-0 flex items-center justify-center" style={{ transform: 'translate(0px, 350px)' }}>
                  <button className="relative group animate-float" style={{ animationDelay: '2s' }}>
                     <div className="w-16 h-16 rounded-full bg-black/50 border border-dashed border-white/20 hover:border-primary hover:bg-primary/10 transition-all duration-300 flex items-center justify-center backdrop-blur-sm">
                        <Plus className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors" />
