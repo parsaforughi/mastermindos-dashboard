@@ -12,7 +12,11 @@ import {
   Send,
   Smartphone,
   Brain,
-  Crown
+  Crown,
+  TrendingUp,
+  Target,
+  Network,
+  Snowflake
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link, useLocation, useRoute } from "wouter";
@@ -35,6 +39,58 @@ const PROJECT_NAMES: Record<string, string> = {
   "vip-passport": "VIP Passport"
 };
 
+const getNavItemsForProject = (botId: string) => {
+  const baseItems = [
+    { icon: LayoutDashboard, label: "Overview", href: `/bot/${botId}` },
+  ];
+
+  const projectNavs: Record<string, any[]> = {
+    "explainer": [
+      { icon: LayoutDashboard, label: "Overview", href: `/bot/${botId}` },
+      { icon: Brain, label: "Learning Modules", href: `/bot/${botId}/conversations` },
+      { icon: MessageSquare, label: "Q&A Session", href: `/bot/${botId}/analytics` },
+      { icon: Database, label: "Knowledge Base", href: `/bot/${botId}/knowledge` },
+      { icon: Cpu, label: "AI Settings", href: `/bot/${botId}/settings` },
+    ],
+    "auto-dm": [
+      { icon: LayoutDashboard, label: "Overview", href: `/bot/${botId}` },
+      { icon: Send, label: "Campaigns", href: `/bot/${botId}/conversations` },
+      { icon: Activity, label: "Engagement", href: `/bot/${botId}/analytics` },
+      { icon: Target, label: "Audience", href: `/bot/${botId}/knowledge` },
+      { icon: Cpu, label: "Campaign Settings", href: `/bot/${botId}/settings` },
+    ],
+    "viral-bot": [
+      { icon: LayoutDashboard, label: "Overview", href: `/bot/${botId}` },
+      { icon: TrendingUp, label: "Content Tracking", href: `/bot/${botId}/conversations` },
+      { icon: Activity, label: "Analytics", href: `/bot/${botId}/analytics` },
+      { icon: Network, label: "Network Map", href: `/bot/${botId}/knowledge` },
+      { icon: Cpu, label: "Bot Settings", href: `/bot/${botId}/settings` },
+    ],
+    "iceball-bot": [
+      { icon: LayoutDashboard, label: "Overview", href: `/bot/${botId}` },
+      { icon: Activity, label: "Analytics", href: `/bot/${botId}/conversations` },
+      { icon: Snowflake, label: "Image Processing", href: `/bot/${botId}/analytics` },
+      { icon: Database, label: "Data Models", href: `/bot/${botId}/knowledge` },
+      { icon: Cpu, label: "System Config", href: `/bot/${botId}/settings` },
+    ],
+    "vip-passport": [
+      { icon: LayoutDashboard, label: "Overview", href: `/bot/${botId}` },
+      { icon: Target, label: "Missions", href: `/bot/${botId}/conversations` },
+      { icon: Crown, label: "Rewards", href: `/bot/${botId}/analytics` },
+      { icon: MessageSquare, label: "User Engagement", href: `/bot/${botId}/knowledge` },
+      { icon: Cpu, label: "Platform Settings", href: `/bot/${botId}/settings` },
+    ],
+  };
+
+  return projectNavs[botId] || [
+    { icon: LayoutDashboard, label: "Overview", href: `/bot/${botId}` },
+    { icon: MessageSquare, label: "Conversations", href: `/bot/${botId}/conversations` },
+    { icon: Activity, label: "Analytics", href: `/bot/${botId}/analytics` },
+    { icon: Database, label: "Knowledge Base", href: `/bot/${botId}/knowledge` },
+    { icon: Cpu, label: "Bot Settings", href: `/bot/${botId}/settings` },
+  ];
+};
+
 export function Sidebar() {
   const [location] = useLocation();
   // Extract the botId from the path
@@ -51,13 +107,7 @@ export function Sidebar() {
   const ProjectIcon = PROJECT_ICONS[botId] || Zap;
   const projectName = PROJECT_NAMES[botId] || "Unknown Bot";
 
-  const navItems = [
-    { icon: LayoutDashboard, label: "Overview", href: `/bot/${botId}` },
-    { icon: MessageSquare, label: "Conversations", href: `/bot/${botId}/conversations` },
-    { icon: Activity, label: "Analytics", href: `/bot/${botId}/analytics` },
-    { icon: Database, label: "Knowledge Base", href: `/bot/${botId}/knowledge` },
-    { icon: Cpu, label: "Bot Settings", href: `/bot/${botId}/settings` },
-  ];
+  const navItems = getNavItemsForProject(botId);
 
   return (
     <div className="h-full w-64 flex flex-col border-r border-white/10 bg-sidebar/50 backdrop-blur-xl z-20 transition-all duration-300">
