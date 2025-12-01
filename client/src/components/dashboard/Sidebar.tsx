@@ -39,55 +39,51 @@ const PROJECT_NAMES: Record<string, string> = {
   "vip-passport": "VIP Passport"
 };
 
-const getNavItemsForProject = (botId: string) => {
-  const baseItems = [
-    { icon: LayoutDashboard, label: "Overview", href: `/bot/${botId}` },
-  ];
-
+const getNavItemsForProject = (botId: string, basePath: string) => {
   const projectNavs: Record<string, any[]> = {
     "explainer": [
-      { icon: LayoutDashboard, label: "Overview", href: `/bot/${botId}` },
-      { icon: Brain, label: "Learning Modules", href: `/bot/${botId}/conversations` },
-      { icon: MessageSquare, label: "Q&A Session", href: `/bot/${botId}/analytics` },
-      { icon: Database, label: "Knowledge Base", href: `/bot/${botId}/knowledge` },
-      { icon: Cpu, label: "AI Settings", href: `/bot/${botId}/settings` },
+      { icon: LayoutDashboard, label: "Overview", href: `${basePath}` },
+      { icon: Brain, label: "Learning Modules", href: `${basePath}/conversations` },
+      { icon: MessageSquare, label: "Q&A Session", href: `${basePath}/analytics` },
+      { icon: Database, label: "Knowledge Base", href: `${basePath}/knowledge` },
+      { icon: Cpu, label: "AI Settings", href: `${basePath}/settings` },
     ],
     "auto-dm": [
-      { icon: LayoutDashboard, label: "Overview", href: `/bot/${botId}` },
-      { icon: Send, label: "Campaigns", href: `/bot/${botId}/conversations` },
-      { icon: Activity, label: "Engagement", href: `/bot/${botId}/analytics` },
-      { icon: Target, label: "Audience", href: `/bot/${botId}/knowledge` },
-      { icon: Cpu, label: "Campaign Settings", href: `/bot/${botId}/settings` },
+      { icon: LayoutDashboard, label: "Overview", href: `${basePath}` },
+      { icon: Send, label: "Campaigns", href: `${basePath}/conversations` },
+      { icon: Activity, label: "Engagement", href: `${basePath}/analytics` },
+      { icon: Target, label: "Audience", href: `${basePath}/knowledge` },
+      { icon: Cpu, label: "Campaign Settings", href: `${basePath}/settings` },
     ],
     "viral-bot": [
-      { icon: LayoutDashboard, label: "Overview", href: `/bot/${botId}` },
-      { icon: TrendingUp, label: "Content Tracking", href: `/bot/${botId}/conversations` },
-      { icon: Activity, label: "Analytics", href: `/bot/${botId}/analytics` },
-      { icon: Network, label: "Network Map", href: `/bot/${botId}/knowledge` },
-      { icon: Cpu, label: "Bot Settings", href: `/bot/${botId}/settings` },
+      { icon: LayoutDashboard, label: "Overview", href: `${basePath}` },
+      { icon: TrendingUp, label: "Content Tracking", href: `${basePath}/conversations` },
+      { icon: Activity, label: "Analytics", href: `${basePath}/analytics` },
+      { icon: Network, label: "Network Map", href: `${basePath}/knowledge` },
+      { icon: Cpu, label: "Bot Settings", href: `${basePath}/settings` },
     ],
     "iceball-bot": [
-      { icon: LayoutDashboard, label: "Overview", href: `/bot/${botId}` },
-      { icon: Activity, label: "Analytics", href: `/bot/${botId}/conversations` },
-      { icon: Snowflake, label: "Image Processing", href: `/bot/${botId}/analytics` },
-      { icon: Database, label: "Data Models", href: `/bot/${botId}/knowledge` },
-      { icon: Cpu, label: "System Config", href: `/bot/${botId}/settings` },
+      { icon: LayoutDashboard, label: "Overview", href: `${basePath}` },
+      { icon: Activity, label: "Analytics", href: `${basePath}/conversations` },
+      { icon: Snowflake, label: "Image Processing", href: `${basePath}/analytics` },
+      { icon: Database, label: "Data Models", href: `${basePath}/knowledge` },
+      { icon: Cpu, label: "System Config", href: `${basePath}/settings` },
     ],
     "vip-passport": [
-      { icon: LayoutDashboard, label: "Overview", href: `/bot/${botId}` },
-      { icon: Target, label: "Missions", href: `/bot/${botId}/conversations` },
-      { icon: Crown, label: "Rewards", href: `/bot/${botId}/analytics` },
-      { icon: MessageSquare, label: "User Engagement", href: `/bot/${botId}/knowledge` },
-      { icon: Cpu, label: "Platform Settings", href: `/bot/${botId}/settings` },
+      { icon: LayoutDashboard, label: "Overview", href: `${basePath}` },
+      { icon: Target, label: "Missions", href: `${basePath}/conversations` },
+      { icon: Crown, label: "Rewards", href: `${basePath}/analytics` },
+      { icon: MessageSquare, label: "User Engagement", href: `${basePath}/knowledge` },
+      { icon: Cpu, label: "Platform Settings", href: `${basePath}/settings` },
     ],
   };
 
   return projectNavs[botId] || [
-    { icon: LayoutDashboard, label: "Overview", href: `/bot/${botId}` },
-    { icon: MessageSquare, label: "Conversations", href: `/bot/${botId}/conversations` },
-    { icon: Activity, label: "Analytics", href: `/bot/${botId}/analytics` },
-    { icon: Database, label: "Knowledge Base", href: `/bot/${botId}/knowledge` },
-    { icon: Cpu, label: "Bot Settings", href: `/bot/${botId}/settings` },
+    { icon: LayoutDashboard, label: "Overview", href: `${basePath}` },
+    { icon: MessageSquare, label: "Conversations", href: `${basePath}/conversations` },
+    { icon: Activity, label: "Analytics", href: `${basePath}/analytics` },
+    { icon: Database, label: "Knowledge Base", href: `${basePath}/knowledge` },
+    { icon: Cpu, label: "Bot Settings", href: `${basePath}/settings` },
   ];
 };
 
@@ -95,19 +91,24 @@ export function Sidebar() {
   const [location] = useLocation();
   // Extract the botId from the path
   // Path format: /bot/:id/page or /dashboard/:id
-  const pathParts = location.split('/');
+  const pathParts = location.split('/').filter(Boolean);
   let botId = 'explainer'; // Default
+  let basePath = '/bot/explainer';
+  let isDashboard = false;
   
-  if (pathParts[1] === 'bot') {
-    botId = pathParts[2];
-  } else if (pathParts[1] === 'dashboard') {
-    botId = pathParts[2];
+  if (pathParts[0] === 'bot') {
+    botId = pathParts[1];
+    basePath = `/bot/${botId}`;
+  } else if (pathParts[0] === 'dashboard') {
+    botId = pathParts[1];
+    basePath = `/dashboard/${botId}`;
+    isDashboard = true;
   }
 
   const ProjectIcon = PROJECT_ICONS[botId] || Zap;
   const projectName = PROJECT_NAMES[botId] || "Unknown Bot";
 
-  const navItems = getNavItemsForProject(botId);
+  const navItems = getNavItemsForProject(botId, basePath);
 
   return (
     <div className="h-full w-64 flex flex-col border-r border-white/10 bg-sidebar/50 backdrop-blur-xl z-20 transition-all duration-300">
@@ -140,7 +141,7 @@ export function Sidebar() {
           <span className="text-[10px] opacity-50 font-mono">v2.4</span>
         </div>
         {navItems.map((item) => {
-          const isActive = location === item.href || (item.href !== `/bot/${botId}` && location.startsWith(item.href));
+          const isActive = location === item.href || (item.href !== basePath && location.startsWith(item.href));
           return (
             <Link key={item.label} href={item.href}>
               <button

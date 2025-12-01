@@ -1,0 +1,134 @@
+
+
+PROMPT FOR REPLIT CODE AGENT — FIX SIDEBAR & MODULE CONTROL FOR ALL PROJECTS
+
+You must fix the sidebar navigation (MODULE CONTROL) for ALL bot dashboards inside the MastermindOSDashboard project.
+
+🔥 THE PROBLEM
+
+All dashboards (Viral Bot, Iceball Bot, VIP Passport) are incorrectly using the Explainer Bot sidebar because ModuleShell and sidebar components still use:
+	•	hard-coded routes
+	•	hard-coded explainer pages
+	•	shared navigation config that is not dynamic
+
+This causes pages like Content Tracking, Analytics, Network Map, etc. to load the Explainer Bot modules even when we are inside Viral Bot or Iceball Bot dashboards.
+
+🎯 THE REQUIRED FIX (GLOBAL)
+
+1) Make ModuleShell and sidebar fully dynamic
+
+ModuleShell must accept:
+	•	title
+	•	basePath
+	•	sections array (each section = { id, label })
+	•	optionally icon
+
+2) Remove any hard-coded Explainer references
+
+Delete or replace:
+	•	/bot/explainer/...
+	•	static explainer pages
+	•	static explainer section definitions
+from inside ModuleShell, sidebar, and any shared components.
+
+3) Define sidebar sections per project
+
+Each bot must have its own navigation config, passed as props.
+
+Use this configuration:
+
+⸻
+
+✔ Viral Bot
+
+basePath: /dashboard/viral-bot
+sections:
+	•	overview
+	•	analytics
+	•	content-tracking
+	•	network-map
+	•	bot-settings
+
+⸻
+
+✔ Iceball Bot
+
+basePath: /dashboard/iceball-bot
+sections:
+	•	overview
+	•	analytics
+	•	input-log
+	•	output-log
+	•	error-monitor
+	•	bot-settings
+
+⸻
+
+✔ VIP Passport
+
+basePath: /dashboard/vip-passport
+sections:
+	•	overview
+	•	missions
+	•	users
+	•	notifications
+	•	system-health
+
+⸻
+
+✔ Explainer Bot
+
+Leave it as is.
+Do NOT modify Explainer Bot’s layout.
+Only isolate it so it does not override other bots.
+
+⸻
+
+4) Update all bot pages to pass correct configuration
+
+Example:
+
+<ModuleShell
+  title="Viral Bot"
+  basePath="/dashboard/viral-bot"
+  sections={[
+    { id: "overview", label: "Overview" },
+    { id: "analytics", label: "Analytics" },
+    { id: "content-tracking", label: "Content Tracking" },
+    { id: "network-map", label: "Network Map" },
+    { id: "bot-settings", label: "Bot Settings" }
+  ]}
+>
+  {children}
+</ModuleShell>
+
+This structure must be used for ALL bots.
+
+⸻
+
+5) Fix routing
+
+Each section must generate links using:
+
+`${basePath}/${id}`
+
+NOT hard-coded explainer URLs.
+
+⸻
+
+6) DO NOT change anything else
+
+No styling changes.
+No modification to dashboards other than navigation correction.
+No renaming of folders or pages.
+Just isolate navigation for each bot and make ModuleShell dynamic.
+
+⸻
+
+✔ Expected Result
+	•	Viral Bot pages load Viral Bot content (no Explainer contamination).
+	•	Iceball Bot pages load Iceball content.
+	•	VIP Passport loads VIP components.
+	•	Explainer stays untouched.
+	•	Sidebar switches correctly for each bot.
+	•	No broken routes.
