@@ -90,8 +90,8 @@ const projects = [
 ];
 
 function OrbitalNode({ project, index, total, radius = 280 }: { project: any, index: number, total: number, radius?: number }) {
-  // Calculate position on the circle with 45 degree offset to avoid cardinal directions
-  const angle = (index / total) * 2 * Math.PI + (Math.PI / 4);
+  // Calculate position on the circle with 90 degree offset to avoid cardinal directions overlapping with title
+  const angle = (index / total) * 2 * Math.PI + (Math.PI / 2);
   const x = Math.cos(angle) * radius;
   const y = Math.sin(angle) * radius;
 
@@ -227,12 +227,12 @@ export default function ProjectsOverview() {
                   project={project} 
                   index={i} 
                   total={projects.length}
-                  radius={340}
+                  radius={300}
                 />
               ))}
               
               {/* Add New Node Button (As a satellite) */}
-              <div className="absolute top-1/2 left-1/2 w-0 h-0 flex items-center justify-center" style={{ transform: 'translate(0px, 340px)' }}>
+              <div className="absolute top-1/2 left-1/2 w-0 h-0 flex items-center justify-center" style={{ transform: 'translate(0px, 300px)' }}>
                  <button className="relative group animate-float" style={{ animationDelay: '2s' }}>
                     <div className="w-16 h-16 rounded-full bg-black/50 border border-dashed border-white/20 hover:border-primary hover:bg-primary/10 transition-all duration-300 flex items-center justify-center backdrop-blur-sm">
                        <Plus className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors" />
