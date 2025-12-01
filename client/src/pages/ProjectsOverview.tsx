@@ -66,9 +66,11 @@ const projects = [
     icon: TrendingUp,
     color: "text-pink-400",
     gradient: "from-pink-400 to-rose-600",
-    stats: { users: "450k", activity: "High" },
-    status: "maintenance",
-    description: "Trend analysis and viral content propagation engine."
+    stats: { users: "582.3k", activity: "Extreme" },
+    status: "active",
+    description: "Viral content tracking and analytics dashboard.",
+    isDashboard: true,
+    href: "/dashboard/viral-bot"
   },
   { 
     id: "iceball-dashboard", 
@@ -82,19 +84,6 @@ const projects = [
     description: "Image processing and Gemini API analytics dashboard.",
     isDashboard: true,
     href: "/dashboard/iceball-bot"
-  },
-  { 
-    id: "viral-dashboard", 
-    name: "Viral TB", 
-    type: "Dashboard", 
-    icon: TrendingUp,
-    color: "text-pink-400",
-    gradient: "from-pink-400 to-rose-600",
-    stats: { users: "582.3k", activity: "Extreme" },
-    status: "active",
-    description: "Viral content tracking and analytics dashboard.",
-    isDashboard: true,
-    href: "/dashboard/viral-bot"
   },
   { 
     id: "vip-passport", 
