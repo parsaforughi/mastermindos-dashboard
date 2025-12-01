@@ -149,20 +149,4 @@
                       linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
     mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
   }
-  
-  .animate-spin-slow {
-      animation: spin 8s linear infinite;
-  }
-  .animate-reverse-spin {
-      animation: spin 12s linear infinite reverse;
-  }
-
-  @keyframes spin {
-      from {
-          transform: rotate(0deg);
-      }
-      to {
-          transform: rotate(360deg);
-      }
-  }
 }
