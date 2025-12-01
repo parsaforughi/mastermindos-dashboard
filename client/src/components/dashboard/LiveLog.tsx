@@ -1,9 +1,11 @@
-import { MOCK_LOGS, LogEntry } from "@/lib/mockData";
-import { Terminal, AlertCircle, Info, CheckCircle2, Clock } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { useLogs } from "@/hooks/useExplainerApi";
+import { Terminal, AlertCircle, Info, CheckCircle2, Loader2 } from "lucide-react";
+import { useRef, useEffect } from "react";
 import { cn } from "@/lib/utils";
 
-const LogIcon = ({ type }: { type: LogEntry['type'] }) => {
+type LogType = "info" | "error" | "warning" | "success" | "system";
+
+const LogIcon = ({ type }: { type: LogType }) => {
   switch (type) {
     case 'error': return <AlertCircle className="h-3 w-3 text-red-500" />;
     case 'warning': return <AlertCircle className="h-3 w-3 text-yellow-500" />;
@@ -14,32 +16,17 @@ const LogIcon = ({ type }: { type: LogEntry['type'] }) => {
 };
 
 export function LiveLog() {
-  const [logs, setLogs] = useState<LogEntry[]>(MOCK_LOGS);
+  const { data: logs, isLoading } = useLogs(50);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll and simulate logs
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-    
-    const interval = setInterval(() => {
-      const types: LogEntry['type'][] = ['info', 'success', 'warning', 'system'];
-      const newLog: LogEntry = {
-        id: Date.now().toString(),
-        timestamp: new Date(),
-        type: types[Math.floor(Math.random() * types.length)],
-        message: `System event simulated #${Math.floor(Math.random() * 1000)}`,
-        details: 'Background process'
-      };
-      setLogs(prev => [...prev.slice(-50), newLog]); // Keep last 50
-    }, 5000);
-
-    return () => clearInterval(interval);
   }, [logs]);
 
   return (
-    <div className="glass-panel rounded-2xl h-full flex flex-col overflow-hidden bg-black/40 font-mono text-xs">
+    <div className="glass-panel rounded-2xl h-full flex flex-col overflow-hidden bg-black/40 font-mono text-xs" data-testid="live-log">
       <div className="p-3 border-b border-white/5 flex items-center justify-between bg-white/5">
         <div className="flex items-center gap-2">
           <Terminal className="h-3.5 w-3.5 text-muted-foreground" />
@@ -53,33 +40,43 @@ export function LiveLog() {
       </div>
       
       <div ref={scrollRef} className="flex-1 overflow-y-auto p-3 space-y-2 custom-scrollbar">
-        {logs.map((log) => (
-          <div key={log.id} className="flex gap-2 hover:bg-white/5 p-1 rounded transition-colors group">
-             <span className="text-muted-foreground/50 shrink-0 w-16">
-               {log.timestamp.toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-             </span>
-             <div className="mt-0.5 shrink-0">
-                <LogIcon type={log.type} />
-             </div>
-             <div className="flex-1 break-all">
-                <span className={cn(
-                  "font-medium mr-2",
-                  log.type === 'error' && "text-red-400",
-                  log.type === 'warning' && "text-yellow-400",
-                  log.type === 'success' && "text-green-400",
-                  log.type === 'system' && "text-blue-400",
-                  log.type === 'info' && "text-foreground/90",
-                )}>
-                  {log.message}
-                </span>
-                {log.details && (
-                  <span className="text-muted-foreground/60 text-[10px] group-hover:text-muted-foreground transition-colors">
-                    // {log.details}
-                  </span>
-                )}
-             </div>
+        {isLoading ? (
+          <div className="flex items-center justify-center py-4">
+            <Loader2 className="h-5 w-5 animate-spin text-primary" />
           </div>
-        ))}
+        ) : !logs || logs.length === 0 ? (
+          <div className="text-muted-foreground text-center py-4">
+            No logs yet. System activity will appear here.
+          </div>
+        ) : (
+          logs.map((log) => (
+            <div key={log.id} className="flex gap-2 hover:bg-white/5 p-1 rounded transition-colors group" data-testid={`log-entry-${log.id}`}>
+               <span className="text-muted-foreground/50 shrink-0 w-16">
+                 {new Date(log.createdAt).toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+               </span>
+               <div className="mt-0.5 shrink-0">
+                  <LogIcon type={log.type as LogType} />
+               </div>
+               <div className="flex-1 break-all">
+                  <span className={cn(
+                    "font-medium mr-2",
+                    log.type === 'error' && "text-red-400",
+                    log.type === 'warning' && "text-yellow-400",
+                    log.type === 'success' && "text-green-400",
+                    log.type === 'system' && "text-blue-400",
+                    log.type === 'info' && "text-foreground/90",
+                  )}>
+                    {log.message}
+                  </span>
+                  {log.details && (
+                    <span className="text-muted-foreground/60 text-[10px] group-hover:text-muted-foreground transition-colors">
+                      // {log.details}
+                    </span>
+                  )}
+               </div>
+            </div>
+          ))
+        )}
         <div className="animate-pulse text-primary">_</div>
       </div>
     </div>

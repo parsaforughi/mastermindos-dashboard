@@ -1,11 +1,10 @@
-import { MOCK_MESSAGES, Message } from "@/lib/mockData";
-import { Send, Paperclip, MoreVertical, Smile, Bot, User, Sparkles } from "lucide-react";
+import { useMessages, useSendMessage } from "@/hooks/useExplainerApi";
+import { Send, Paperclip, MoreVertical, Smile, Bot, User, Sparkles, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useState, useEffect, useRef } from "react";
 
-// Typewriter effect component
 function TypewriterText({ text, onComplete }: { text: string, onComplete?: () => void }) {
   const [displayedText, setDisplayedText] = useState("");
   const indexRef = useRef(0);
@@ -22,7 +21,7 @@ function TypewriterText({ text, onComplete }: { text: string, onComplete?: () =>
         clearInterval(interval);
         onComplete?.();
       }
-    }, 20); // Speed of typing
+    }, 20);
 
     return () => clearInterval(interval);
   }, [text, onComplete]);
@@ -31,13 +30,11 @@ function TypewriterText({ text, onComplete }: { text: string, onComplete?: () =>
 }
 
 export function ActiveChat({ conversationId }: { conversationId: string }) {
-  const [messages, setMessages] = useState<Message[]>(MOCK_MESSAGES);
+  const { data: messages, isLoading } = useMessages(conversationId);
+  const sendMessage = useSendMessage();
   const [inputText, setInputText] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
-
-  // Filter messages for this conversation
-  const activeMessages = messages.filter(m => m.conversationId === conversationId);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -46,41 +43,33 @@ export function ActiveChat({ conversationId }: { conversationId: string }) {
         behavior: 'smooth'
       });
     }
-  }, [activeMessages, conversationId, isTyping]);
+  }, [messages, conversationId, isTyping]);
 
-  const handleSend = () => {
-    if (!inputText.trim()) return;
+  const handleSend = async () => {
+    if (!inputText.trim() || !conversationId) return;
     
-    const newMessage: Message = {
-      id: Date.now().toString(),
-      conversationId,
-      sender: 'user',
-      content: inputText,
-      timestamp: new Date(),
-      status: 'sending'
-    };
-
-    setMessages(prev => [...prev, newMessage]);
+    const content = inputText;
     setInputText("");
     setIsTyping(true);
 
-    // Simulate bot response
-    setTimeout(() => {
-      const botMsg: Message = {
-        id: (Date.now() + 1).toString(),
+    await sendMessage.mutateAsync({
+      conversationId,
+      sender: 'user',
+      content,
+    });
+
+    setTimeout(async () => {
+      await sendMessage.mutateAsync({
         conversationId,
         sender: 'bot',
         content: "I've analyzed your request. Based on the current parameters, I recommend proceeding with the enterprise integration tier. This will maximize your throughput efficiency by approximately 45%.",
-        timestamp: new Date(),
-      };
-      setMessages(prev => [...prev, botMsg]);
+      });
       setIsTyping(false);
-    }, 2000);
+    }, 1500);
   };
 
   return (
-    <div className="glass-panel rounded-2xl h-full flex flex-col overflow-hidden relative border-white/10">
-        {/* Header */}
+    <div className="glass-panel rounded-2xl h-full flex flex-col overflow-hidden relative border-white/10" data-testid="active-chat">
         <div className="p-4 border-b border-white/5 flex items-center justify-between bg-white/[0.02] backdrop-blur-md z-10">
             <div className="flex items-center gap-3">
                 <div className="relative">
@@ -92,22 +81,34 @@ export function ActiveChat({ conversationId }: { conversationId: string }) {
                       Live Session 
                       <span className="px-1.5 py-0.5 rounded bg-primary/10 text-[10px] text-primary border border-primary/20 font-mono">ACTIVE</span>
                     </h3>
-                    <p className="text-xs text-muted-foreground font-mono opacity-70">ID: {conversationId}</p>
+                    <p className="text-xs text-muted-foreground font-mono opacity-70">ID: {conversationId || 'N/A'}</p>
                 </div>
             </div>
-            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-white/5 rounded-full transition-colors">
+            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-white/5 rounded-full transition-colors" data-testid="button-chat-menu">
                 <MoreVertical className="h-4 w-4" />
             </Button>
         </div>
 
-        {/* Chat Area */}
         <div ref={scrollRef} className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-6 bg-gradient-to-b from-transparent to-black/20">
-            {activeMessages.map((msg, idx) => {
+            {isLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              </div>
+            ) : !conversationId ? (
+              <div className="flex items-center justify-center py-8 text-muted-foreground text-sm">
+                Select a conversation to view messages
+              </div>
+            ) : messages?.length === 0 ? (
+              <div className="flex items-center justify-center py-8 text-muted-foreground text-sm">
+                No messages yet. Start the conversation!
+              </div>
+            ) : (
+              messages?.map((msg, idx) => {
                 const isBot = msg.sender === 'bot';
-                const isLastBotMessage = isBot && idx === activeMessages.length - 1;
+                const isLastBotMessage = isBot && idx === (messages?.length || 0) - 1;
                 
                 return (
-                    <div key={msg.id} className={cn("flex gap-4 max-w-[85%] group animate-in slide-in-from-bottom-2 duration-500 fill-mode-backwards", isBot ? "mr-auto" : "ml-auto flex-row-reverse")}>
+                    <div key={msg.id} className={cn("flex gap-4 max-w-[85%] group animate-in slide-in-from-bottom-2 duration-500 fill-mode-backwards", isBot ? "mr-auto" : "ml-auto flex-row-reverse")} data-testid={`message-${msg.id}`}>
                         <div className={cn(
                             "h-9 w-9 rounded-xl flex items-center justify-center shrink-0 shadow-[0_0_15px_-3px_rgba(0,0,0,0.3)] transition-all duration-300",
                             isBot 
@@ -134,12 +135,13 @@ export function ActiveChat({ conversationId }: { conversationId: string }) {
                                 )}
                             </div>
                             <span className="text-[10px] text-muted-foreground/60 font-mono block px-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {isBot ? 'AI Model v2.4' : 'User Client'}
+                                {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {isBot ? 'AI Model v2.4' : 'User Client'}
                             </span>
                         </div>
                     </div>
                 )
-            })}
+              })
+            )}
             
             {isTyping && (
               <div className="flex gap-4 mr-auto animate-in fade-in duration-300">
@@ -155,10 +157,9 @@ export function ActiveChat({ conversationId }: { conversationId: string }) {
             )}
         </div>
 
-        {/* Input Area */}
         <div className="p-4 bg-white/[0.01] backdrop-blur-xl border-t border-white/5">
             <div className="flex items-center gap-2 bg-white/[0.03] border border-white/10 rounded-xl p-1.5 pr-2 focus-within:bg-white/[0.05] focus-within:border-primary/30 focus-within:ring-1 focus-within:ring-primary/30 transition-all duration-300 shadow-lg">
-                <Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground hover:text-primary hover:bg-white/5 shrink-0 rounded-lg transition-colors">
+                <Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground hover:text-primary hover:bg-white/5 shrink-0 rounded-lg transition-colors" data-testid="button-attach">
                     <Paperclip className="h-4 w-4" />
                 </Button>
                 
@@ -168,6 +169,8 @@ export function ActiveChat({ conversationId }: { conversationId: string }) {
                     onKeyDown={(e) => e.key === 'Enter' && handleSend()}
                     className="border-0 bg-transparent focus-visible:ring-0 h-10 text-sm placeholder:text-muted-foreground/40 shadow-none font-medium"
                     placeholder="Enter command or message..."
+                    disabled={!conversationId || sendMessage.isPending}
+                    data-testid="input-message"
                 />
                 
                 <div className="flex items-center gap-1">
@@ -175,6 +178,7 @@ export function ActiveChat({ conversationId }: { conversationId: string }) {
                       variant="ghost"
                       size="icon" 
                       className="h-9 w-9 text-muted-foreground hover:text-primary hover:bg-white/5 rounded-lg shrink-0 transition-colors"
+                      data-testid="button-sparkle"
                   >
                       <Sparkles className="h-4 w-4" />
                   </Button>
@@ -182,8 +186,14 @@ export function ActiveChat({ conversationId }: { conversationId: string }) {
                       onClick={handleSend}
                       size="icon" 
                       className="h-9 w-9 bg-gradient-to-br from-primary to-purple-600 hover:to-purple-500 text-white shadow-[0_0_20px_-5px_hsl(var(--primary)/0.5)] rounded-lg shrink-0 transition-all hover:scale-105 active:scale-95"
+                      disabled={!conversationId || sendMessage.isPending || !inputText.trim()}
+                      data-testid="button-send"
                   >
-                      <Send className="h-4 w-4" />
+                      {sendMessage.isPending ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Send className="h-4 w-4" />
+                      )}
                   </Button>
                 </div>
             </div>
