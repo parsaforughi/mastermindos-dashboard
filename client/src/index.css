@@ -61,6 +61,9 @@
   --animate-shimmer: shimmer 2s linear infinite;
   --animate-scan: scan 4s linear infinite;
   --animate-hologram: hologram 3s infinite;
+  --animate-orbit: orbit 60s linear infinite;
+  --animate-orbit-reverse: orbit-reverse 60s linear infinite;
+  --animate-pulse-core: pulse-core 4s ease-in-out infinite;
   
   @keyframes float {
     0%, 100% { transform: translateY(0) scale(1); }
@@ -90,6 +93,21 @@
     56% { opacity: 0.5; }
     90% { opacity: 1; }
     92% { opacity: 0.7; }
+  }
+
+  @keyframes orbit {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  @keyframes orbit-reverse {
+    from { transform: rotate(360deg); }
+    to { transform: rotate(0deg); }
+  }
+
+  @keyframes pulse-core {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 50px -10px hsl(var(--primary) / 0.3); }
+    50% { transform: scale(1.05); box-shadow: 0 0 80px -20px hsl(var(--primary) / 0.6); }
   }
 }
 

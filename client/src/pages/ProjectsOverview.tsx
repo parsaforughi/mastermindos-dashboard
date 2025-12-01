@@ -11,7 +11,9 @@ import {
   Cpu,
   Network,
   Command,
-  Activity
+  Activity,
+  Shield,
+  Database
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link } from "wouter";
@@ -25,8 +27,7 @@ const projects = [
     type: "Game Bot", 
     icon: Globe,
     color: "text-cyan-400",
-    bg: "bg-cyan-500/10",
-    border: "border-cyan-500/20",
+    gradient: "from-cyan-400 to-blue-600",
     stats: { users: "12.5k", activity: "High" },
     status: "active",
     description: "Autonomous gaming agent managing economy and player interactions."
@@ -37,8 +38,7 @@ const projects = [
     type: "Education AI", 
     icon: Zap,
     color: "text-purple-400",
-    bg: "bg-purple-500/10",
-    border: "border-purple-500/20",
+    gradient: "from-purple-400 to-pink-600",
     stats: { users: "843", activity: "Moderate" },
     status: "active",
     description: "Adaptive learning assistant with multi-modal explanation capabilities."
@@ -49,8 +49,7 @@ const projects = [
     type: "Marketing Automation", 
     icon: Send,
     color: "text-green-400",
-    bg: "bg-green-500/10",
-    border: "border-green-500/20",
+    gradient: "from-green-400 to-emerald-600",
     stats: { users: "2.1M", activity: "Extreme" },
     status: "active",
     description: "High-volume direct messaging neural network for campaign scaling."
@@ -61,80 +60,86 @@ const projects = [
     type: "Social Growth", 
     icon: Smartphone,
     color: "text-pink-400",
-    bg: "bg-pink-500/10",
-    border: "border-pink-500/20",
+    gradient: "from-pink-400 to-rose-600",
     stats: { users: "450k", activity: "High" },
     status: "maintenance",
     description: "Trend analysis and viral content propagation engine."
   }
 ];
 
-function HolographicCard({ project, index }: { project: any, index: number }) {
+function OrbitalNode({ project, index, total, radius = 280 }: { project: any, index: number, total: number, radius?: number }) {
+  // Calculate position on the circle
+  const angle = (index / total) * 2 * Math.PI;
+  const x = Math.cos(angle) * radius;
+  const y = Math.sin(angle) * radius;
+
   return (
-    <Link href={`/bot/${project.id}`}>
+    <div 
+      className="absolute top-1/2 left-1/2 w-0 h-0 flex items-center justify-center group z-20"
+      style={{ 
+        transform: `translate(${x}px, ${y}px)`,
+      }}
+    >
+      {/* Connecting Line to Core */}
       <div 
-        className="group relative h-[320px] perspective-1000 cursor-pointer"
-        style={{ animationDelay: `${index * 100}ms` }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent rounded-3xl transform transition-all duration-500 group-hover:scale-[1.02] group-hover:-translate-y-2 border border-white/10 group-hover:border-primary/50 shadow-2xl backdrop-blur-xl overflow-hidden">
-          {/* Scanning Line Effect */}
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary to-transparent opacity-0 group-hover:opacity-50 animate-scan pointer-events-none z-20" />
-          
-          {/* Animated Grid Background */}
-          <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:20px_20px] [mask-image:radial-gradient(ellipse_at_center,black,transparent)] opacity-30 group-hover:opacity-50 transition-opacity" />
+        className="absolute top-1/2 left-1/2 h-[1px] bg-gradient-to-r from-primary/0 via-primary/20 to-primary/0 origin-left -z-10"
+        style={{ 
+          width: `${radius}px`,
+          transform: `rotate(${angle * (180/Math.PI) + 180}deg)`,
+          left: '0',
+          top: '0'
+        }}
+      />
 
-          <div className="p-6 h-full flex flex-col relative z-10">
-            {/* Top Bar */}
-            <div className="flex justify-between items-start mb-6">
-              <div className={cn(
-                "h-14 w-14 rounded-2xl flex items-center justify-center border transition-all duration-500 group-hover:shadow-[0_0_30px_-5px_currentColor]",
-                project.bg, project.border, project.color
-              )}>
-                <project.icon className="w-7 h-7" />
-              </div>
-              <div className="flex items-center gap-2">
-                 <div className={cn(
-                   "w-2 h-2 rounded-full shadow-[0_0_8px]", 
-                   project.status === 'active' ? "bg-green-500 shadow-green-500" : "bg-yellow-500 shadow-yellow-500"
-                 )} />
-                 <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">{project.status}</span>
-              </div>
+      <Link href={`/bot/${project.id}`}>
+        <div className="relative cursor-pointer group perspective-1000">
+          {/* Floating Animation Container */}
+          <div className="animate-float" style={{ animationDelay: `${index * 1}s` }}>
+             
+            {/* The Planet Node */}
+            <div className="relative w-32 h-32">
+                {/* Glow Effect */}
+                <div className={cn(
+                  "absolute inset-0 rounded-full blur-[30px] opacity-20 group-hover:opacity-60 transition-opacity duration-500",
+                  project.color.replace('text-', 'bg-')
+                )} />
+                
+                {/* Core Circle */}
+                <div className="absolute inset-0 rounded-full bg-black/80 border border-white/10 backdrop-blur-xl flex flex-col items-center justify-center gap-2 group-hover:scale-110 transition-transform duration-500 shadow-2xl overflow-hidden">
+                   <div className={cn(
+                     "absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-500 bg-gradient-to-br",
+                     project.gradient
+                   )} />
+                   
+                   <project.icon className={cn("w-8 h-8 transition-all duration-500", project.color)} />
+                   <span className="text-[10px] font-bold uppercase tracking-widest text-white/80">{project.name}</span>
+                   
+                   {/* Status Ring */}
+                   <div className={cn(
+                     "absolute inset-0 border-2 rounded-full border-transparent group-hover:border-t-white/50 transition-all duration-1000 animate-spin-slow",
+                   )} />
+                </div>
             </div>
 
-            {/* Content */}
-            <div className="flex-1 space-y-2">
-              <h3 className="text-2xl font-display font-bold text-white group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-white/70 transition-all">
-                {project.name}
-              </h3>
-              <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2 group-hover:text-white/70 transition-colors">
-                {project.description}
-              </p>
-            </div>
-
-            {/* Tech Stats */}
-            <div className="grid grid-cols-2 gap-2 mt-6 pt-6 border-t border-white/5">
-               <div className="bg-black/20 rounded-lg p-2 border border-white/5 group-hover:border-primary/30 transition-colors">
-                 <div className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Users</div>
-                 <div className="font-mono font-bold text-lg text-white">{project.stats.users}</div>
+            {/* Info Tooltip Card - Appears on Hover */}
+            <div className="absolute top-full left-1/2 -translate-x-1/2 mt-4 w-64 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none group-hover:pointer-events-auto transform translate-y-2 group-hover:translate-y-0 z-30">
+               <div className="glass-panel p-4 rounded-xl border-l-4 border-l-primary">
+                  <h4 className="font-bold text-white mb-1">{project.name}</h4>
+                  <p className="text-xs text-muted-foreground mb-3">{project.description}</p>
+                  <div className="flex justify-between items-center text-[10px] font-mono uppercase text-white/60">
+                     <span>Users: {project.stats.users}</span>
+                     <span className={cn(
+                       "px-1.5 py-0.5 rounded bg-white/5",
+                       project.status === 'active' ? 'text-green-400' : 'text-yellow-400'
+                     )}>{project.status}</span>
+                  </div>
                </div>
-               <div className="bg-black/20 rounded-lg p-2 border border-white/5 group-hover:border-primary/30 transition-colors">
-                 <div className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Load</div>
-                 <div className={cn("font-mono font-bold text-lg flex items-center gap-2", project.stats.activity === 'Extreme' ? 'text-red-400' : 'text-green-400')}>
-                   {project.stats.activity}
-                   <Activity className="w-3 h-3 animate-pulse" />
-                 </div>
-               </div>
             </div>
+
           </div>
-
-          {/* Hover Glow */}
-          <div className={cn(
-            "absolute -bottom-20 -right-20 w-64 h-64 rounded-full blur-[80px] opacity-0 group-hover:opacity-20 transition-opacity duration-500 pointer-events-none",
-            project.color.replace('text-', 'bg-')
-          )} />
         </div>
-      </div>
-    </Link>
+      </Link>
+    </div>
   );
 }
 
@@ -146,91 +151,98 @@ export default function ProjectsOverview() {
   }, []);
 
   return (
-    <div className="min-h-screen w-full bg-[#050508] text-foreground overflow-x-hidden font-sans selection:bg-primary/20 relative perspective-1000">
-      {/* Deep Space Background */}
+    <div className="h-screen w-full bg-[#030305] text-foreground overflow-hidden font-sans selection:bg-primary/20 relative perspective-1000 flex items-center justify-center">
+      {/* Cinematic Background */}
       <div className="fixed inset-0 pointer-events-none z-0">
-         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(120,119,198,0.1),transparent_50%)]" />
-         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_80%)]" />
+         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(120,119,198,0.05),transparent_70%)]" />
+         {/* Starfield */}
+         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20" />
       </div>
       
-      <div className="noise-overlay" />
-
-      <div className="relative z-10 max-w-7xl mx-auto p-8 flex flex-col min-h-screen">
-        {/* Cinematic Header */}
-        <header className="relative py-12 mb-12 flex flex-col items-center text-center animate-in fade-in zoom-in-95 duration-1000">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[200px] bg-primary/20 blur-[120px] rounded-full pointer-events-none opacity-50" />
-          
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] font-mono text-primary mb-6 hover:bg-white/10 transition-colors cursor-default">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-            </span>
-            NEURAL INTERFACE v2.4.0 CONNECTED
-          </div>
-          
-          <h1 className="text-6xl md:text-7xl font-display font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-white/40 mb-4 drop-shadow-2xl">
-            MASTERMIND OS
-          </h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Centralized command cortex for autonomous agents. Monitor neural pathways, deployment status, and resource allocation in real-time.
-          </p>
-        </header>
-
-        {/* Stats Bar */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16 max-w-4xl mx-auto w-full animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-200">
-           <div className="bg-white/[0.02] border border-white/5 rounded-xl p-4 flex flex-col items-center justify-center hover:bg-white/[0.04] transition-colors">
-              <div className="text-muted-foreground text-xs uppercase tracking-widest mb-1">Total Nodes</div>
-              <div className="text-2xl font-mono font-bold text-white">04</div>
+      <div className="relative z-10 w-full h-full flex flex-col items-center justify-center">
+        
+        {/* Header Overlay */}
+        <div className="absolute top-12 left-0 w-full text-center z-20 pointer-events-none">
+           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-black/40 border border-white/10 backdrop-blur-md mb-4 animate-in fade-in slide-in-from-top-8 duration-1000">
+              <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+              <span className="text-xs font-mono text-primary-foreground/80 tracking-widest">SYSTEM ONLINE</span>
            </div>
-           <div className="bg-white/[0.02] border border-white/5 rounded-xl p-4 flex flex-col items-center justify-center hover:bg-white/[0.04] transition-colors">
-              <div className="text-muted-foreground text-xs uppercase tracking-widest mb-1">Network Load</div>
-              <div className="text-2xl font-mono font-bold text-green-400 flex items-center gap-2">
-                42% <Activity className="w-4 h-4" />
+           <h1 className="text-4xl md:text-6xl font-display font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white to-white/20 animate-in fade-in zoom-in-95 duration-1000 delay-200">
+             MASTERMIND<span className="text-primary">.CORE</span>
+           </h1>
+        </div>
+
+        {/* The Core System */}
+        <div className="relative w-[800px] h-[800px] flex items-center justify-center">
+           
+           {/* Orbital Rings */}
+           <div className="absolute inset-0 rounded-full border border-white/[0.03] animate-orbit-reverse" style={{ animationDuration: '120s' }} />
+           <div className="absolute inset-[100px] rounded-full border border-white/[0.05] animate-orbit" style={{ animationDuration: '80s' }} />
+           <div className="absolute inset-[200px] rounded-full border border-dashed border-white/[0.08] animate-orbit-reverse" style={{ animationDuration: '60s' }} />
+           
+           {/* Central Sun/Core */}
+           <div className="relative z-10 animate-pulse-core group cursor-default">
+              <div className="w-40 h-40 rounded-full bg-black border border-primary/50 shadow-[0_0_100px_-20px_hsl(var(--primary)/0.5)] flex items-center justify-center relative overflow-hidden">
+                 <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-purple-900/20 animate-pulse" />
+                 <Cpu className="w-16 h-16 text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]" />
+                 
+                 {/* Inner Spinning Data Ring */}
+                 <div className="absolute inset-2 rounded-full border-2 border-transparent border-t-primary/60 border-b-primary/60 animate-spin" style={{ animationDuration: '10s' }} />
+              </div>
+              
+              {/* Core Label */}
+              <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 text-center w-40">
+                 <div className="text-xs font-mono text-primary/80 tracking-[0.2em]">CENTRAL CORTEX</div>
+                 <div className="text-[10px] text-muted-foreground">Processing Nodes</div>
               </div>
            </div>
-           <div className="bg-white/[0.02] border border-white/5 rounded-xl p-4 flex flex-col items-center justify-center hover:bg-white/[0.04] transition-colors">
-              <div className="text-muted-foreground text-xs uppercase tracking-widest mb-1">Uptime</div>
-              <div className="text-2xl font-mono font-bold text-blue-400">99.9%</div>
+
+           {/* Orbiting Project Nodes */}
+           <div className="absolute inset-0 animate-in fade-in duration-1000 delay-500">
+              {projects.map((project, i) => (
+                <OrbitalNode 
+                  key={project.id} 
+                  project={project} 
+                  index={i} 
+                  total={projects.length} 
+                />
+              ))}
+              
+              {/* Add New Node Button (As a satellite) */}
+              <div className="absolute top-1/2 left-1/2 w-0 h-0 flex items-center justify-center" style={{ transform: 'translate(0px, 280px)' }}>
+                 <button className="relative group animate-float" style={{ animationDelay: '2s' }}>
+                    <div className="w-16 h-16 rounded-full bg-black/50 border border-dashed border-white/20 hover:border-primary hover:bg-primary/10 transition-all duration-300 flex items-center justify-center backdrop-blur-sm">
+                       <Plus className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors" />
+                    </div>
+                    <span className="absolute top-full mt-2 left-1/2 -translate-x-1/2 text-[10px] font-mono text-muted-foreground uppercase tracking-widest whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">Initialize Node</span>
+                 </button>
+              </div>
            </div>
-           <div className="bg-white/[0.02] border border-white/5 rounded-xl p-4 flex flex-col items-center justify-center hover:bg-white/[0.04] transition-colors">
-              <div className="text-muted-foreground text-xs uppercase tracking-widest mb-1">Security</div>
-              <div className="text-2xl font-mono font-bold text-purple-400">SECURE</div>
+
+        </div>
+
+        {/* Footer Stats */}
+        <div className="absolute bottom-12 w-full px-12 flex justify-between items-end text-muted-foreground/50 font-mono text-[10px] uppercase tracking-widest animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-700">
+           <div className="flex gap-8">
+              <div>
+                <span className="block text-white/20 mb-1">Memory Load</span>
+                <div className="h-1 w-32 bg-white/5 rounded-full overflow-hidden">
+                  <div className="h-full w-[45%] bg-primary/50 animate-pulse" />
+                </div>
+              </div>
+              <div>
+                <span className="block text-white/20 mb-1">Network Latency</span>
+                <div className="flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                  12ms
+                </div>
+              </div>
+           </div>
+           <div>
+              SECURE CONNECTION • ENCRYPTED
            </div>
         </div>
 
-        {/* Projects Grid */}
-        <div className="flex-1">
-          <div className="flex items-center justify-between mb-8 animate-in fade-in duration-700 delay-300">
-             <h2 className="text-xl font-semibold flex items-center gap-3">
-               <Command className="w-5 h-5 text-primary" />
-               <span className="bg-clip-text text-transparent bg-gradient-to-r from-white to-white/60">Active Modules</span>
-             </h2>
-             <div className="h-[1px] flex-1 mx-6 bg-gradient-to-r from-white/10 to-transparent" />
-             <Button className="bg-white text-black hover:bg-white/90 shadow-[0_0_20px_-5px_white] font-semibold gap-2 transition-transform hover:scale-105 active:scale-95">
-               <Plus className="w-4 h-4" />
-               Initialize Node
-             </Button>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-300 pb-20">
-            {projects.map((project, i) => (
-              <HolographicCard key={project.id} project={project} index={i} />
-            ))}
-            
-            {/* Add New Placeholder */}
-            <button className="group relative h-[320px] rounded-3xl border border-dashed border-white/10 hover:border-primary/30 bg-white/[0.01] hover:bg-primary/[0.02] transition-all duration-300 flex flex-col items-center justify-center gap-6 cursor-pointer overflow-hidden animate-in fade-in slide-in-from-bottom-12 delay-500 fill-mode-backwards">
-               <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.02)_50%,transparent_75%,transparent_100%)] bg-[length:250%_250%] group-hover:animate-shimmer" />
-               
-               <div className="h-20 w-20 rounded-full bg-white/5 flex items-center justify-center group-hover:scale-110 group-hover:bg-primary/10 transition-all duration-500 z-10 border border-white/5 group-hover:border-primary/30 shadow-xl">
-                 <Network className="w-8 h-8 text-muted-foreground group-hover:text-primary transition-colors" />
-               </div>
-               <div className="text-center z-10">
-                 <h3 className="font-display font-bold text-xl text-muted-foreground group-hover:text-primary transition-colors mb-1">Deploy Agent</h3>
-                 <p className="text-xs text-muted-foreground/50 font-mono">Configure new neural pathway</p>
-               </div>
-            </button>
-          </div>
-        </div>
       </div>
     </div>
   );
