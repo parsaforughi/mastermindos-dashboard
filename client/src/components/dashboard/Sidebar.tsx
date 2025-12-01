@@ -10,31 +10,43 @@ import {
   ChevronLeft,
   Globe,
   Send,
-  Smartphone
+  Smartphone,
+  Brain,
+  Crown
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link, useLocation, useRoute } from "wouter";
 
 const PROJECT_ICONS: Record<string, any> = {
   "ice-ball": Globe,
-  "explainer": Zap,
+  "iceball-bot": Globe,
+  "explainer": Brain,
   "auto-dm": Send,
-  "viral-bot": Smartphone
+  "viral-bot": Smartphone,
+  "vip-passport": Crown
 };
 
 const PROJECT_NAMES: Record<string, string> = {
   "ice-ball": "Ice Ball",
+  "iceball-bot": "Iceball",
   "explainer": "Explainer",
   "auto-dm": "Auto DM",
-  "viral-bot": "Viral Bot"
+  "viral-bot": "Viral Bot",
+  "vip-passport": "VIP Passport"
 };
 
 export function Sidebar() {
   const [location] = useLocation();
-  // We need to extract the botId from the path to build correct links
-  // Path format: /bot/:id/page
+  // Extract the botId from the path
+  // Path format: /bot/:id/page or /dashboard/:id
   const pathParts = location.split('/');
-  const botId = pathParts[1] === 'bot' ? pathParts[2] : 'explainer'; // Default or fallback
+  let botId = 'explainer'; // Default
+  
+  if (pathParts[1] === 'bot') {
+    botId = pathParts[2];
+  } else if (pathParts[1] === 'dashboard') {
+    botId = pathParts[2];
+  }
 
   const ProjectIcon = PROJECT_ICONS[botId] || Zap;
   const projectName = PROJECT_NAMES[botId] || "Unknown Bot";

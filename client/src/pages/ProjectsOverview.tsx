@@ -35,7 +35,9 @@ const projects = [
     gradient: "from-purple-400 to-pink-600",
     stats: { users: "843", activity: "Moderate" },
     status: "active",
-    description: "Adaptive learning assistant with multi-modal explanation capabilities."
+    description: "Adaptive learning assistant with multi-modal explanation capabilities.",
+    isDashboard: true,
+    href: "/dashboard/explainer"
   },
   { 
     id: "auto-dm", 
@@ -46,7 +48,9 @@ const projects = [
     gradient: "from-green-400 to-emerald-600",
     stats: { users: "2.1M", activity: "Extreme" },
     status: "active",
-    description: "High-volume direct messaging neural network for campaign scaling."
+    description: "High-volume direct messaging neural network for campaign scaling.",
+    isDashboard: true,
+    href: "/dashboard/auto-dm"
   },
   { 
     id: "viral-bot", 
