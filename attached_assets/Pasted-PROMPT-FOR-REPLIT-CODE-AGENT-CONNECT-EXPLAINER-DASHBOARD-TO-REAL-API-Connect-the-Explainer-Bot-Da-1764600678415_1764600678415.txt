@@ -1,0 +1,132 @@
+PROMPT FOR REPLIT CODE AGENT — CONNECT EXPLAINER DASHBOARD TO REAL API
+
+Connect the Explainer Bot Dashboard to the real Explainer App API that already exists inside the Replit Explainer project.
+
+🎯 Your tasks (must do ALL of them):
+
+1) Discover all available API endpoints in the Explainer App project
+
+Automatically scan the project and identify all REST endpoints such as:
+	•	/conversations
+	•	/messages/:conversationId
+	•	/analytics
+	•	/status
+	•	/events
+	•	/knowledge-base
+	•	/settings
+	•	/health
+	•	and any other existing or helper routes
+
+If any missing endpoints are required for dashboard functionality, create them using the structure already used in the Explainer API.
+
+⸻
+
+2) Map each API to the Dashboard UI components
+
+Make sure the Explainer Dashboard pages use real data, not placeholders.
+
+Connect:
+
+Overview Page
+	•	total messages
+	•	total users
+	•	response rate
+	•	latency
+	•	bot status
+	•	active sessions
+
+Inbox / Live Session
+	•	list of conversations
+	•	messages inside each conversation
+	•	ability to load more
+	•	message timestamps
+	•	sender tags (bot/user)
+
+Analytics Page
+	•	messages per day
+	•	active users
+	•	success rate
+	•	error rate
+	•	average response time
+	•	load API’s analytics to charts
+
+Knowledge Base
+	•	list uploaded files
+	•	file size + updated timestamp
+	•	upload new source → call API
+	•	sync status → connect to real endpoint
+
+Network Map
+	•	any existing events
+	•	SSE logs
+	•	connection status
+	•	real-time tracking from API
+
+Bot Settings
+	•	bot on/off
+	•	pause/resume
+	•	force reset
+	•	cache clear
+	•	load prompt
+	•	stream toggle
+Use the actual API routes from Explainer App.
+
+⸻
+
+3) If a dashboard feature needs data that the API does not provide
+
+You must:
+	•	Add the required endpoint to the Explainer App (backend folder)
+	•	OR create a helper service (if needed)
+	•	OR generate a mock version that matches expected structure
+(but ONLY until the real API becomes available)
+
+Everything must follow the existing coding conventions and file structure.
+
+⸻
+
+4) Use existing fetch utilities such as apiFetch
+
+Do not add new HTTP client libraries.
+Keep everything unified with other dashboard modules.
+
+⸻
+
+5) Ensure all pages load real live data
+
+Dashboard should refresh from API and show:
+	•	realtime logs
+	•	realtime bot status
+	•	realtime conversations
+	•	accurate analytics
+	•	live sessions
+
+No static/fake numbers should remain.
+
+⸻
+
+6) Do not change anything in Viral Bot, Iceball Bot, or VIP Passport dashboards
+
+Only integrate and connect the Explainer Dashboard.
+
+⸻
+
+7) After you finish
+	•	Run build
+	•	Ensure all API calls resolve successfully
+	•	No TypeScript errors
+	•	No missing imports
+	•	No broken components
+
+⸻
+
+🔥 Expected Result
+
+After this update:
+	•	Explainer Dashboard becomes fully live
+	•	All widgets show real data
+	•	Inbox shows real conversations & messages
+	•	Analytics use real metrics
+	•	Knowledge Base pulls actual files
+	•	Network Map shows actual events
+	•	Bot Settings trigger real API actions
