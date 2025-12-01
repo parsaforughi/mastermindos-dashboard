@@ -10,6 +10,8 @@ import Conversations from "@/pages/Conversations";
 import Analytics from "@/pages/Analytics";
 import KnowledgeBase from "@/pages/KnowledgeBase";
 import Settings from "@/pages/Settings";
+import ExplainerDashboard from "@/pages/ExplainerDashboard";
+import AutoDMDashboard from "@/pages/AutoDMDashboard";
 import ViralBotDashboard from "@/pages/ViralBotDashboard";
 import IceballBotDashboard from "@/pages/IceballBotDashboard";
 import VIPPassportDashboard from "@/pages/VIPPassportDashboard";
@@ -28,6 +30,8 @@ function Router() {
       <Route path="/bot/:id/settings" component={Settings} />
       
       {/* Dashboard Routes */}
+      <Route path="/dashboard/explainer" component={ExplainerDashboard} />
+      <Route path="/dashboard/auto-dm" component={AutoDMDashboard} />
       <Route path="/dashboard/viral-bot" component={ViralBotDashboard} />
       <Route path="/dashboard/iceball-bot" component={IceballBotDashboard} />
       <Route path="/dashboard/vip-passport" component={VIPPassportDashboard} />
