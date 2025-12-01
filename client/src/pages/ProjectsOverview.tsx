@@ -173,7 +173,7 @@ export default function ProjectsOverview() {
         </div>
 
         {/* The Core System */}
-        <div className="relative w-[800px] h-[800px] flex items-center justify-center">
+        <div className="relative w-[800px] h-[800px] flex items-center justify-center mt-32">
            
            {/* Orbital Rings */}
            <div className="absolute inset-0 rounded-full border border-white/[0.03] animate-orbit-reverse" style={{ animationDuration: '120s' }} />
