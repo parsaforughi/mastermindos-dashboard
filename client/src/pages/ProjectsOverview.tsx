@@ -27,17 +27,6 @@ import { useState, useEffect } from "react";
 
 const projects = [
   { 
-    id: "ice-ball", 
-    name: "Ice Ball", 
-    type: "Game Bot", 
-    icon: Snowflake,
-    color: "text-cyan-400",
-    gradient: "from-cyan-400 to-blue-600",
-    stats: { users: "12.5k", activity: "High" },
-    status: "active",
-    description: "Autonomous gaming agent managing economy and player interactions."
-  },
-  { 
     id: "explainer", 
     name: "Explainer", 
     type: "Education AI", 
