@@ -68,8 +68,8 @@ const projects = [
 ];
 
 function OrbitalNode({ project, index, total, radius = 280 }: { project: any, index: number, total: number, radius?: number }) {
-  // Calculate position on the circle
-  const angle = (index / total) * 2 * Math.PI;
+  // Calculate position on the circle with 45 degree offset to avoid cardinal directions
+  const angle = (index / total) * 2 * Math.PI + (Math.PI / 4);
   const x = Math.cos(angle) * radius;
   const y = Math.sin(angle) * radius;
 
@@ -168,7 +168,7 @@ export default function ProjectsOverview() {
               <span className="text-xs font-mono text-primary-foreground/80 tracking-widest">SYSTEM ONLINE</span>
            </div>
            <h1 className="text-4xl md:text-6xl font-display font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white to-white/20 animate-in fade-in zoom-in-95 duration-1000 delay-200">
-             MASTERMIND<span className="text-primary">.CORE</span>
+             MASTERMIND <span className="text-primary">OS</span>
            </h1>
         </div>
 
