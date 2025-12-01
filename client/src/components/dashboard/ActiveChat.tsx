@@ -1,13 +1,39 @@
 import { MOCK_MESSAGES, Message } from "@/lib/mockData";
-import { Send, Paperclip, MoreVertical, Smile, Bot, User } from "lucide-react";
+import { Send, Paperclip, MoreVertical, Smile, Bot, User, Sparkles } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useState, useEffect, useRef } from "react";
 
+// Typewriter effect component
+function TypewriterText({ text, onComplete }: { text: string, onComplete?: () => void }) {
+  const [displayedText, setDisplayedText] = useState("");
+  const indexRef = useRef(0);
+
+  useEffect(() => {
+    indexRef.current = 0;
+    setDisplayedText("");
+    
+    const interval = setInterval(() => {
+      if (indexRef.current < text.length) {
+        setDisplayedText((prev) => prev + text.charAt(indexRef.current));
+        indexRef.current++;
+      } else {
+        clearInterval(interval);
+        onComplete?.();
+      }
+    }, 20); // Speed of typing
+
+    return () => clearInterval(interval);
+  }, [text, onComplete]);
+
+  return <span>{displayedText}</span>;
+}
+
 export function ActiveChat({ conversationId }: { conversationId: string }) {
   const [messages, setMessages] = useState<Message[]>(MOCK_MESSAGES);
   const [inputText, setInputText] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Filter messages for this conversation
@@ -15,9 +41,12 @@ export function ActiveChat({ conversationId }: { conversationId: string }) {
 
   useEffect(() => {
     if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      scrollRef.current.scrollTo({
+        top: scrollRef.current.scrollHeight,
+        behavior: 'smooth'
+      });
     }
-  }, [activeMessages, conversationId]);
+  }, [activeMessages, conversationId, isTyping]);
 
   const handleSend = () => {
     if (!inputText.trim()) return;
@@ -33,6 +62,7 @@ export function ActiveChat({ conversationId }: { conversationId: string }) {
 
     setMessages(prev => [...prev, newMessage]);
     setInputText("");
+    setIsTyping(true);
 
     // Simulate bot response
     setTimeout(() => {
@@ -40,80 +70,122 @@ export function ActiveChat({ conversationId }: { conversationId: string }) {
         id: (Date.now() + 1).toString(),
         conversationId,
         sender: 'bot',
-        content: "I've received your request. Processing analysis now...",
+        content: "I've analyzed your request. Based on the current parameters, I recommend proceeding with the enterprise integration tier. This will maximize your throughput efficiency by approximately 45%.",
         timestamp: new Date(),
       };
       setMessages(prev => [...prev, botMsg]);
-    }, 1500);
+      setIsTyping(false);
+    }, 2000);
   };
 
   return (
-    <div className="glass-panel rounded-2xl h-full flex flex-col overflow-hidden relative">
+    <div className="glass-panel rounded-2xl h-full flex flex-col overflow-hidden relative border-white/10">
         {/* Header */}
-        <div className="p-4 border-b border-white/5 flex items-center justify-between bg-black/20">
+        <div className="p-4 border-b border-white/5 flex items-center justify-between bg-white/[0.02] backdrop-blur-md z-10">
             <div className="flex items-center gap-3">
-                <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+                <div className="relative">
+                  <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse-glow" />
+                  <div className="absolute inset-0 rounded-full bg-green-500 animate-ping opacity-20" />
+                </div>
                 <div>
-                    <h3 className="font-display font-semibold text-sm">Live Session</h3>
-                    <p className="text-xs text-muted-foreground font-mono">ID: {conversationId}</p>
+                    <h3 className="font-display font-semibold text-sm tracking-wide flex items-center gap-2">
+                      Live Session 
+                      <span className="px-1.5 py-0.5 rounded bg-primary/10 text-[10px] text-primary border border-primary/20 font-mono">ACTIVE</span>
+                    </h3>
+                    <p className="text-xs text-muted-foreground font-mono opacity-70">ID: {conversationId}</p>
                 </div>
             </div>
-            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
+            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-white/5 rounded-full transition-colors">
                 <MoreVertical className="h-4 w-4" />
             </Button>
         </div>
 
         {/* Chat Area */}
-        <div ref={scrollRef} className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-6">
-            {activeMessages.map((msg) => {
+        <div ref={scrollRef} className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-6 bg-gradient-to-b from-transparent to-black/20">
+            {activeMessages.map((msg, idx) => {
                 const isBot = msg.sender === 'bot';
+                const isLastBotMessage = isBot && idx === activeMessages.length - 1;
+                
                 return (
-                    <div key={msg.id} className={cn("flex gap-3 max-w-[85%]", isBot ? "mr-auto" : "ml-auto flex-row-reverse")}>
+                    <div key={msg.id} className={cn("flex gap-4 max-w-[85%] group animate-in slide-in-from-bottom-2 duration-500 fill-mode-backwards", isBot ? "mr-auto" : "ml-auto flex-row-reverse")}>
                         <div className={cn(
-                            "h-8 w-8 rounded-lg flex items-center justify-center shrink-0 shadow-lg",
-                            isBot ? "bg-primary/20 border border-primary/30 text-primary" : "bg-secondary/20 border border-secondary/30 text-secondary"
+                            "h-9 w-9 rounded-xl flex items-center justify-center shrink-0 shadow-[0_0_15px_-3px_rgba(0,0,0,0.3)] transition-all duration-300",
+                            isBot 
+                              ? "bg-primary/10 border border-primary/30 text-primary group-hover:scale-110 group-hover:shadow-[0_0_20px_-5px_hsl(var(--primary)/0.5)]" 
+                              : "bg-white/5 border border-white/10 text-foreground group-hover:scale-110"
                         )}>
-                            {isBot ? <Bot className="h-4 w-4" /> : <User className="h-4 w-4" />}
+                            {isBot ? <Bot className="h-5 w-5" /> : <User className="h-5 w-5" />}
                         </div>
                         
-                        <div className="space-y-1">
+                        <div className="space-y-1.5">
                             <div className={cn(
-                                "p-3 rounded-2xl text-sm leading-relaxed shadow-sm",
+                                "p-4 rounded-2xl text-sm leading-relaxed backdrop-blur-md transition-all duration-300",
                                 isBot 
-                                    ? "bg-card border border-white/5 rounded-tl-none text-foreground" 
-                                    : "bg-primary/10 border border-primary/20 rounded-tr-none text-primary-foreground"
+                                    ? "bg-white/[0.03] border border-white/10 rounded-tl-none text-foreground/90 shadow-lg" 
+                                    : "bg-primary/20 border border-primary/20 rounded-tr-none text-primary-foreground shadow-[0_4px_20px_-5px_hsl(var(--primary)/0.2)]"
                             )}>
-                                {msg.content}
+                                {isLastBotMessage ? (
+                                  <div className="relative">
+                                    <TypewriterText text={msg.content} />
+                                    <span className="inline-block w-1.5 h-4 ml-0.5 bg-primary animate-pulse align-middle" />
+                                  </div>
+                                ) : (
+                                  msg.content
+                                )}
                             </div>
-                            <span className="text-[10px] text-muted-foreground block px-1">
-                                {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            <span className="text-[10px] text-muted-foreground/60 font-mono block px-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {isBot ? 'AI Model v2.4' : 'User Client'}
                             </span>
                         </div>
                     </div>
                 )
             })}
+            
+            {isTyping && (
+              <div className="flex gap-4 mr-auto animate-in fade-in duration-300">
+                 <div className="h-9 w-9 rounded-xl bg-primary/10 border border-primary/30 text-primary flex items-center justify-center shrink-0">
+                    <Bot className="h-5 w-5" />
+                 </div>
+                 <div className="p-4 rounded-2xl rounded-tl-none bg-white/[0.03] border border-white/10 flex items-center gap-1">
+                    <div className="h-1.5 w-1.5 bg-primary rounded-full animate-bounce [animation-delay:-0.3s]" />
+                    <div className="h-1.5 w-1.5 bg-primary rounded-full animate-bounce [animation-delay:-0.15s]" />
+                    <div className="h-1.5 w-1.5 bg-primary rounded-full animate-bounce" />
+                 </div>
+              </div>
+            )}
         </div>
 
         {/* Input Area */}
-        <div className="p-4 bg-black/20 border-t border-white/5">
-            <div className="flex items-center gap-2 bg-card/50 border border-white/10 rounded-xl p-1 pr-2 focus-within:ring-1 focus-within:ring-primary/50 transition-all">
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary shrink-0 rounded-lg">
+        <div className="p-4 bg-white/[0.01] backdrop-blur-xl border-t border-white/5">
+            <div className="flex items-center gap-2 bg-white/[0.03] border border-white/10 rounded-xl p-1.5 pr-2 focus-within:bg-white/[0.05] focus-within:border-primary/30 focus-within:ring-1 focus-within:ring-primary/30 transition-all duration-300 shadow-lg">
+                <Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground hover:text-primary hover:bg-white/5 shrink-0 rounded-lg transition-colors">
                     <Paperclip className="h-4 w-4" />
                 </Button>
+                
                 <Input 
                     value={inputText}
                     onChange={(e) => setInputText(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                    className="border-0 bg-transparent focus-visible:ring-0 h-9 text-sm placeholder:text-muted-foreground/50 shadow-none"
-                    placeholder="Type a message to simulate user input..."
+                    className="border-0 bg-transparent focus-visible:ring-0 h-10 text-sm placeholder:text-muted-foreground/40 shadow-none font-medium"
+                    placeholder="Enter command or message..."
                 />
-                <Button 
-                    onClick={handleSend}
-                    size="icon" 
-                    className="h-8 w-8 bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20 rounded-lg shrink-0"
-                >
-                    <Send className="h-4 w-4" />
-                </Button>
+                
+                <div className="flex items-center gap-1">
+                  <Button 
+                      variant="ghost"
+                      size="icon" 
+                      className="h-9 w-9 text-muted-foreground hover:text-primary hover:bg-white/5 rounded-lg shrink-0 transition-colors"
+                  >
+                      <Sparkles className="h-4 w-4" />
+                  </Button>
+                  <Button 
+                      onClick={handleSend}
+                      size="icon" 
+                      className="h-9 w-9 bg-gradient-to-br from-primary to-purple-600 hover:to-purple-500 text-white shadow-[0_0_20px_-5px_hsl(var(--primary)/0.5)] rounded-lg shrink-0 transition-all hover:scale-105 active:scale-95"
+                  >
+                      <Send className="h-4 w-4" />
+                  </Button>
+                </div>
             </div>
         </div>
     </div>
