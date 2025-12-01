@@ -162,12 +162,12 @@ export default function ProjectsOverview() {
       <div className="relative z-10 w-full h-full flex flex-col items-center justify-center">
         
         {/* Header Overlay */}
-        <div className="absolute top-12 left-0 w-full text-center z-20 pointer-events-none">
-           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-black/40 border border-white/10 backdrop-blur-md mb-4 animate-in fade-in slide-in-from-top-8 duration-1000">
+        <div className="absolute top-6 left-0 w-full text-center z-50 pointer-events-none">
+           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-black/40 border border-white/10 backdrop-blur-md mb-3 animate-in fade-in slide-in-from-top-8 duration-1000">
               <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
               <span className="text-xs font-mono text-primary-foreground/80 tracking-widest">SYSTEM ONLINE</span>
            </div>
-           <h1 className="text-4xl md:text-6xl font-display font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white to-white/20 animate-in fade-in zoom-in-95 duration-1000 delay-200">
+           <h1 className="text-3xl md:text-5xl font-display font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white to-white/20 animate-in fade-in zoom-in-95 duration-1000 delay-200">
              MASTERMIND <span className="text-primary">OS</span>
            </h1>
         </div>
