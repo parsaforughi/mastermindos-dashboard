@@ -11,8 +11,9 @@ import Analytics from "@/pages/Analytics";
 import KnowledgeBase from "@/pages/KnowledgeBase";
 import Settings from "@/pages/Settings";
 import ExplainerDashboard from "@/pages/ExplainerDashboard";
+import ExplainerConversations from "@/pages/ExplainerConversations";
 import ExplainerLearningModules from "@/pages/ExplainerLearningModules";
-import ExplainerQA from "@/pages/ExplainerQA";
+import ExplainerAnalytics from "@/pages/ExplainerAnalytics";
 import ExplainerKnowledge from "@/pages/ExplainerKnowledge";
 import ExplainerSettings from "@/pages/ExplainerSettings";
 
@@ -55,8 +56,8 @@ function Router() {
       
       {/* Explainer Dashboard Routes */}
       <Route path="/dashboard/explainer" component={ExplainerDashboard} />
-      <Route path="/dashboard/explainer/conversations" component={ExplainerLearningModules} />
-      <Route path="/dashboard/explainer/analytics" component={ExplainerQA} />
+      <Route path="/dashboard/explainer/conversations" component={ExplainerConversations} />
+      <Route path="/dashboard/explainer/analytics" component={ExplainerAnalytics} />
       <Route path="/dashboard/explainer/knowledge" component={ExplainerKnowledge} />
       <Route path="/dashboard/explainer/settings" component={ExplainerSettings} />
       
