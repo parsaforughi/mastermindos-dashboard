@@ -196,7 +196,7 @@ export default function ProjectsOverview() {
               
               {/* Core Label */}
               <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 text-center w-40">
-                 <div className="text-xs font-mono text-primary/80 tracking-[0.2em]">CENTRAL CORTEX</div>
+                 <div className="text-xs font-mono text-primary/80 tracking-[0.2em]">SEYLANE AI</div>
                  <div className="text-[10px] text-muted-foreground">Processing Nodes</div>
               </div>
            </div>
