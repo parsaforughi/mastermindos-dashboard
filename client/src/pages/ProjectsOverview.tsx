@@ -17,7 +17,8 @@ import {
   Target,
   Brain,
   Mail,
-  Snowflake
+  Snowflake,
+  Crown
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link } from "wouter";
@@ -68,6 +69,45 @@ const projects = [
     stats: { users: "450k", activity: "High" },
     status: "maintenance",
     description: "Trend analysis and viral content propagation engine."
+  },
+  { 
+    id: "iceball-dashboard", 
+    name: "Iceball", 
+    type: "Analytics", 
+    icon: Snowflake,
+    color: "text-cyan-400",
+    gradient: "from-cyan-400 to-blue-600",
+    stats: { users: "45.8k", activity: "High" },
+    status: "active",
+    description: "Image processing and Gemini API analytics dashboard.",
+    isDashboard: true,
+    href: "/dashboard/iceball-bot"
+  },
+  { 
+    id: "viral-dashboard", 
+    name: "Viral TB", 
+    type: "Dashboard", 
+    icon: TrendingUp,
+    color: "text-pink-400",
+    gradient: "from-pink-400 to-rose-600",
+    stats: { users: "582.3k", activity: "Extreme" },
+    status: "active",
+    description: "Viral content tracking and analytics dashboard.",
+    isDashboard: true,
+    href: "/dashboard/viral-bot"
+  },
+  { 
+    id: "vip-passport", 
+    name: "VIP Passport", 
+    type: "Engagement", 
+    icon: Crown,
+    color: "text-amber-400",
+    gradient: "from-amber-400 to-orange-600",
+    stats: { users: "2.8k", activity: "Moderate" },
+    status: "active",
+    description: "VIP missions, rewards, and user engagement platform.",
+    isDashboard: true,
+    href: "/dashboard/vip-passport"
   }
 ];
 
@@ -95,7 +135,7 @@ function OrbitalNode({ project, index, total, radius = 280 }: { project: any, in
         }}
       />
 
-      <Link href={`/bot/${project.id}`}>
+      <Link href={project.isDashboard ? project.href : `/bot/${project.id}`}>
         <div className="relative cursor-pointer group perspective-1000">
           {/* Floating Animation Container */}
           <div className="animate-float" style={{ animationDelay: `${index * 1}s` }}>
