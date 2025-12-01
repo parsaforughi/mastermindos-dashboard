@@ -16,7 +16,8 @@ import {
   Database,
   Target,
   Brain,
-  Mail
+  Mail,
+  Snowflake
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link } from "wouter";
@@ -28,7 +29,7 @@ const projects = [
     id: "ice-ball", 
     name: "Ice Ball", 
     type: "Game Bot", 
-    icon: Target,
+    icon: Snowflake,
     color: "text-cyan-400",
     gradient: "from-cyan-400 to-blue-600",
     stats: { users: "12.5k", activity: "High" },
@@ -50,7 +51,7 @@ const projects = [
     id: "auto-dm", 
     name: "Auto DM", 
     type: "Marketing Automation", 
-    icon: Mail,
+    icon: Send,
     color: "text-green-400",
     gradient: "from-green-400 to-emerald-600",
     stats: { users: "2.1M", activity: "Extreme" },
@@ -59,7 +60,7 @@ const projects = [
   },
   { 
     id: "viral-bot", 
-    name: "Viral TelegramBot", 
+    name: "Viral TB", 
     type: "Social Growth", 
     icon: TrendingUp,
     color: "text-pink-400",
