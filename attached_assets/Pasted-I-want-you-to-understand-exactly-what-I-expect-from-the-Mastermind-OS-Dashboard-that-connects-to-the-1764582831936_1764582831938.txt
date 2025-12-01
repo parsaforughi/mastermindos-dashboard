@@ -1,0 +1,114 @@
+I want you to understand exactly what I expect from the Mastermind OS Dashboard that connects to the Explainer Bot backend.
+
+This is NOT a request to change code.  
+This is only a clear description of what the dashboard must show and how the explainer bot data will be used.
+
+──────────────────────────────
+MASTER CONCEPT
+──────────────────────────────
+Mastermind OS is a centralized dashboard where I manage all my AI bots and automations.  
+The Explainer Bot is one of these bots.  
+The dashboard must visualize everything happening inside the bot, in real-time.
+
+Here is exactly what I expect the Explainer Bot module to provide to the dashboard:
+
+──────────────────────────────
+1) REAL-TIME MESSAGE STREAM
+──────────────────────────────
+The dashboard must be able to see:
+- Every incoming user message in realtime
+- Every outgoing bot message in realtime
+- The conversation updates live without refreshing
+- Errors and events (timeouts, API errors, missing intent)
+
+The backend must expose:
+• SSE endpoint for live messages  
+• SSE endpoint for logs  
+• Endpoint to send simulated messages (events/message)
+
+──────────────────────────────
+2) FULL INBOX VIEW
+──────────────────────────────
+I want the dashboard to show:
+- All conversations from the explainer bot
+- Each conversation's message history
+- Correct “from: user / bot”
+- Auto-refresh when new messages come in
+- Unread counts
+- Auto-select first conversation
+
+This means the backend must provide:
+• /conversations  
+• /messages?conversationId=ID  
+• message timestamps  
+• inbound/outbound counters  
+
+──────────────────────────────
+3) STATS & ANALYTICS
+──────────────────────────────
+Dashboard must show:
+- Total messages (received/sent)
+- Today’s messages
+- Bot response rate
+- Average response time
+- Detected intents (brand / price / product)
+- Number of errors
+- Bot on/off state
+
+Backend must provide a unified:
+• /stats endpoint  
+
+──────────────────────────────
+4) CONTROL PANEL
+──────────────────────────────
+Dashboard must control the explainer bot:
+- Turn bot on/off
+- Pause / resume
+- Reset session
+- Force login
+- Clean cache
+- Load new prompt (string)
+- Reload bot memory
+
+Backend must provide:
+• /control endpoint with action field  
+(returning updated bot state)
+
+──────────────────────────────
+5) LOG VIEWER
+──────────────────────────────
+Dashboard must show a scrolling terminal-like log feed with:
+- API calls
+- Detected intents
+- Product search results
+- Errors
+- Prompt loads
+- Session resets
+- Control actions
+
+Backend must stream logs through:
+• /logs SSE endpoint  
+──────────────────────────────
+
+SUMMARY OF WHAT I NEED FROM YOU
+──────────────────────────────
+You don’t need to modify code; you just need to understand this structure.
+
+The Explainer Bot backend must expose:
+- /stats
+- /conversations
+- /messages
+- /events/message
+- /control
+- /live-messages (SSE)
+- /logs (SSE)
+
+The Mastermind OS Dashboard will visualize:
+1. Real-time messages  
+2. Full inbox + chat viewer  
+3. Stats & analytics  
+4. Bot control panel  
+5. Log stream  
+6. Error tracking and health monitoring  
+
+This is the complete functional spec of what the dashboard must receive from the Explainer Bot.
