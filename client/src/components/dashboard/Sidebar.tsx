@@ -10,7 +10,10 @@ import {
   ChevronLeft,
   Globe,
   Send,
-  Smartphone
+  Smartphone,
+  TrendingUp,
+  Trophy,
+  Snowflake
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link, useLocation, useRoute } from "wouter";
@@ -47,6 +50,12 @@ export function Sidebar() {
     { icon: Cpu, label: "Bot Settings", href: `/bot/${botId}/settings` },
   ];
 
+  const botsItems = [
+    { icon: TrendingUp, label: "Viral Bot", href: "/dashboard/viral-bot" },
+    { icon: Snowflake, label: "Iceball Bot", href: "/dashboard/iceball-bot" },
+    { icon: Trophy, label: "VIP Passport", href: "/dashboard/vip-passport" },
+  ];
+
   return (
     <div className="h-full w-64 flex flex-col border-r border-white/10 bg-sidebar/50 backdrop-blur-xl z-20 transition-all duration-300">
       {/* Header - Context Switching */}
@@ -79,6 +88,29 @@ export function Sidebar() {
         </div>
         {navItems.map((item) => {
           const isActive = location === item.href || (item.href !== `/bot/${botId}` && location.startsWith(item.href));
+          return (
+            <Link key={item.label} href={item.href}>
+              <button
+                className={cn(
+                  "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group cursor-pointer relative overflow-hidden",
+                  isActive 
+                    ? "bg-primary/10 text-primary border border-primary/20 shadow-[0_0_15px_-5px_hsl(var(--primary)/0.3)]" 
+                    : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+                )}
+              >
+                {isActive && <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary" />}
+                <item.icon className={cn("h-4 w-4", isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground")} />
+                {item.label}
+              </button>
+            </Link>
+          );
+        })}
+
+        <div className="text-xs font-semibold text-muted-foreground px-3 mb-2 mt-6 uppercase tracking-wider">
+          <span>Bots</span>
+        </div>
+        {botsItems.map((item) => {
+          const isActive = location === item.href;
           return (
             <Link key={item.label} href={item.href}>
               <button

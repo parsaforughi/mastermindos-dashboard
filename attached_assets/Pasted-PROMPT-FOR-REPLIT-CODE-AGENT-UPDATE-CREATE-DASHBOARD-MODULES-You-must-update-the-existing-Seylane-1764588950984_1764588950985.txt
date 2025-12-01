@@ -1,0 +1,148 @@
+PROMPT FOR REPLIT CODE AGENT — UPDATE/CREATE DASHBOARD MODULES
+
+You must update the existing Seylane Dashboard and add new dashboard pages using the same theme, style, components, structure, and UI conventions already used in the project.
+Do not change global styling.
+
+⚠️ Important:
+If any of these pages or components already exists, update/modify it instead of creating a duplicate.
+If it does not exist, create it from scratch.
+
+⸻
+
+1) Viral Bot Dashboard
+
+Route:
+/dashboard/viral-bot
+
+If the page already exists → update it with everything below.
+Otherwise → create it.
+
+A) Stats Overview Cards
+	•	Total Searches Today
+	•	Searches Last 7 Days
+	•	Total Searches All Time
+	•	Success Rate %
+
+B) Popular Categories
+
+Render top categories + counts (chart or list).
+
+C) Language Distribution
+
+Chart: Persian / English / Arabic / Mixed.
+
+D) Requests Log Table
+
+Columns: User ID, Category, Language, Min Views, Time, Result Count, Status.
+
+E) Results Summary
+	•	Avg viral views
+	•	Total viral posts delivered
+	•	Failed fetch count
+
+F) API Health
+	•	Scraper status
+	•	Error rate
+	•	Timeout count
+	•	Up/down indicator
+
+⸻
+
+2) Iceball Bot Dashboard
+
+Route:
+/dashboard/iceball-bot
+
+Same rule: if exists, update; if not, create.
+
+A) Stats Overview
+	•	Images Today
+	•	This Week
+	•	All Time
+	•	Success Rate %
+
+B) Gemini API Usage
+	•	Calls Today
+	•	Calls Last 7 Days
+	•	Estimated Cost
+	•	Rate Limit Status
+
+C) Input Log Table
+
+User ID, Input Thumbnail, Iceball Model, Timestamp.
+
+D) Output Log Table
+
+Output Thumbnail, Resolution, Processing Time, Status.
+
+E) Error Monitor
+
+Processing fails, Upload errors, Gemini errors, Error rate %.
+
+F) System Performance
+
+Avg processing time, Server status, Last uptime.
+
+⸻
+
+3) VIP Passport Dashboard
+
+Route:
+/dashboard/vip-passport
+If exists → update. If not → create.
+
+A) Main Stats
+
+Active VIP users, Missions completed, Stamps count, Rewards distributed.
+
+B) Missions Overview Table
+
+Mission name, Active state, Completion count, Completion rate, Avg completion time, Reward value.
+
+C) Notification Analytics
+
+Last sent notifications, View rate, Click rate.
+
+D) VIP User Table
+
+User ID, Points, Active missions, Stamps, Last activity.
+
+E) System Health
+
+Database state, API state, Error logs, Avg response time.
+
+⸻
+
+4) Discount Bot
+
+Do not create or show this page yet.
+Do not add an icon for it.
+Ignore this project for now.
+
+⸻
+
+5) Navigation
+
+Add to sidebar under new group "Bots":
+	•	Viral Bot
+	•	Iceball Bot
+	•	VIP Passport
+(No Discount Bot)
+
+If items already exist, keep their position but update icons/text only if necessary.
+
+⸻
+
+6) Data Handling
+	•	Use existing apiFetch utilities.
+	•	Create API endpoints or mock data if missing.
+	•	Follow current folder structure (components/..., store/..., page.tsx etc.).
+	•	Ensure UI matches existing dashboard styling exactly.
+
+⸻
+
+7) Rules
+	•	Do NOT modify working modules.
+	•	Only update/create the pages requested.
+	•	Keep design consistent with current dashboard theme.
+	•	Lint + build must pass without errors.

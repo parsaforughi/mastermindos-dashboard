@@ -10,6 +10,9 @@ import Conversations from "@/pages/Conversations";
 import Analytics from "@/pages/Analytics";
 import KnowledgeBase from "@/pages/KnowledgeBase";
 import Settings from "@/pages/Settings";
+import ViralBotDashboard from "@/pages/ViralBotDashboard";
+import IceballBotDashboard from "@/pages/IceballBotDashboard";
+import VIPPassportDashboard from "@/pages/VIPPassportDashboard";
 
 function Router() {
   return (
@@ -23,6 +26,11 @@ function Router() {
       <Route path="/bot/:id/analytics" component={Analytics} />
       <Route path="/bot/:id/knowledge" component={KnowledgeBase} />
       <Route path="/bot/:id/settings" component={Settings} />
+      
+      {/* Dashboard Routes */}
+      <Route path="/dashboard/viral-bot" component={ViralBotDashboard} />
+      <Route path="/dashboard/iceball-bot" component={IceballBotDashboard} />
+      <Route path="/dashboard/vip-passport" component={VIPPassportDashboard} />
       
       <Route component={NotFound} />
     </Switch>
