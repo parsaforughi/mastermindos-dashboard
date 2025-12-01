@@ -5,7 +5,8 @@ import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Separator } from "@/components/ui/separator";
-import { Cpu, Shield, Zap, Save, RefreshCcw } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Cpu, Shield, Zap, Save, RefreshCcw, Terminal, Edit, Maximize2 } from "lucide-react";
 
 export default function Settings() {
   return (
@@ -53,6 +54,52 @@ export default function Settings() {
                   </div>
                   <Slider defaultValue={[70]} max={100} step={1} className="py-4" />
                 </div>
+              </div>
+            </section>
+
+             {/* System Prompt Configuration */}
+            <section className="glass-panel p-6 rounded-2xl animate-in fade-in slide-in-from-bottom-4 duration-500 delay-150">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-amber-500/10 text-amber-400"><Terminal className="w-5 h-5" /></div>
+                  <div>
+                    <h2 className="text-lg font-semibold">System Prompt</h2>
+                    <p className="text-xs text-muted-foreground">Core instructions that define bot behavior</p>
+                  </div>
+                </div>
+                <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary hover:bg-white/5">
+                  <Maximize2 className="w-4 h-4" />
+                </Button>
+              </div>
+              
+              <div className="relative group">
+                <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Button size="sm" variant="secondary" className="h-7 px-2 text-xs gap-1.5">
+                    <Edit className="w-3 h-3" /> Edit Prompt
+                  </Button>
+                </div>
+                <Textarea 
+                  className="min-h-[240px] bg-black/40 border-white/10 font-mono text-sm leading-relaxed resize-y focus-visible:ring-primary/30 p-4 custom-scrollbar"
+                  defaultValue={`You are an advanced AI assistant designed to provide clear, concise, and accurate explanations for complex technical topics.
+
+CORE DIRECTIVES:
+1. Break down concepts into first principles.
+2. Use analogies when explaining abstract ideas.
+3. Maintain a professional yet approachable tone.
+4. Do not hallucinate APIs or features that do not exist.
+
+OUTPUT FORMAT:
+- Use Markdown for all formatting.
+- Code blocks must include language tags.
+- Highlight key terms in bold.`}
+                />
+              </div>
+              <div className="mt-3 flex justify-between items-center text-xs text-muted-foreground">
+                <span>Token Estimate: ~145 tokens</span>
+                <span className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                  Valid JSON/String Format
+                </span>
               </div>
             </section>
 
