@@ -13,6 +13,10 @@ import Settings from "@/pages/Settings";
 import ExplainerDashboard from "@/pages/ExplainerDashboard";
 import AutoDMDashboard from "@/pages/AutoDMDashboard";
 import ViralBotDashboard from "@/pages/ViralBotDashboard";
+import ViralBotAnalytics from "@/pages/ViralBotAnalytics";
+import ViralBotContentTracking from "@/pages/ViralBotContentTracking";
+import ViralBotNetworkMap from "@/pages/ViralBotNetworkMap";
+import ViralBotSettings from "@/pages/ViralBotSettings";
 import IceballBotDashboard from "@/pages/IceballBotDashboard";
 import VIPPassportDashboard from "@/pages/VIPPassportDashboard";
 
@@ -32,7 +36,14 @@ function Router() {
       {/* Dashboard Routes */}
       <Route path="/dashboard/explainer" component={ExplainerDashboard} />
       <Route path="/dashboard/auto-dm" component={AutoDMDashboard} />
+      
+      {/* Viral Bot Routes */}
       <Route path="/dashboard/viral-bot" component={ViralBotDashboard} />
+      <Route path="/dashboard/viral-bot/conversations" component={ViralBotContentTracking} />
+      <Route path="/dashboard/viral-bot/analytics" component={ViralBotAnalytics} />
+      <Route path="/dashboard/viral-bot/knowledge" component={ViralBotNetworkMap} />
+      <Route path="/dashboard/viral-bot/settings" component={ViralBotSettings} />
+      
       <Route path="/dashboard/iceball-bot" component={IceballBotDashboard} />
       <Route path="/dashboard/vip-passport" component={VIPPassportDashboard} />
       
