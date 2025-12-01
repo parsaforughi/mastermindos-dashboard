@@ -1,14 +1,21 @@
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { InboxList } from "@/components/dashboard/InboxList";
 import { ActiveChat } from "@/components/dashboard/ActiveChat";
-import { useState } from "react";
-import { MOCK_CONVERSATIONS } from "@/lib/mockData";
+import { useState, useEffect } from "react";
+import { useConversations } from "@/hooks/useExplainerApi";
 
 export default function ExplainerConversations() {
-  const [activeId, setActiveId] = useState(MOCK_CONVERSATIONS[0]?.id || "");
+  const { data: conversations } = useConversations();
+  const [activeId, setActiveId] = useState("");
+
+  useEffect(() => {
+    if (conversations && conversations.length > 0 && !activeId) {
+      setActiveId(conversations[0].id);
+    }
+  }, [conversations, activeId]);
 
   return (
-    <div className="flex h-screen w-full bg-background text-foreground overflow-hidden font-sans selection:bg-primary/20 relative">
+    <div className="flex h-screen w-full bg-background text-foreground overflow-hidden font-sans selection:bg-primary/20 relative" data-testid="explainer-conversations-page">
       <div className="noise-overlay" />
       <div className="fixed inset-0 pointer-events-none z-0 bg-grid-pattern opacity-40" />
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
