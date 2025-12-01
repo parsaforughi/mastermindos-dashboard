@@ -1,12 +1,14 @@
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Database } from "lucide-react";
 
 const knowledgeBase = [
-  { id: "KB001", title: "Algorithms Encyclopedia", entries: 234, lastUpdated: "2 days ago" },
-  { id: "KB002", title: "Data Structures Reference", entries: 189, lastUpdated: "5 days ago" },
-  { id: "KB003", title: "System Design Patterns", entries: 156, lastUpdated: "1 week ago" },
-  { id: "KB004", title: "Best Practices Guide", entries: 142, lastUpdated: "10 days ago" },
+  { id: "KB001", title: "Loss Functions Reference", author: "ML Team", lastUpdated: "2 hours ago", access: "Public" },
+  { id: "KB002", title: "GPU Optimization Techniques", author: "Systems", lastUpdated: "1 day ago", access: "Public" },
+  { id: "KB003", title: "Model Architecture Blueprints", author: "Research", lastUpdated: "3 days ago", access: "Team Only" },
+  { id: "KB004", title: "Hyperparameter Tuning Guide", author: "Experts", lastUpdated: "1 week ago", access: "Public" },
+  { id: "KB005", title: "Dataset Preprocessing Standards", author: "Data Team", lastUpdated: "2 weeks ago", access: "Team Only" },
 ];
 
 export default function ExplainerKnowledge() {
@@ -28,14 +30,17 @@ export default function ExplainerKnowledge() {
               <p className="text-sm text-muted-foreground">Organized educational resources</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3">
               {knowledgeBase.map((kb) => (
-                <Card key={kb.id} className="p-4 border-white/10 bg-white/5 backdrop-blur-xl">
+                <Card key={kb.id} className="p-4 border-white/10 bg-white/5 backdrop-blur-xl hover:bg-white/10 transition-colors cursor-pointer">
                   <div className="flex items-start gap-3">
                     <Database className="h-5 w-5 text-primary mt-1 flex-shrink-0" />
                     <div className="flex-1">
-                      <h3 className="font-medium text-white mb-1">{kb.title}</h3>
-                      <p className="text-xs text-muted-foreground mb-2">{kb.entries} entries</p>
+                      <div className="flex items-center justify-between mb-1">
+                        <h3 className="font-medium text-white">{kb.title}</h3>
+                        <Badge variant="outline" className="text-[10px]">{kb.access}</Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground mb-2">by {kb.author}</p>
                       <p className="text-[10px] text-muted-foreground">Updated {kb.lastUpdated}</p>
                     </div>
                   </div>

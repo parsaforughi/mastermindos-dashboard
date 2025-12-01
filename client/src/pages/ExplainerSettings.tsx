@@ -17,54 +17,61 @@ export default function ExplainerSettings() {
         <main className="flex-1 flex flex-col h-full overflow-hidden">
           <div className="flex-1 p-6 overflow-y-auto overflow-x-hidden custom-scrollbar">
             <div className="mb-6">
-              <h1 className="text-3xl font-bold text-white mb-1">AI Settings</h1>
-              <p className="text-sm text-muted-foreground">Configure AI parameters and behavior</p>
+              <h1 className="text-3xl font-bold text-white mb-1">Settings</h1>
+              <p className="text-sm text-muted-foreground">Configure your explainer preferences</p>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 max-w-2xl">
               <Card className="p-4 border-white/10 bg-white/5 backdrop-blur-xl">
-                <h3 className="text-sm font-semibold text-white mb-4">Content Generation</h3>
+                <h3 className="text-sm font-semibold text-white mb-4">Explanation Style</h3>
                 <div className="space-y-3">
                   <div>
-                    <label className="text-xs text-muted-foreground">Explanation Depth</label>
+                    <label className="text-xs text-muted-foreground">Audience Level</label>
                     <select className="w-full mt-1 px-3 py-2 rounded bg-white/5 border border-white/10 text-white text-sm">
-                      <option>Beginner</option>
-                      <option>Intermediate</option>
-                      <option>Advanced</option>
+                      <option>Academic</option>
+                      <option>Professional</option>
+                      <option>Student</option>
                     </select>
                   </div>
                   <div>
-                    <label className="text-xs text-muted-foreground">Language</label>
+                    <label className="text-xs text-muted-foreground">Format Preference</label>
                     <select className="w-full mt-1 px-3 py-2 rounded bg-white/5 border border-white/10 text-white text-sm">
-                      <option>English</option>
-                      <option>Spanish</option>
-                      <option>French</option>
+                      <option>Text + Diagrams</option>
+                      <option>Code Examples</option>
+                      <option>Visual Only</option>
                     </select>
                   </div>
                 </div>
               </Card>
 
               <Card className="p-4 border-white/10 bg-white/5 backdrop-blur-xl">
-                <h3 className="text-sm font-semibold text-white mb-4">Response Behavior</h3>
+                <h3 className="text-sm font-semibold text-white mb-4">Output</h3>
                 <div className="space-y-3">
                   <div>
-                    <label className="text-xs text-muted-foreground">Response Length</label>
-                    <select className="w-full mt-1 px-3 py-2 rounded bg-white/5 border border-white/10 text-white text-sm">
-                      <option>Short</option>
-                      <option>Medium</option>
-                      <option>Detailed</option>
-                    </select>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input type="checkbox" defaultChecked className="w-4 h-4" />
+                      <span className="text-xs text-muted-foreground">Include Examples</span>
+                    </label>
                   </div>
                   <div>
-                    <label className="text-xs text-muted-foreground">Accuracy Level</label>
-                    <input type="number" defaultValue="95" min="0" max="100" className="w-full mt-1 px-3 py-2 rounded bg-white/5 border border-white/10 text-white text-sm" />
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input type="checkbox" defaultChecked className="w-4 h-4" />
+                      <span className="text-xs text-muted-foreground">Add References</span>
+                    </label>
+                  </div>
+                  <div>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input type="checkbox" className="w-4 h-4" />
+                      <span className="text-xs text-muted-foreground">Include Animations</span>
+                    </label>
                   </div>
                 </div>
               </Card>
             </div>
 
-            <div className="mt-6">
-              <Button className="bg-primary/80 hover:bg-primary">Save Settings</Button>
+            <div className="mt-6 space-y-2">
+              <Button className="bg-primary/80 hover:bg-primary">Save Preferences</Button>
+              <Button variant="outline" className="w-full">Reset to Defaults</Button>
             </div>
           </div>
         </main>

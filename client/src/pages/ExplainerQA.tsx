@@ -1,12 +1,14 @@
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { MessageCircle } from "lucide-react";
 
 const qaData = [
-  { id: 1, question: "What is machine learning?", answers: 234, views: 1200 },
-  { id: 2, question: "Explain neural networks", answers: 189, views: 890 },
-  { id: 3, question: "How does backpropagation work?", answers: 145, views: 670 },
-  { id: 4, question: "Define deep learning concepts", answers: 98, views: 450 },
+  { id: 1, question: "How do transformer models work?", category: "Advanced ML", helpful: 892, difficulty: "Hard" },
+  { id: 2, question: "What's the difference between supervised and unsupervised learning?", category: "Fundamentals", helpful: 1234, difficulty: "Easy" },
+  { id: 3, question: "Explain gradient descent optimization", category: "Mathematics", helpful: 567, difficulty: "Medium" },
+  { id: 4, question: "What are attention mechanisms?", category: "Advanced ML", helpful: 743, difficulty: "Hard" },
+  { id: 5, question: "How does backpropagation reduce error?", category: "Core Concepts", helpful: 654, difficulty: "Medium" },
 ];
 
 export default function ExplainerQA() {
@@ -35,10 +37,12 @@ export default function ExplainerQA() {
                     <MessageCircle className="h-5 w-5 text-primary mt-1 flex-shrink-0" />
                     <div className="flex-1">
                       <h3 className="font-medium text-white mb-2">{item.question}</h3>
-                      <div className="flex gap-4 text-xs text-muted-foreground">
-                        <span>{item.answers} answers</span>
-                        <span>•</span>
-                        <span>{item.views} views</span>
+                      <div className="flex flex-wrap gap-2 items-center">
+                        <Badge variant="outline" className="text-[10px]">{item.category}</Badge>
+                        <Badge variant="outline" className={`text-[10px] ${item.difficulty === 'Easy' ? 'text-green-400' : item.difficulty === 'Medium' ? 'text-yellow-400' : 'text-red-400'}`}>
+                          {item.difficulty}
+                        </Badge>
+                        <span className="text-xs text-muted-foreground ml-auto">{item.helpful} found helpful</span>
                       </div>
                     </div>
                   </div>

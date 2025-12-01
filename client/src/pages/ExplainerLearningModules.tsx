@@ -3,10 +3,11 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
 const modules = [
-  { id: "M001", title: "Data Structures Fundamentals", status: "completed", progress: 100 },
-  { id: "M002", title: "Algorithm Optimization", status: "in-progress", progress: 65 },
-  { id: "M003", title: "Web Development Basics", status: "in-progress", progress: 42 },
-  { id: "M004", title: "Advanced Concepts", status: "upcoming", progress: 0 },
+  { id: "M001", title: "Neural Network Architecture", explanation: "Deep learning fundamentals with practical implementations", views: 2450, rating: 4.8 },
+  { id: "M002", title: "Computer Vision Basics", explanation: "Image processing and CNN models", views: 1890, rating: 4.6 },
+  { id: "M003", title: "Natural Language Processing", explanation: "Text analysis and transformer models", views: 3120, rating: 4.9 },
+  { id: "M004", title: "Reinforcement Learning", explanation: "Agent-based learning systems", views: 1540, rating: 4.7 },
+  { id: "M005", title: "Time Series Analysis", explanation: "Sequential data and forecasting", views: 892, rating: 4.5 },
 ];
 
 export default function ExplainerLearningModules() {
@@ -30,17 +31,19 @@ export default function ExplainerLearningModules() {
 
             <div className="grid grid-cols-1 gap-3">
               {modules.map((module) => (
-                <Card key={module.id} className="p-4 border-white/10 bg-white/5 backdrop-blur-xl">
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="font-medium text-white">{module.title}</h3>
-                    <Badge variant={module.status === 'completed' ? 'default' : module.status === 'in-progress' ? 'secondary' : 'outline'} className="text-[10px]">
-                      {module.status}
-                    </Badge>
+                <Card key={module.id} className="p-4 border-white/10 bg-white/5 backdrop-blur-xl hover:bg-white/10 transition-colors cursor-pointer">
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-white mb-1">{module.title}</h3>
+                      <p className="text-xs text-muted-foreground">{module.explanation}</p>
+                    </div>
                   </div>
-                  <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden">
-                    <div className="h-full bg-primary" style={{ width: `${module.progress}%` }} />
+                  <div className="flex items-center justify-between mt-3">
+                    <div className="flex items-center gap-2 text-xs">
+                      <span className="text-muted-foreground">{module.views.toLocaleString()} views</span>
+                      <span className="text-yellow-400">★ {module.rating}</span>
+                    </div>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-2">{module.progress}% Complete</p>
                 </Card>
               ))}
             </div>
