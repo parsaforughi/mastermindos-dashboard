@@ -93,11 +93,22 @@ export function ActiveChat({ conversationId }: { conversationId: string }) {
               </div>
             ) : (
               messages?.map((msg, idx) => {
-                const isBot = msg.from === 'bot';
+                // Check multiple possible field names for sender identification
+                // API may use: from="bot"/"user", direction="inbound"/"outbound", or type
+                const msgAny = msg as any;
+                const isBot = msg.from === 'bot' || 
+                              msg.from === 'outbound' || 
+                              msgAny.direction === 'outbound' ||
+                              msgAny.type === 'outbound' ||
+                              msgAny.sender === 'bot';
                 const isLastBotMessage = isBot && idx === (messages?.length || 0) - 1;
                 
                 return (
-                    <div key={msg.id} className={cn("flex gap-4 max-w-[85%] group animate-in slide-in-from-bottom-2 duration-500 fill-mode-backwards", isBot ? "mr-auto" : "ml-auto flex-row-reverse")} data-testid={`message-${msg.id}`}>
+                    <div key={msg.id} className={cn(
+                      "flex gap-4 max-w-[85%] group animate-in slide-in-from-bottom-2 duration-500 fill-mode-backwards", 
+                      // Bot (us) on RIGHT side, User on LEFT side
+                      isBot ? "ml-auto flex-row-reverse" : "mr-auto"
+                    )} data-testid={`message-${msg.id}`}>
                         <div className={cn(
                             "h-9 w-9 rounded-xl flex items-center justify-center shrink-0 shadow-[0_0_15px_-3px_rgba(0,0,0,0.3)] transition-all duration-300",
                             isBot 
@@ -111,8 +122,8 @@ export function ActiveChat({ conversationId }: { conversationId: string }) {
                             <div className={cn(
                                 "p-4 rounded-2xl text-sm leading-relaxed backdrop-blur-md transition-all duration-300",
                                 isBot 
-                                    ? "bg-white/[0.03] border border-white/10 rounded-tl-none text-foreground/90 shadow-lg" 
-                                    : "bg-primary/20 border border-primary/20 rounded-tr-none text-primary-foreground shadow-[0_4px_20px_-5px_hsl(var(--primary)/0.2)]"
+                                    ? "bg-primary/20 border border-primary/20 rounded-tr-none text-primary-foreground shadow-[0_4px_20px_-5px_hsl(var(--primary)/0.2)]" 
+                                    : "bg-white/[0.03] border border-white/10 rounded-tl-none text-foreground/90 shadow-lg"
                             )}>
                                 {isLastBotMessage ? (
                                   <div className="relative">
@@ -123,8 +134,11 @@ export function ActiveChat({ conversationId }: { conversationId: string }) {
                                   msg.text
                                 )}
                             </div>
-                            <span className="text-[10px] text-muted-foreground/60 font-mono block px-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {isBot ? 'Bot' : 'User'}
+                            <span className={cn(
+                              "text-[10px] text-muted-foreground/60 font-mono block px-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300",
+                              isBot ? "text-right" : "text-left"
+                            )}>
+                                {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {isBot ? 'ربات' : 'کاربر'}
                             </span>
                         </div>
                     </div>
