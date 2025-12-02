@@ -105,7 +105,7 @@ export function ActiveChat({ conversationId }: { conversationId: string }) {
                 
                 return (
                     <div key={msg.id} className={cn(
-                      "flex gap-4 max-w-[85%] group animate-in slide-in-from-bottom-2 duration-500 fill-mode-backwards", 
+                      "flex gap-2 md:gap-4 max-w-[95%] md:max-w-[85%] group animate-in slide-in-from-bottom-2 duration-500 fill-mode-backwards", 
                       // Bot (us) on RIGHT side, User on LEFT side
                       isBot ? "ml-auto flex-row-reverse" : "mr-auto"
                     )} data-testid={`message-${msg.id}`}>
@@ -147,42 +147,42 @@ export function ActiveChat({ conversationId }: { conversationId: string }) {
             )}
         </div>
 
-        <div className="p-4 bg-white/[0.01] backdrop-blur-xl border-t border-white/5">
-            <div className="flex items-center gap-2 bg-white/[0.03] border border-white/10 rounded-xl p-1.5 pr-2 focus-within:bg-white/[0.05] focus-within:border-primary/30 focus-within:ring-1 focus-within:ring-primary/30 transition-all duration-300 shadow-lg">
-                <Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground hover:text-primary hover:bg-white/5 shrink-0 rounded-lg transition-colors" data-testid="button-attach">
-                    <Paperclip className="h-4 w-4" />
+        <div className="p-2 md:p-4 bg-white/[0.01] backdrop-blur-xl border-t border-white/5">
+            <div className="flex items-center gap-1 md:gap-2 bg-white/[0.03] border border-white/10 rounded-lg md:rounded-xl p-1 md:p-1.5 pr-1 md:pr-2 focus-within:bg-white/[0.05] focus-within:border-primary/30 focus-within:ring-1 focus-within:ring-primary/30 transition-all duration-300 shadow-lg">
+                <Button variant="ghost" size="icon" className="h-8 md:h-9 w-8 md:w-9 text-muted-foreground hover:text-primary hover:bg-white/5 shrink-0 rounded text-xs md:text-sm transition-colors" data-testid="button-attach">
+                    <Paperclip className="h-3.5 md:h-4 w-3.5 md:w-4" />
                 </Button>
                 
                 <Input 
                     value={inputText}
                     onChange={(e) => setInputText(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                    className="border-0 bg-transparent focus-visible:ring-0 h-10 text-sm placeholder:text-muted-foreground/40 shadow-none font-medium"
-                    placeholder="Send bot response..."
+                    className="border-0 bg-transparent focus-visible:ring-0 h-9 md:h-10 text-xs md:text-sm placeholder:text-muted-foreground/40 shadow-none font-medium"
+                    placeholder="Send..."
                     disabled={!conversationId || sendMessage.isPending}
                     data-testid="input-message"
                 />
                 
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-0.5 md:gap-1">
                   <Button 
                       variant="ghost"
                       size="icon" 
-                      className="h-9 w-9 text-muted-foreground hover:text-primary hover:bg-white/5 rounded-lg shrink-0 transition-colors"
+                      className="h-8 md:h-9 w-8 md:w-9 text-muted-foreground hover:text-primary hover:bg-white/5 rounded text-xs md:text-sm shrink-0 transition-colors"
                       data-testid="button-sparkle"
                   >
-                      <Sparkles className="h-4 w-4" />
+                      <Sparkles className="h-3.5 md:h-4 w-3.5 md:w-4" />
                   </Button>
                   <Button 
                       onClick={handleSend}
                       size="icon" 
-                      className="h-9 w-9 bg-gradient-to-br from-primary to-purple-600 hover:to-purple-500 text-white shadow-[0_0_20px_-5px_hsl(var(--primary)/0.5)] rounded-lg shrink-0 transition-all hover:scale-105 active:scale-95"
+                      className="h-8 md:h-9 w-8 md:w-9 bg-gradient-to-br from-primary to-purple-600 hover:to-purple-500 text-white shadow-[0_0_20px_-5px_hsl(var(--primary)/0.5)] rounded text-xs md:text-sm shrink-0 transition-all hover:scale-105 active:scale-95"
                       disabled={!conversationId || sendMessage.isPending || !inputText.trim()}
                       data-testid="button-send"
                   >
                       {sendMessage.isPending ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <Loader2 className="h-3.5 md:h-4 w-3.5 md:w-4 animate-spin" />
                       ) : (
-                        <Send className="h-4 w-4" />
+                        <Send className="h-3.5 md:h-4 w-3.5 md:w-4" />
                       )}
                   </Button>
                 </div>
