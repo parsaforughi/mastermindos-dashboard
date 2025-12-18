@@ -16,7 +16,9 @@ import {
   TrendingUp,
   Target,
   Network,
-  Snowflake
+  Snowflake,
+  Users,
+  Sparkles
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link, useLocation, useRoute } from "wouter";
@@ -27,7 +29,9 @@ const PROJECT_ICONS: Record<string, any> = {
   "explainer": Brain,
   "auto-dm": Send,
   "viral-bot": Smartphone,
-  "vip-passport": Crown
+  "vip-passport": Crown,
+  "instagram-dm": MessageSquare,
+  "collamin-shelftalker": Sparkles
 };
 
 const PROJECT_NAMES: Record<string, string> = {
@@ -36,7 +40,9 @@ const PROJECT_NAMES: Record<string, string> = {
   "explainer": "Explainer",
   "auto-dm": "Auto DM",
   "viral-bot": "Viral Bot",
-  "vip-passport": "VIP Passport"
+  "vip-passport": "VIP Passport",
+  "instagram-dm": "Instagram DM",
+  "collamin-shelftalker": "Collamin Shelftalker"
 };
 
 const getNavItemsForProject = (botId: string, basePath: string) => {
@@ -75,6 +81,13 @@ const getNavItemsForProject = (botId: string, basePath: string) => {
       { icon: Crown, label: "Rewards", href: `${basePath}/analytics` },
       { icon: MessageSquare, label: "User Engagement", href: `${basePath}/knowledge` },
       { icon: Cpu, label: "Platform Settings", href: `${basePath}/settings` },
+    ],
+    "instagram-dm": [
+      { icon: LayoutDashboard, label: "Overview", href: `${basePath}` },
+      { icon: Send, label: "Campaigns", href: `${basePath}/campaigns` },
+      { icon: Users, label: "Accounts", href: `${basePath}/accounts` },
+      { icon: Activity, label: "Logs", href: `${basePath}/logs` },
+      { icon: Cpu, label: "Settings", href: `${basePath}/settings` },
     ],
   };
 

@@ -1,15 +1,12 @@
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-
-const missions = [
-  { id: "MIS001", title: "Welcome Quest", reward: 500, status: "active", difficulty: "Easy" },
-  { id: "MIS002", title: "Social Warrior", reward: 1500, status: "active", difficulty: "Medium" },
-  { id: "MIS003", title: "Elite Champion", reward: 5000, status: "completed", difficulty: "Hard" },
-  { id: "MIS004", title: "Legendary Journey", reward: 10000, status: "locked", difficulty: "Legendary" },
-];
+import { Loader2 } from "lucide-react";
+import { useVipMissions, useStartMission } from "@/hooks/useVipApi";
 
 export default function VIPMissions() {
+  const { data: missions = [], isLoading } = useVipMissions();
+  const startMission = useStartMission();
   return (
     <div className="flex h-screen w-full bg-background text-foreground overflow-hidden font-sans selection:bg-primary/20 relative">
       <div className="noise-overlay" />
@@ -28,24 +25,36 @@ export default function VIPMissions() {
               <p className="text-sm text-muted-foreground">Complete missions to earn rewards</p>
             </div>
 
-            <div className="grid grid-cols-1 gap-3">
-              {missions.map((mission) => (
-                <Card key={mission.id} className="p-4 border-white/10 bg-white/5 backdrop-blur-xl">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-medium text-white">{mission.title}</h3>
-                    <Badge variant={mission.status === 'completed' ? 'default' : mission.status === 'active' ? 'secondary' : 'outline'} className="text-[10px]">
-                      {mission.status}
-                    </Badge>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex gap-2">
-                      <Badge variant="outline" className="text-[10px]">{mission.difficulty}</Badge>
-                    </div>
-                    <p className="text-sm font-semibold text-yellow-400">+{mission.reward} XP</p>
-                  </div>
-                </Card>
-              ))}
-            </div>
+            {isLoading ? (
+              <div className="flex items-center justify-center py-20">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 gap-3">
+                {missions.length === 0 ? (
+                  <Card className="p-8 border-white/10 bg-white/5 backdrop-blur-xl text-center">
+                    <p className="text-muted-foreground">No missions available</p>
+                  </Card>
+                ) : (
+                  missions.map((mission) => (
+                    <Card key={mission.id} className="p-4 border-white/10 bg-white/5 backdrop-blur-xl">
+                      <div className="flex items-center justify-between mb-2">
+                        <h3 className="font-medium text-white">{mission.title}</h3>
+                        <Badge variant={mission.status === 'completed' ? 'default' : mission.status === 'active' ? 'secondary' : 'outline'} className="text-[10px]">
+                          {mission.status}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex gap-2">
+                          <Badge variant="outline" className="text-[10px]">{mission.type}</Badge>
+                        </div>
+                        <p className="text-sm font-semibold text-yellow-400">+{mission.points} XP</p>
+                      </div>
+                    </Card>
+                  ))
+                )}
+              </div>
+            )}
           </div>
         </main>
       </div>

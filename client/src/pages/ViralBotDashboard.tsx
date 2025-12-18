@@ -1,39 +1,43 @@
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, AlertCircle, CheckCircle, Clock } from "lucide-react";
+import { TrendingUp, AlertCircle, CheckCircle, Clock, Loader2 } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
-
-const statsData = [
-  { label: "Total Searches Today", value: "2,450", icon: TrendingUp, color: "text-green-400" },
-  { label: "Searches Last 7 Days", value: "15,820", icon: TrendingUp, color: "text-blue-400" },
-  { label: "Total Searches All Time", value: "582,340", icon: TrendingUp, color: "text-purple-400" },
-  { label: "Success Rate", value: "94.2%", icon: CheckCircle, color: "text-cyan-400" },
-];
-
-const categoriesData = [
-  { name: "Entertainment", count: 245 },
-  { name: "Politics", count: 189 },
-  { name: "Sports", count: 156 },
-  { name: "Technology", count: 134 },
-  { name: "Other", count: 98 },
-];
-
-const languageData = [
-  { name: "Persian", value: 45 },
-  { name: "English", value: 30 },
-  { name: "Arabic", value: 15 },
-  { name: "Mixed", value: 10 },
-];
-
-const requestsLog = [
-  { id: "U001", category: "Entertainment", language: "Persian", minViews: 1000, time: "14:32", resultCount: 12, status: "Success" },
-  { id: "U002", category: "Sports", language: "English", minViews: 500, time: "14:28", resultCount: 8, status: "Success" },
-  { id: "U003", category: "Politics", language: "Persian", minViews: 2000, time: "14:15", resultCount: 5, status: "Failed" },
-  { id: "U004", category: "Technology", language: "Mixed", minViews: 750, time: "14:08", resultCount: 15, status: "Success" },
-];
+import { useViralBotStats, useViralBotContent, useViralBotAnalytics } from "@/hooks/useViralBotApi";
 
 export default function ViralBotDashboard() {
+  const { data: stats, isLoading: statsLoading } = useViralBotStats();
+  const { data: content = [], isLoading: contentLoading } = useViralBotContent();
+  const { data: analytics, isLoading: analyticsLoading } = useViralBotAnalytics();
+  const isLoading = statsLoading || contentLoading || analyticsLoading;
+  
+  const statsData = [
+    { label: "Total Messages", value: stats?.totalMessages?.toLocaleString() || "0", icon: TrendingUp, color: "text-green-400" },
+    { label: "Total Users", value: stats?.totalUsers?.toLocaleString() || "0", icon: TrendingUp, color: "text-blue-400" },
+    { label: "Active Channels", value: stats?.activeChannels?.toLocaleString() || "0", icon: TrendingUp, color: "text-purple-400" },
+    { label: "Viral Score", value: stats?.viralScore?.toFixed(1) || "0", icon: CheckCircle, color: "text-cyan-400" },
+  ];
+
+  // Generate categories from real analytics data
+  const categoriesData = analytics?.categoryDistribution 
+    ? Object.entries(analytics.categoryDistribution)
+        .map(([name, count]) => ({ name, count: count as number }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 5)
+    : [];
+
+  // Generate language distribution from real analytics data
+  const languageData = analytics?.languageDistribution
+    ? (() => {
+        const total = Object.values(analytics.languageDistribution).reduce((sum, val) => sum + (val as number), 0);
+        return Object.entries(analytics.languageDistribution)
+          .map(([name, value]) => ({
+            name: name === 'fa' ? 'Persian' : name === 'en' ? 'English' : name,
+            value: total > 0 ? Math.round(((value as number) / total) * 100) : 0
+          }))
+          .sort((a, b) => b.value - a.value);
+      })()
+    : [];
   return (
     <div className="flex h-screen w-full bg-background text-foreground overflow-hidden font-sans selection:bg-primary/20 relative">
       <div className="noise-overlay" />
@@ -54,22 +58,28 @@ export default function ViralBotDashboard() {
             </div>
 
             {/* Stats Overview */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-              {statsData.map((stat) => {
-                const Icon = stat.icon;
-                return (
-                  <Card key={stat.label} className="p-4 border-white/10 bg-white/5 backdrop-blur-xl hover:bg-white/10 transition-all">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <p className="text-xs text-muted-foreground mb-1">{stat.label}</p>
-                        <p className="text-2xl font-bold text-white">{stat.value}</p>
+            {isLoading ? (
+              <div className="flex items-center justify-center py-20 mb-6">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                {statsData.map((stat) => {
+                  const Icon = stat.icon;
+                  return (
+                    <Card key={stat.label} className="p-4 border-white/10 bg-white/5 backdrop-blur-xl hover:bg-white/10 transition-all">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <p className="text-xs text-muted-foreground mb-1">{stat.label}</p>
+                          <p className="text-2xl font-bold text-white">{stat.value}</p>
+                        </div>
+                        <Icon className={`w-5 h-5 ${stat.color}`} />
                       </div>
-                      <Icon className={`w-5 h-5 ${stat.color}`} />
-                    </div>
-                  </Card>
-                );
-              })}
-            </div>
+                    </Card>
+                  );
+                })}
+              </div>
+            )}
 
             {/* Charts Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
@@ -123,21 +133,25 @@ export default function ViralBotDashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {requestsLog.map((row) => (
-                      <tr key={row.id} className="border-b border-white/5 hover:bg-white/5">
-                        <td className="py-2 px-3 text-white">{row.id}</td>
-                        <td className="py-2 px-3">{row.category}</td>
-                        <td className="py-2 px-3">{row.language}</td>
-                        <td className="py-2 px-3 text-right">{row.minViews.toLocaleString()}</td>
-                        <td className="py-2 px-3">{row.time}</td>
-                        <td className="py-2 px-3 text-center">{row.resultCount}</td>
-                        <td className="py-2 px-3 text-center">
-                          <Badge variant={row.status === "Success" ? "default" : "destructive"} className="text-[10px]">
-                            {row.status}
-                          </Badge>
-                        </td>
+                    {content.length === 0 ? (
+                      <tr>
+                        <td colSpan={7} className="py-4 text-center text-muted-foreground">No content data available</td>
                       </tr>
-                    ))}
+                    ) : (
+                      content.slice(0, 10).map((item) => (
+                        <tr key={item.id} className="border-b border-white/5 hover:bg-white/5">
+                          <td className="py-2 px-3 text-white">{item.id}</td>
+                          <td className="py-2 px-3">{item.type}</td>
+                          <td className="py-2 px-3">-</td>
+                          <td className="py-2 px-3 text-right">{item.views?.toLocaleString() || 0}</td>
+                          <td className="py-2 px-3">{new Date(item.createdAt).toLocaleTimeString()}</td>
+                          <td className="py-2 px-3 text-center">{item.shares || 0}</td>
+                          <td className="py-2 px-3 text-center">
+                            <Badge variant="default" className="text-[10px]">Active</Badge>
+                          </td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
               </div>

@@ -1,10 +1,18 @@
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { InboxList } from "@/components/dashboard/InboxList";
 import { ActiveChat } from "@/components/dashboard/ActiveChat";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useConversations } from "@/hooks/useExplainerApi";
 
 export default function Conversations() {
-  const [activeConversationId, setActiveConversationId] = useState("1");
+  const { data: conversations } = useConversations();
+  const [activeConversationId, setActiveConversationId] = useState("");
+  
+  useEffect(() => {
+    if (conversations && conversations.length > 0 && !activeConversationId) {
+      setActiveConversationId(conversations[0].id);
+    }
+  }, [conversations, activeConversationId]);
 
   return (
     <div className="flex h-screen w-full bg-background text-foreground overflow-hidden font-sans selection:bg-primary/20 relative">

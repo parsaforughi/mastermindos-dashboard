@@ -1,4 +1,6 @@
-const EXPLAINER_API_BASE = "https://bdcd0c9f-392c-4eca-a76a-4ab4fdca9994-00-2hisy5qmiaduo.spock.replit.dev:3000";
+import { API_CONFIG } from "./apiConfig";
+
+const EXPLAINER_API_BASE = API_CONFIG.EXPLAINER_API;
 
 export interface ExplainerConversation {
   id: string;
@@ -85,5 +87,11 @@ export const explainerApi = {
 
   createLogsStream(): EventSource {
     return new EventSource(`${EXPLAINER_API_BASE}/logs`);
+  },
+
+  async getAnalytics(): Promise<{ learningData: Array<{ day: string; sessions: number; completions: number }>; engagementData: Array<{ time: string; users: number }> }> {
+    const res = await fetch(`${EXPLAINER_API_BASE}/analytics`);
+    if (!res.ok) throw new Error("Failed to fetch analytics");
+    return res.json();
   },
 };

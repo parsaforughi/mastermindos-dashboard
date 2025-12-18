@@ -1,39 +1,35 @@
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, AlertCircle, CheckCircle, Zap } from "lucide-react";
+import { TrendingUp, AlertCircle, CheckCircle, Zap, Loader2 } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-
-const statsData = [
-  { label: "Images Today", value: "342", icon: TrendingUp, color: "text-cyan-400" },
-  { label: "This Week", value: "2,145", icon: TrendingUp, color: "text-blue-400" },
-  { label: "All Time", value: "45,820", icon: TrendingUp, color: "text-purple-400" },
-  { label: "Success Rate", value: "96.8%", icon: CheckCircle, color: "text-green-400" },
-];
-
-const apiUsageData = [
-  { day: "Mon", calls: 324 },
-  { day: "Tue", calls: 412 },
-  { day: "Wed", calls: 289 },
-  { day: "Thu", calls: 498 },
-  { day: "Fri", calls: 567 },
-  { day: "Sat", calls: 412 },
-  { day: "Sun", calls: 234 },
-];
-
-const inputLog = [
-  { id: "U001", input: "Image", model: "Gemini V2", timestamp: "14:32" },
-  { id: "U002", input: "Image", model: "Gemini V2", timestamp: "14:28" },
-  { id: "U003", input: "Image", model: "Gemini V1", timestamp: "14:15" },
-];
-
-const outputLog = [
-  { id: 1, resolution: "1920x1080", time: "2.3s", status: "Success" },
-  { id: 2, resolution: "1280x720", time: "1.8s", status: "Success" },
-  { id: 3, resolution: "3840x2160", time: "4.1s", status: "Success" },
-];
+import { useIceballStats } from "@/hooks/useIceballApi";
 
 export default function IceballBotDashboard() {
+  const { data: stats, isLoading } = useIceballStats();
+  
+  const statsData = [
+    { label: "Total Generations", value: stats?.totalGenerations?.toLocaleString() || "0", icon: TrendingUp, color: "text-cyan-400" },
+    { label: "Successful", value: stats?.successfulGenerations?.toLocaleString() || "0", icon: TrendingUp, color: "text-blue-400" },
+    { label: "Success Rate", value: stats?.totalGenerations ? `${Math.round((stats.successfulGenerations / stats.totalGenerations) * 100)}%` : "0%", icon: CheckCircle, color: "text-green-400" },
+    { label: "Avg Processing", value: stats?.averageProcessingTime ? `${stats.averageProcessingTime.toFixed(1)}s` : "0s", icon: Zap, color: "text-purple-400" },
+  ];
+
+  // Generate mock API usage data (can be replaced with real endpoint if available)
+  const apiUsageData = [
+    { day: "Mon", calls: 324 },
+    { day: "Tue", calls: 412 },
+    { day: "Wed", calls: 289 },
+    { day: "Thu", calls: 498 },
+    { day: "Fri", calls: 567 },
+    { day: "Sat", calls: 412 },
+    { day: "Sun", calls: 234 },
+  ];
+
+  // Input/Output logs - empty until API endpoints are created
+  const inputLog: Array<{ id: string; input: string; model: string; timestamp: string }> = [];
+  const outputLog: Array<{ id: number; resolution: string; time: string; status: string }> = [];
+
   return (
     <div className="flex h-screen w-full bg-background text-foreground overflow-hidden font-sans selection:bg-primary/20 relative">
       <div className="noise-overlay" />
@@ -54,22 +50,28 @@ export default function IceballBotDashboard() {
             </div>
 
             {/* Stats Overview */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-              {statsData.map((stat) => {
-                const Icon = stat.icon;
-                return (
-                  <Card key={stat.label} className="p-4 border-white/10 bg-white/5 backdrop-blur-xl hover:bg-white/10 transition-all">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <p className="text-xs text-muted-foreground mb-1">{stat.label}</p>
-                        <p className="text-2xl font-bold text-white">{stat.value}</p>
+            {isLoading ? (
+              <div className="flex items-center justify-center py-20 mb-6">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                {statsData.map((stat) => {
+                  const Icon = stat.icon;
+                  return (
+                    <Card key={stat.label} className="p-4 border-white/10 bg-white/5 backdrop-blur-xl hover:bg-white/10 transition-all">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <p className="text-xs text-muted-foreground mb-1">{stat.label}</p>
+                          <p className="text-2xl font-bold text-white">{stat.value}</p>
+                        </div>
+                        <Icon className={`w-5 h-5 ${stat.color}`} />
                       </div>
-                      <Icon className={`w-5 h-5 ${stat.color}`} />
-                    </div>
-                  </Card>
-                );
-              })}
-            </div>
+                    </Card>
+                  );
+                })}
+              </div>
+            )}
 
             {/* Gemini API Usage */}
             <Card className="p-4 border-white/10 bg-white/5 backdrop-blur-xl mb-6">
@@ -118,14 +120,20 @@ export default function IceballBotDashboard() {
                       </tr>
                     </thead>
                     <tbody>
-                      {inputLog.map((row) => (
-                        <tr key={row.id} className="border-b border-white/5 hover:bg-white/5">
-                          <td className="py-2 px-2 text-white">{row.id}</td>
-                          <td className="py-2 px-2">{row.input}</td>
-                          <td className="py-2 px-2">{row.model}</td>
-                          <td className="py-2 px-2">{row.timestamp}</td>
+                      {inputLog.length === 0 ? (
+                        <tr>
+                          <td colSpan={4} className="py-4 text-center text-muted-foreground">No input logs available</td>
                         </tr>
-                      ))}
+                      ) : (
+                        inputLog.map((row: { id: string; input: string; model: string; timestamp: string }) => (
+                          <tr key={row.id} className="border-b border-white/5 hover:bg-white/5">
+                            <td className="py-2 px-2 text-white">{row.id}</td>
+                            <td className="py-2 px-2">{row.input}</td>
+                            <td className="py-2 px-2">{row.model}</td>
+                            <td className="py-2 px-2">{row.timestamp}</td>
+                          </tr>
+                        ))
+                      )}
                     </tbody>
                   </table>
                 </div>
@@ -143,15 +151,21 @@ export default function IceballBotDashboard() {
                       </tr>
                     </thead>
                     <tbody>
-                      {outputLog.map((row) => (
-                        <tr key={row.id} className="border-b border-white/5 hover:bg-white/5">
-                          <td className="py-2 px-2 text-white">{row.resolution}</td>
-                          <td className="py-2 px-2">{row.time}</td>
-                          <td className="py-2 px-2">
-                            <Badge variant="default" className="text-[10px]">{row.status}</Badge>
-                          </td>
+                      {outputLog.length === 0 ? (
+                        <tr>
+                          <td colSpan={3} className="py-4 text-center text-muted-foreground">No output logs available</td>
                         </tr>
-                      ))}
+                      ) : (
+                        outputLog.map((row: { id: number; resolution: string; time: string; status: string }) => (
+                          <tr key={row.id} className="border-b border-white/5 hover:bg-white/5">
+                            <td className="py-2 px-2 text-white">{row.resolution}</td>
+                            <td className="py-2 px-2">{row.time}</td>
+                            <td className="py-2 px-2">
+                              <Badge variant="default" className="text-[10px]">{row.status}</Badge>
+                            </td>
+                          </tr>
+                        ))
+                      )}
                     </tbody>
                   </table>
                 </div>

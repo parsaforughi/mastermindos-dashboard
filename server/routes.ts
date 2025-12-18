@@ -1,6 +1,9 @@
-import type { Express } from "express";
+import type { Express, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+
+// SSE client management
+const sseClients = new Set<{ res: Response; type: "messages" | "logs" }>();
 
 let botStatus = {
   active: true,
@@ -283,7 +286,43 @@ export async function registerRoutes(
         unreadCount: sender === "user" ? 1 : 0,
       });
       
+      // Broadcast to SSE clients
+      broadcastToClients("messages", "message", message);
+      
       res.json(message);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create message" });
+    }
+  });
+
+  // Alternative endpoint for events/message (for compatibility)
+  app.post("/api/events/message", async (req, res) => {
+    try {
+      const { conversationId, sender, content, from, text } = req.body;
+      const actualSender = sender || from || "user";
+      const actualContent = content || text || "";
+      const actualConversationId = conversationId || req.body.conversationId;
+      
+      if (!actualConversationId || !actualContent) {
+        return res.status(400).json({ error: "Missing conversationId or content" });
+      }
+
+      const message = await storage.createMessage({
+        conversationId: actualConversationId,
+        sender: actualSender,
+        content: actualContent,
+        status: "sent",
+      });
+      
+      // Update conversation
+      await storage.updateConversation(actualConversationId, {
+        unreadCount: actualSender === "user" ? 1 : 0,
+      });
+      
+      // Broadcast to SSE clients
+      broadcastToClients("messages", "message", message);
+      
+      res.json({ ok: true, message });
     } catch (error) {
       res.status(500).json({ error: "Failed to create message" });
     }
@@ -319,6 +358,10 @@ export async function registerRoutes(
         message,
         details,
       });
+      
+      // Broadcast to SSE clients
+      broadcastToClients("logs", "log", log);
+      
       res.json(log);
     } catch (error) {
       res.status(500).json({ error: "Failed to create log" });
@@ -372,6 +415,59 @@ export async function registerRoutes(
       res.status(500).json({ error: "Failed to fetch analytics" });
     }
   });
+
+  // ============ SSE ENDPOINTS ============
+  app.get("/api/live-messages", (req, res) => {
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Headers", "Cache-Control");
+
+    const client = { res: res as any, type: "messages" as const };
+    sseClients.add(client);
+
+    // Send initial connection event
+    res.write(`event: connected\n`);
+    res.write(`data: ${JSON.stringify({ status: "connected", timestamp: new Date().toISOString() })}\n\n`);
+
+    req.on("close", () => {
+      sseClients.delete(client);
+    });
+  });
+
+  app.get("/api/live-logs", (req, res) => {
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Headers", "Cache-Control");
+
+    const client = { res: res as any, type: "logs" as const };
+    sseClients.add(client);
+
+    // Send initial connection event
+    res.write(`event: connected\n`);
+    res.write(`data: ${JSON.stringify({ status: "connected", timestamp: new Date().toISOString() })}\n\n`);
+
+    req.on("close", () => {
+      sseClients.delete(client);
+    });
+  });
+
+  // Broadcast helper functions
+  function broadcastToClients(type: "messages" | "logs", event: string, data: any) {
+    const message = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
+    sseClients.forEach((client) => {
+      if (client.type === type) {
+        try {
+          client.res.write(message);
+        } catch (error) {
+          sseClients.delete(client);
+        }
+      }
+    });
+  }
 
   // ============ SEED DATA (for demo) ============
   app.post("/api/seed", async (req, res) => {
@@ -427,6 +523,416 @@ export async function registerRoutes(
     } catch (error) {
       console.error("Seed error:", error);
       res.status(500).json({ error: "Failed to seed data" });
+    }
+  });
+
+  // ============ VIRAL BOT API PROXY ============
+  // Proxy requests to the Viral Bot API server (port 3000)
+  const VIRAL_BOT_API_URL = process.env.VIRAL_BOT_API_URL || 'http://localhost:3000';
+  
+  app.get("/api/viral-bot/stats", async (req, res) => {
+    try {
+      const response = await fetch(`${VIRAL_BOT_API_URL}/api/stats`);
+      if (!response.ok) {
+        return res.status(response.status).json({ error: "Failed to fetch stats" });
+      }
+      const data = await response.json();
+      res.json(data);
+    } catch (error) {
+      console.error("Viral bot stats proxy error:", error);
+      res.status(500).json({ error: "Failed to fetch stats" });
+    }
+  });
+
+  app.get("/api/viral-bot/content", async (req, res) => {
+    try {
+      const response = await fetch(`${VIRAL_BOT_API_URL}/api/content`);
+      if (!response.ok) {
+        return res.status(response.status).json({ error: "Failed to fetch content" });
+      }
+      const data = await response.json();
+      res.json(data);
+    } catch (error) {
+      console.error("Viral bot content proxy error:", error);
+      res.status(500).json({ error: "Failed to fetch content" });
+    }
+  });
+
+  app.get("/api/viral-bot/analytics", async (req, res) => {
+    try {
+      const response = await fetch(`${VIRAL_BOT_API_URL}/api/analytics`);
+      if (!response.ok) {
+        return res.status(response.status).json({ error: "Failed to fetch analytics" });
+      }
+      const data = await response.json();
+      res.json(data);
+    } catch (error) {
+      console.error("Viral bot analytics proxy error:", error);
+      res.status(500).json({ error: "Failed to fetch analytics" });
+    }
+  });
+
+  app.get("/api/viral-bot/search-logs", async (req, res) => {
+    try {
+      const response = await fetch(`${VIRAL_BOT_API_URL}/api/search-logs`);
+      if (!response.ok) {
+        return res.status(response.status).json({ error: "Failed to fetch search logs" });
+      }
+      const data = await response.json();
+      res.json(data);
+    } catch (error) {
+      console.error("Viral bot search logs proxy error:", error);
+      res.status(500).json({ error: "Failed to fetch search logs" });
+    }
+  });
+
+  app.get("/api/viral-bot/health", async (req, res) => {
+    try {
+      const response = await fetch(`${VIRAL_BOT_API_URL}/api/health`);
+      if (!response.ok) {
+        return res.status(response.status).json({ status: "unknown", botRunning: false });
+      }
+      const data = await response.json();
+      res.json(data);
+    } catch (error) {
+      console.error("Viral bot health proxy error:", error);
+      res.json({ status: "unknown", botRunning: false });
+    }
+  });
+
+  // ============ VIRAL BOT ANALYTICS (READ-ONLY) ============
+  
+  // POST /api/events - Receive analytics events from bots
+  app.post("/api/events", async (req, res) => {
+    try {
+      // Verify authorization
+      const authHeader = req.headers.authorization;
+      const expectedKey = process.env.MASTERMIND_BOT_KEY || "";
+      if (!authHeader || !authHeader.startsWith("Bearer ") || authHeader.slice(7) !== expectedKey) {
+        res.status(401).json({ error: "Unauthorized" });
+        return;
+      }
+
+      const payload = req.body;
+      
+      // Validate required fields
+      if (!payload.source || !payload.event_type || !payload.platform || !payload.telegram_id) {
+        res.status(400).json({ error: "Missing required fields" });
+        return;
+      }
+
+      // Store event
+      await storage.createAnalyticsEvent({
+        source: payload.source,
+        platform: payload.platform,
+        eventType: payload.event_type,
+        telegramId: payload.telegram_id,
+        username: payload.username || null,
+        payload: payload,
+      });
+
+      res.status(201).json({ success: true });
+    } catch (error) {
+      console.error("Event storage error:", error);
+      res.status(500).json({ error: "Failed to store event" });
+    }
+  });
+
+  // GET /api/vb-telegram/overview - Global overview stats
+  app.get("/api/vb-telegram/overview", async (req, res) => {
+    try {
+      const startDate = req.query.startDate ? new Date(req.query.startDate as string) : undefined;
+      const endDate = req.query.endDate ? new Date(req.query.endDate as string) : undefined;
+
+      // Get total searches (search_started events)
+      const totalSearches = await storage.getAnalyticsEventCount({
+        source: "vb-telegram",
+        eventType: "search_started",
+        startDate,
+        endDate,
+      });
+
+      // Get unique users
+      const searchEvents = await storage.getAnalyticsEvents({
+        source: "vb-telegram",
+        eventType: "search_started",
+        startDate,
+        endDate,
+        limit: 10000, // Get all to count unique users
+      });
+      const uniqueUsers = new Set(searchEvents.map(e => e.telegramId)).size;
+
+      // Get platform distribution
+      const instagramCount = await storage.getAnalyticsEventCount({
+        source: "vb-telegram",
+        platform: "instagram",
+        eventType: "search_started",
+        startDate,
+        endDate,
+      });
+      const tiktokCount = await storage.getAnalyticsEventCount({
+        source: "vb-telegram",
+        platform: "tiktok",
+        eventType: "search_started",
+        startDate,
+        endDate,
+      });
+      const youtubeCount = await storage.getAnalyticsEventCount({
+        source: "vb-telegram",
+        platform: "youtube",
+        eventType: "search_started",
+        startDate,
+        endDate,
+      });
+
+      res.json({
+        totalSearches,
+        activeUsers: uniqueUsers,
+        platformDistribution: {
+          instagram: instagramCount,
+          tiktok: tiktokCount,
+          youtube: youtubeCount,
+        },
+      });
+    } catch (error) {
+      console.error("Overview error:", error);
+      res.status(500).json({ error: "Failed to fetch overview" });
+    }
+  });
+
+  // GET /api/vb-telegram/platforms - Per-platform stats
+  app.get("/api/vb-telegram/platforms", async (req, res) => {
+    try {
+      const platform = req.query.platform as string | undefined;
+      const startDate = req.query.startDate ? new Date(req.query.startDate as string) : undefined;
+      const endDate = req.query.endDate ? new Date(req.query.endDate as string) : undefined;
+
+      const platforms = platform ? [platform] : ["instagram", "tiktok", "youtube"];
+      const results: any = {};
+
+      for (const p of platforms) {
+        const searches = await storage.getAnalyticsEvents({
+          source: "vb-telegram",
+          platform: p,
+          eventType: "search_started",
+          startDate,
+          endDate,
+          limit: 1000,
+        });
+
+        const completed = await storage.getAnalyticsEventCount({
+          source: "vb-telegram",
+          platform: p,
+          eventType: "search_finished",
+          startDate,
+          endDate,
+        });
+
+        // Get top keywords
+        const keywordCounts = new Map<string, number>();
+        searches.forEach(event => {
+          const keyword = (event.payload as any)?.keyword || "unknown";
+          keywordCounts.set(keyword, (keywordCounts.get(keyword) || 0) + 1);
+        });
+        const topKeywords = Array.from(keywordCounts.entries())
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 10)
+          .map(([keyword, count]) => ({ keyword, count }));
+
+        // Calculate average results
+        const resultsReadyEvents = await storage.getAnalyticsEvents({
+          source: "vb-telegram",
+          platform: p,
+          eventType: "search_results_ready",
+          startDate,
+          endDate,
+          limit: 1000,
+        });
+        const avgResults = resultsReadyEvents.length > 0
+          ? resultsReadyEvents.reduce((sum, e) => sum + ((e.payload as any)?.totalResults || 0), 0) / resultsReadyEvents.length
+          : 0;
+
+        results[p] = {
+          searches: searches.length,
+          completed,
+          completionRate: searches.length > 0 ? (completed / searches.length) * 100 : 0,
+          topKeywords,
+          avgResults: Math.round(avgResults * 100) / 100,
+        };
+      }
+
+      res.json(results);
+    } catch (error) {
+      console.error("Platforms error:", error);
+      res.status(500).json({ error: "Failed to fetch platform stats" });
+    }
+  });
+
+  // GET /api/vb-telegram/users - User activity
+  app.get("/api/vb-telegram/users", async (req, res) => {
+    try {
+      const telegramId = req.query.telegramId ? parseInt(req.query.telegramId as string) : undefined;
+      const startDate = req.query.startDate ? new Date(req.query.startDate as string) : undefined;
+      const endDate = req.query.endDate ? new Date(req.query.endDate as string) : undefined;
+
+      if (telegramId) {
+        // Get user-specific events
+        const events = await storage.getAnalyticsEvents({
+          source: "vb-telegram",
+          telegramId,
+          startDate,
+          endDate,
+          limit: 1000,
+        });
+
+        // Group by search session (search_started to search_finished/cancelled)
+        const sessions: any[] = [];
+        let currentSession: any = null;
+
+        events.forEach(event => {
+          if (event.eventType === "search_started") {
+            currentSession = {
+              id: event.id,
+              platform: event.platform,
+              keyword: (event.payload as any)?.keyword,
+              language: (event.payload as any)?.language,
+              minViews: (event.payload as any)?.minViews,
+              startedAt: event.createdAt,
+              events: [event],
+            };
+          } else if (currentSession) {
+            currentSession.events.push(event);
+            if (event.eventType === "search_finished" || event.eventType === "search_cancelled") {
+              sessions.push(currentSession);
+              currentSession = null;
+            }
+          }
+        });
+
+        res.json({ userId: telegramId, sessions });
+      } else {
+        // Get all users with activity
+        const allEvents = await storage.getAnalyticsEvents({
+          source: "vb-telegram",
+          eventType: "search_started",
+          startDate,
+          endDate,
+          limit: 10000,
+        });
+
+        const userMap = new Map<number, any>();
+        allEvents.forEach(event => {
+          if (!userMap.has(event.telegramId)) {
+            userMap.set(event.telegramId, {
+              telegramId: event.telegramId,
+              username: event.username,
+              searchCount: 0,
+              platforms: new Set(),
+            });
+          }
+          const user = userMap.get(event.telegramId)!;
+          user.searchCount++;
+          user.platforms.add(event.platform);
+        });
+
+        const users = Array.from(userMap.values()).map(u => ({
+          ...u,
+          platforms: Array.from(u.platforms),
+        }));
+
+        res.json(users);
+      }
+    } catch (error) {
+      console.error("Users error:", error);
+      res.status(500).json({ error: "Failed to fetch user data" });
+    }
+  });
+
+  // GET /api/vb-telegram/searches - Search history
+  app.get("/api/vb-telegram/searches", async (req, res) => {
+    try {
+      const platform = req.query.platform as string | undefined;
+      const startDate = req.query.startDate ? new Date(req.query.startDate as string) : undefined;
+      const endDate = req.query.endDate ? new Date(req.query.endDate as string) : undefined;
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : 100;
+
+      const events = await storage.getAnalyticsEvents({
+        source: "vb-telegram",
+        platform,
+        eventType: "search_started",
+        startDate,
+        endDate,
+        limit,
+      });
+
+      const searches = events.map(event => ({
+        id: event.id,
+        telegramId: event.telegramId,
+        username: event.username,
+        platform: event.platform,
+        keyword: (event.payload as any)?.keyword,
+        language: (event.payload as any)?.language,
+        minViews: (event.payload as any)?.minViews,
+        timestamp: event.createdAt,
+        payload: event.payload,
+      }));
+
+      res.json(searches);
+    } catch (error) {
+      console.error("Searches error:", error);
+      res.status(500).json({ error: "Failed to fetch searches" });
+    }
+  });
+
+  // GET /api/vb-telegram/usage - API usage and cost estimates
+  app.get("/api/vb-telegram/usage", async (req, res) => {
+    try {
+      const startDate = req.query.startDate ? new Date(req.query.startDate as string) : undefined;
+      const endDate = req.query.endDate ? new Date(req.query.endDate as string) : undefined;
+
+      // Count searches per platform (each search = 1 API call)
+      const instagramSearches = await storage.getAnalyticsEventCount({
+        source: "vb-telegram",
+        platform: "instagram",
+        eventType: "search_started",
+        startDate,
+        endDate,
+      });
+      const tiktokSearches = await storage.getAnalyticsEventCount({
+        source: "vb-telegram",
+        platform: "tiktok",
+        eventType: "search_started",
+        startDate,
+        endDate,
+      });
+      const youtubeSearches = await storage.getAnalyticsEventCount({
+        source: "vb-telegram",
+        platform: "youtube",
+        eventType: "search_started",
+        startDate,
+        endDate,
+      });
+
+      // Estimate costs (placeholder values - adjust based on actual Apify pricing)
+      // Instagram: typically ~$0.001-0.01 per search
+      // TikTok: varies
+      // YouTube: varies
+      const instagramCost = instagramSearches * 0.005; // Placeholder
+      const tiktokCost = tiktokSearches * 0.002; // Placeholder
+      const youtubeCost = youtubeSearches * 0.005; // Placeholder
+
+      res.json({
+        platformUsage: {
+          instagram: { searches: instagramSearches, estimatedCost: instagramCost },
+          tiktok: { searches: tiktokSearches, estimatedCost: tiktokCost },
+          youtube: { searches: youtubeSearches, estimatedCost: youtubeCost },
+        },
+        totalSearches: instagramSearches + tiktokSearches + youtubeSearches,
+        totalEstimatedCost: instagramCost + tiktokCost + youtubeCost,
+      });
+    } catch (error) {
+      console.error("Usage error:", error);
+      res.status(500).json({ error: "Failed to fetch usage stats" });
     }
   });
 

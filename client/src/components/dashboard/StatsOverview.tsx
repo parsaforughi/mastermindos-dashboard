@@ -3,6 +3,8 @@ import { MessageSquare, Users, Zap, Clock, TrendingUp, Activity, Loader2, ArrowD
 import { Area, AreaChart, ResponsiveContainer } from "recharts";
 import { cn } from "@/lib/utils";
 
+// Generate latency data from engagement pattern (mock for visualization)
+// In production, this would come from a real latency monitoring endpoint
 const latencyData = [
   { time: "10:00", latency: 120 },
   { time: "11:00", latency: 135 },

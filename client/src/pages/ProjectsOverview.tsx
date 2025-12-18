@@ -18,7 +18,8 @@ import {
   Brain,
   Mail,
   Snowflake,
-  Crown
+  Crown,
+  Sparkles
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link } from "wouter";
@@ -90,6 +91,32 @@ const projects = [
     description: "VIP missions, rewards, and user engagement platform.",
     isDashboard: true,
     href: "/dashboard/vip-passport"
+  },
+  { 
+    id: "instagram-dm", 
+    name: "Instagram DM Bot", 
+    type: "Bulk Messaging", 
+    icon: MessageSquare,
+    color: "text-indigo-400",
+    gradient: "from-indigo-400 to-purple-600",
+    stats: { users: "0", activity: "Ready" },
+    status: "active",
+    description: "Bulk Instagram DM campaigns with Google Sheets integration.",
+    isDashboard: true,
+    href: "/dashboard/instagram-dm"
+  },
+  { 
+    id: "collamin-shelftalker", 
+    name: "Collamin Shelftalker", 
+    type: "Aging Simulation", 
+    icon: Sparkles,
+    color: "text-teal-400",
+    gradient: "from-teal-400 to-cyan-600",
+    stats: { users: "0", activity: "Ready" },
+    status: "active",
+    description: "20-year aging simulation and story image generation for skincare marketing.",
+    isDashboard: true,
+    href: "/dashboard/collamin-shelftalker"
   }
 ];
 

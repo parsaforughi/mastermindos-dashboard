@@ -1,14 +1,10 @@
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { Card } from "@/components/ui/card";
-
-const rewards = [
-  { id: "R001", name: "Starter Badge", cost: 1000, rarity: "Common" },
-  { id: "R002", name: "Silver Crown", cost: 5000, rarity: "Rare" },
-  { id: "R003", name: "Gold Trophy", cost: 15000, rarity: "Epic" },
-  { id: "R004", name: "Legendary Aura", cost: 50000, rarity: "Legendary" },
-];
+import { Loader2 } from "lucide-react";
+import { useVipRewards } from "@/hooks/useVipApi";
 
 export default function VIPRewards() {
+  const { data: rewards = [], isLoading } = useVipRewards();
   return (
     <div className="flex h-screen w-full bg-background text-foreground overflow-hidden font-sans selection:bg-primary/20 relative">
       <div className="noise-overlay" />
@@ -27,17 +23,30 @@ export default function VIPRewards() {
               <p className="text-sm text-muted-foreground">Unlock exclusive rewards</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {rewards.map((reward) => (
-                <Card key={reward.id} className="p-4 border-white/10 bg-white/5 backdrop-blur-xl">
-                  <div className="flex items-start justify-between mb-3">
-                    <h3 className="font-medium text-white">{reward.name}</h3>
-                    <span className="text-xs text-yellow-400 font-semibold">{reward.rarity}</span>
-                  </div>
-                  <p className="text-lg font-bold text-white">{reward.cost} XP</p>
-                </Card>
-              ))}
-            </div>
+            {isLoading ? (
+              <div className="flex items-center justify-center py-20">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {rewards.length === 0 ? (
+                  <Card className="p-8 border-white/10 bg-white/5 backdrop-blur-xl text-center col-span-2">
+                    <p className="text-muted-foreground">No rewards available</p>
+                  </Card>
+                ) : (
+                  rewards.map((reward) => (
+                    <Card key={reward.id} className="p-4 border-white/10 bg-white/5 backdrop-blur-xl">
+                      <div className="flex items-start justify-between mb-3">
+                        <h3 className="font-medium text-white">{reward.title}</h3>
+                        <span className="text-xs text-yellow-400 font-semibold">{reward.category}</span>
+                      </div>
+                      <p className="text-sm text-muted-foreground mb-2">{reward.description}</p>
+                      <p className="text-lg font-bold text-white">{reward.pointsRequired} Points</p>
+                    </Card>
+                  ))
+                )}
+              </div>
+            )}
           </div>
         </main>
       </div>

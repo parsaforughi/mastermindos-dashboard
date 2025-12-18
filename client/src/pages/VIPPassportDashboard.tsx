@@ -1,39 +1,30 @@
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Users, Trophy, Zap, TrendingUp } from "lucide-react";
+import { Users, Trophy, Zap, TrendingUp, Loader2 } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-
-const statsData = [
-  { label: "Active VIP Users", value: "2,847", icon: Users, color: "text-cyan-400" },
-  { label: "Missions Completed", value: "12,405", icon: Trophy, color: "text-yellow-400" },
-  { label: "Stamps Count", value: "34,821", icon: Zap, color: "text-purple-400" },
-  { label: "Rewards Distributed", value: "$48,203", icon: TrendingUp, color: "text-green-400" },
-];
-
-const missionsData = [
-  { name: "Daily Quest", active: true, completed: 1245, rate: "87%", avgTime: "2.3h", reward: "$5" },
-  { name: "Weekly Challenge", active: true, completed: 823, rate: "72%", avgTime: "8.5h", reward: "$15" },
-  { name: "Monthly Event", active: true, completed: 342, rate: "56%", avgTime: "24h", reward: "$50" },
-  { name: "Seasonal Pass", active: false, completed: 127, rate: "42%", avgTime: "72h", reward: "$100" },
-];
-
-const vipUsers = [
-  { id: "U001", points: 4520, missions: 12, stamps: 48, lastActivity: "2m ago" },
-  { id: "U002", points: 3840, missions: 8, stamps: 32, lastActivity: "15m ago" },
-  { id: "U003", points: 5120, missions: 15, stamps: 56, lastActivity: "1h ago" },
-  { id: "U004", points: 2980, missions: 6, stamps: 24, lastActivity: "3h ago" },
-];
-
-const notificationData = [
-  { day: "Mon", sent: 450, views: 380, clicks: 145 },
-  { day: "Tue", sent: 520, views: 420, clicks: 168 },
-  { day: "Wed", sent: 480, views: 390, clicks: 152 },
-  { day: "Thu", sent: 610, views: 510, clicks: 198 },
-  { day: "Fri", sent: 580, views: 470, clicks: 185 },
-];
+import { useVipDashboard, useVipMissions, useVipStats } from "@/hooks/useVipApi";
 
 export default function VIPPassportDashboard() {
+  const { data: dashboard, isLoading: dashboardLoading } = useVipDashboard();
+  const { data: missions = [], isLoading: missionsLoading } = useVipMissions();
+  const { data: stats, isLoading: statsLoading } = useVipStats();
+
+  const statsData = [
+    { label: "Active VIP Users", value: stats?.activeUsers?.toLocaleString() || "0", icon: Users, color: "text-cyan-400" },
+    { label: "Missions Completed", value: stats?.missionsCompleted?.toLocaleString() || "0", icon: Trophy, color: "text-yellow-400" },
+    { label: "Total Points", value: stats?.totalPoints?.toLocaleString() || "0", icon: Zap, color: "text-purple-400" },
+    { label: "Rewards Distributed", value: stats?.rewardsRedeemed?.toLocaleString() || "0", icon: TrendingUp, color: "text-green-400" },
+  ];
+
+  // Chart data - can be enhanced with real analytics endpoint if available
+  const notificationData = [
+    { day: "Mon", sent: 450, views: 380, clicks: 145 },
+    { day: "Tue", sent: 520, views: 420, clicks: 168 },
+    { day: "Wed", sent: 480, views: 390, clicks: 152 },
+    { day: "Thu", sent: 610, views: 510, clicks: 198 },
+    { day: "Fri", sent: 580, views: 470, clicks: 185 },
+  ];
   return (
     <div className="flex h-screen w-full bg-background text-foreground overflow-hidden font-sans selection:bg-primary/20 relative">
       <div className="noise-overlay" />
@@ -74,36 +65,44 @@ export default function VIPPassportDashboard() {
             {/* Missions Overview */}
             <Card className="p-4 border-white/10 bg-white/5 backdrop-blur-xl mb-6">
               <h3 className="text-sm font-semibold text-white mb-4">Missions Overview</h3>
-              <div className="overflow-x-auto">
-                <table className="w-full text-xs text-muted-foreground">
-                  <thead>
-                    <tr className="border-b border-white/10">
-                      <th className="text-left py-2 px-3">Mission</th>
-                      <th className="text-center py-2 px-3">Active</th>
-                      <th className="text-center py-2 px-3">Completed</th>
-                      <th className="text-center py-2 px-3">Rate</th>
-                      <th className="text-center py-2 px-3">Avg Time</th>
-                      <th className="text-right py-2 px-3">Reward</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {missionsData.map((mission) => (
-                      <tr key={mission.name} className="border-b border-white/5 hover:bg-white/5">
-                        <td className="py-2 px-3 text-white">{mission.name}</td>
-                        <td className="py-2 px-3 text-center">
-                          <Badge variant={mission.active ? "default" : "secondary"} className="text-[10px]">
-                            {mission.active ? "Active" : "Inactive"}
-                          </Badge>
-                        </td>
-                        <td className="py-2 px-3 text-center">{mission.completed.toLocaleString()}</td>
-                        <td className="py-2 px-3 text-center text-green-400">{mission.rate}</td>
-                        <td className="py-2 px-3 text-center">{mission.avgTime}</td>
-                        <td className="py-2 px-3 text-right font-semibold text-white">{mission.reward}</td>
+              {missionsLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs text-muted-foreground">
+                    <thead>
+                      <tr className="border-b border-white/10">
+                        <th className="text-left py-2 px-3">Mission</th>
+                        <th className="text-center py-2 px-3">Status</th>
+                        <th className="text-center py-2 px-3">Points</th>
+                        <th className="text-center py-2 px-3">Type</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody>
+                      {missions.length === 0 ? (
+                        <tr>
+                          <td colSpan={4} className="py-4 text-center text-muted-foreground">No missions available</td>
+                        </tr>
+                      ) : (
+                        missions.map((mission) => (
+                          <tr key={mission.id} className="border-b border-white/5 hover:bg-white/5">
+                            <td className="py-2 px-3 text-white">{mission.title}</td>
+                            <td className="py-2 px-3 text-center">
+                              <Badge variant={mission.status === "active" ? "default" : "secondary"} className="text-[10px]">
+                                {mission.status}
+                              </Badge>
+                            </td>
+                            <td className="py-2 px-3 text-center">{mission.points}</td>
+                            <td className="py-2 px-3 text-center">{mission.type}</td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </Card>
 
             {/* Notification Analytics & VIP Users */}
@@ -135,14 +134,18 @@ export default function VIPPassportDashboard() {
                       </tr>
                     </thead>
                     <tbody>
-                      {vipUsers.map((user) => (
-                        <tr key={user.id} className="border-b border-white/5 hover:bg-white/5">
-                          <td className="py-2 px-2 text-white">{user.id}</td>
-                          <td className="py-2 px-2 text-center text-yellow-400 font-semibold">{user.points}</td>
-                          <td className="py-2 px-2 text-center">{user.missions}</td>
-                          <td className="py-2 px-2 text-center">{user.stamps}</td>
+                      {dashboard?.user ? (
+                        <tr className="border-b border-white/5 hover:bg-white/5">
+                          <td className="py-2 px-2 text-white">{dashboard.user.username || dashboard.user.telegramId}</td>
+                          <td className="py-2 px-2 text-center text-yellow-400 font-semibold">{dashboard.user.points}</td>
+                          <td className="py-2 px-2 text-center">{dashboard.missions?.length || 0}</td>
+                          <td className="py-2 px-2 text-center">{dashboard.user.level}</td>
                         </tr>
-                      ))}
+                      ) : (
+                        <tr>
+                          <td colSpan={4} className="py-4 text-center text-muted-foreground">No user data available</td>
+                        </tr>
+                      )}
                     </tbody>
                   </table>
                 </div>

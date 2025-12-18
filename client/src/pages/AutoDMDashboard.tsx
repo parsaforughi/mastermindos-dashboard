@@ -1,15 +1,20 @@
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Send, Users, Activity, TrendingUp, MessageSquare } from "lucide-react";
+import { Send, Users, Activity, TrendingUp, MessageSquare, Loader2 } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { useAutoDMStats, useAutoDMConversations } from "@/hooks/useAutoDmApi";
 
-const statsData = [
-  { label: "Active Campaigns", value: "12", icon: Send, color: "text-green-400" },
-  { label: "Total Reach", value: "2.1M", icon: Users, color: "text-blue-400" },
-  { label: "Messages Sent", value: "5.8M", icon: MessageSquare, color: "text-cyan-400" },
-  { label: "Engagement Rate", value: "8.7%", icon: TrendingUp, color: "text-purple-400" },
-];
+export default function AutoDMDashboard() {
+  const { data: stats, isLoading: statsLoading } = useAutoDMStats();
+  const { data: conversationsData, isLoading: conversationsLoading } = useAutoDMConversations();
+
+  const statsData = [
+    { label: "Total Conversations", value: stats?.totalConversations?.toLocaleString() || "0", icon: Send, color: "text-green-400" },
+    { label: "Active Conversations", value: stats?.activeConversations?.toLocaleString() || "0", icon: Users, color: "text-blue-400" },
+    { label: "Total Messages", value: stats?.totalMessages?.toLocaleString() || "0", icon: MessageSquare, color: "text-cyan-400" },
+    { label: "Messages Today", value: stats?.messagesToday?.toLocaleString() || "0", icon: TrendingUp, color: "text-purple-400" },
+  ];
 
 const campaignData = [
   { day: "Mon", sent: 245000, delivered: 238000, clicked: 18900 },
@@ -21,14 +26,8 @@ const campaignData = [
   { day: "Sun", sent: 198000, delivered: 189000, clicked: 13230 },
 ];
 
-const campaignsData = [
-  { name: "Summer Promo", status: "active", sent: 450000, delivered: 435000, rate: "9.2%", roi: "3.2x" },
-  { name: "Flash Sale", status: "active", sent: 320000, delivered: 308000, rate: "7.8%", roi: "2.9x" },
-  { name: "Weekly Update", status: "active", sent: 580000, delivered: 561000, rate: "8.4%", roi: "3.5x" },
-  { name: "Limited Offer", status: "paused", sent: 210000, delivered: 198000, rate: "6.9%", roi: "2.1x" },
-];
-
-export default function AutoDMDashboard() {
+  // Use conversations as campaigns data
+  const conversations = conversationsData?.conversations || [];
   return (
     <div className="flex h-screen w-full bg-background text-foreground overflow-hidden font-sans selection:bg-primary/20 relative">
       <div className="noise-overlay" />
@@ -83,33 +82,47 @@ export default function AutoDMDashboard() {
               </Card>
 
               <Card className="p-4 border-white/10 bg-white/5 backdrop-blur-xl">
-                <h3 className="text-sm font-semibold text-white mb-4">Active Campaigns</h3>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-xs text-muted-foreground">
-                    <thead>
-                      <tr className="border-b border-white/10">
-                        <th className="text-left py-2 px-2">Campaign</th>
-                        <th className="text-center py-2 px-2">Status</th>
-                        <th className="text-right py-2 px-2">Rate</th>
-                        <th className="text-right py-2 px-2">ROI</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {campaignsData.map((campaign) => (
-                        <tr key={campaign.name} className="border-b border-white/5 hover:bg-white/5">
-                          <td className="py-2 px-2 text-white">{campaign.name}</td>
-                          <td className="py-2 px-2 text-center">
-                            <Badge variant={campaign.status === 'active' ? "default" : "secondary"} className="text-[10px]">
-                              {campaign.status}
-                            </Badge>
-                          </td>
-                          <td className="py-2 px-2 text-right text-green-400">{campaign.rate}</td>
-                          <td className="py-2 px-2 text-right font-semibold text-cyan-400">{campaign.roi}</td>
+                <h3 className="text-sm font-semibold text-white mb-4">Active Conversations</h3>
+                {conversationsLoading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-xs text-muted-foreground">
+                      <thead>
+                        <tr className="border-b border-white/10">
+                          <th className="text-left py-2 px-2">Username</th>
+                          <th className="text-center py-2 px-2">Status</th>
+                          <th className="text-right py-2 px-2">Messages</th>
+                          <th className="text-right py-2 px-2">Last Activity</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody>
+                        {conversations.length === 0 ? (
+                          <tr>
+                            <td colSpan={4} className="py-4 text-center text-muted-foreground">No conversations available</td>
+                          </tr>
+                        ) : (
+                          conversations.slice(0, 10).map((conv) => (
+                            <tr key={conv.id} className="border-b border-white/5 hover:bg-white/5">
+                              <td className="py-2 px-2 text-white">{conv.username || conv.id}</td>
+                              <td className="py-2 px-2 text-center">
+                                <Badge variant={conv.status === 'active' ? "default" : "secondary"} className="text-[10px]">
+                                  {conv.status}
+                                </Badge>
+                              </td>
+                              <td className="py-2 px-2 text-right">{conv.messageCount || 0}</td>
+                              <td className="py-2 px-2 text-right text-muted-foreground">
+                                {new Date(conv.lastMessageAt).toLocaleDateString()}
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </Card>
             </div>
           </div>

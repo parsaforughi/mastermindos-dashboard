@@ -5,12 +5,13 @@ import { ControlPanel } from "@/components/dashboard/ControlPanel";
 import { LiveLog } from "@/components/dashboard/LiveLog";
 import { HealthMonitor } from "@/components/dashboard/HealthMonitor";
 import { ActiveChat } from "@/components/dashboard/ActiveChat";
-import { MOCK_CONVERSATIONS } from "@/lib/mockData";
+import { useConversations } from "@/hooks/useExplainerApi";
 import { Menu, X } from "lucide-react";
 
 export default function ExplainerDashboard() {
+  const { data: conversations } = useConversations();
   // Use the first conversation for the dashboard preview
-  const previewConversationId = MOCK_CONVERSATIONS[0]?.id || "1";
+  const previewConversationId = conversations?.[0]?.id || "";
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (

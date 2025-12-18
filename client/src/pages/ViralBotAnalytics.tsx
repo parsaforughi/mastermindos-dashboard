@@ -1,18 +1,14 @@
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { Card } from "@/components/ui/card";
-import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-
-const analyticsData = [
-  { day: "Mon", searches: 145, engagement: 890, virality: 234 },
-  { day: "Tue", searches: 189, engagement: 1240, virality: 356 },
-  { day: "Wed", searches: 167, engagement: 1120, virality: 289 },
-  { day: "Thu", searches: 203, engagement: 1450, virality: 412 },
-  { day: "Fri", searches: 234, engagement: 1680, virality: 523 },
-  { day: "Sat", searches: 167, engagement: 1350, virality: 401 },
-  { day: "Sun", searches: 123, engagement: 980, virality: 267 },
-];
+import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
+import { useViralBotAnalytics } from "@/hooks/useViralBotApi";
+import { Loader2 } from "lucide-react";
 
 export default function ViralBotAnalytics() {
+  const { data: analytics, isLoading } = useViralBotAnalytics();
+  
+  const analyticsData = analytics?.dailyData || [];
+
   return (
     <div className="flex h-screen w-full bg-background text-foreground overflow-hidden font-sans selection:bg-primary/20 relative">
       <div className="noise-overlay" />
@@ -32,6 +28,11 @@ export default function ViralBotAnalytics() {
               <p className="text-sm text-muted-foreground">Search trends and engagement metrics</p>
             </div>
 
+            {isLoading ? (
+              <div className="flex items-center justify-center py-20">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <Card className="p-4 border-white/10 bg-white/5 backdrop-blur-xl">
                 <h3 className="text-sm font-semibold text-white mb-4">Daily Performance</h3>
@@ -60,6 +61,7 @@ export default function ViralBotAnalytics() {
                 </ResponsiveContainer>
               </Card>
             </div>
+            )}
           </div>
         </main>
       </div>

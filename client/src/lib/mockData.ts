@@ -1,3 +1,16 @@
+/**
+ * @deprecated This file contains mock data that has been replaced with real API calls.
+ * 
+ * All mock data has been migrated to real API integrations:
+ * - MOCK_CONVERSATIONS -> useConversations() hook
+ * - MOCK_MESSAGES -> useMessages() hook
+ * - MOCK_LOGS -> useLiveLogs() hook
+ * - MOCK_STATS -> useStats() hook
+ * 
+ * This file is kept for reference only and should not be imported in production code.
+ * All dashboard pages now use real API endpoints.
+ */
+
 import { User, Bot, AlertCircle, CheckCircle2, Clock, MessageSquare, Zap, Terminal, Search, Settings, Power, RefreshCw, Trash2 } from "lucide-react";
 
 export interface Message {
@@ -28,6 +41,9 @@ export interface LogEntry {
   details?: string;
 }
 
+/**
+ * @deprecated Use useConversations() hook from @/hooks/useExplainerApi
+ */
 export const MOCK_CONVERSATIONS: Conversation[] = [
   {
     id: '1',
@@ -67,6 +83,9 @@ export const MOCK_CONVERSATIONS: Conversation[] = [
   },
 ];
 
+/**
+ * @deprecated Use useMessages() hook from @/hooks/useExplainerApi
+ */
 export const MOCK_MESSAGES: Message[] = [
   {
     id: 'm1',
@@ -91,6 +110,9 @@ export const MOCK_MESSAGES: Message[] = [
   },
 ];
 
+/**
+ * @deprecated Use useLiveLogs() hook from @/hooks/useExplainerApi
+ */
 export const MOCK_LOGS: LogEntry[] = [
   { id: 'l1', timestamp: new Date(), type: 'system', message: 'System initialized', details: 'v2.4.0-stable' },
   { id: 'l2', timestamp: new Date(Date.now() - 5000), type: 'info', message: 'Incoming webhook received', details: 'Source: Stripe' },
@@ -100,6 +122,9 @@ export const MOCK_LOGS: LogEntry[] = [
   { id: 'l6', timestamp: new Date(Date.now() - 60000), type: 'error', message: 'Failed to sync user context', details: 'TimeoutError' },
 ];
 
+/**
+ * @deprecated Use useStats() hook from @/hooks/useExplainerApi
+ */
 export const MOCK_STATS = {
   totalMessages: 14205,
   dailyMessages: 342,

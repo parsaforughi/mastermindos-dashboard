@@ -48,6 +48,17 @@ export const logs = pgTable("logs", {
   createdAt: timestamp("created_at").notNull().default(sql`now()`),
 });
 
+export const analyticsEvents = pgTable("analytics_events", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  source: text("source").notNull(), // 'vb-telegram' or other sources
+  platform: text("platform").notNull(), // 'instagram', 'tiktok', 'youtube'
+  eventType: text("event_type").notNull(), // 'search_started', 'search_results_ready', 'batch_sent', 'search_finished', 'search_cancelled'
+  telegramId: integer("telegram_id").notNull(),
+  username: text("username"),
+  payload: jsonb("payload").notNull(), // Full event payload as JSONB
+  createdAt: timestamp("created_at").notNull().default(sql`now()`),
+});
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
@@ -76,6 +87,11 @@ export const insertLogSchema = createInsertSchema(logs).omit({
   createdAt: true,
 });
 
+export const insertAnalyticsEventSchema = createInsertSchema(analyticsEvents).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Types
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
@@ -91,3 +107,6 @@ export type Message = typeof messages.$inferSelect;
 
 export type InsertLog = z.infer<typeof insertLogSchema>;
 export type Log = typeof logs.$inferSelect;
+
+export type InsertAnalyticsEvent = z.infer<typeof insertAnalyticsEventSchema>;
+export type AnalyticsEvent = typeof analyticsEvents.$inferSelect;

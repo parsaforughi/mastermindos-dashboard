@@ -1,15 +1,12 @@
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-
-const campaigns = [
-  { id: "C001", name: "Summer Sale Campaign", status: "active", contacts: 5200, sent: 4800 },
-  { id: "C002", name: "New Product Launch", status: "active", contacts: 3400, sent: 2100 },
-  { id: "C003", name: "Loyalty Program Promo", status: "completed", contacts: 8900, sent: 8900 },
-  { id: "C004", name: "Re-engagement Drive", status: "scheduled", contacts: 2300, sent: 0 },
-];
+import { Loader2 } from "lucide-react";
+import { useAutoDMConversations } from "@/hooks/useAutoDmApi";
 
 export default function AutoDMCampaigns() {
+  const { data: conversationsData, isLoading } = useAutoDMConversations();
+  const conversations = conversationsData?.conversations || [];
   return (
     <div className="flex h-screen w-full bg-background text-foreground overflow-hidden font-sans selection:bg-primary/20 relative">
       <div className="noise-overlay" />
@@ -28,28 +25,40 @@ export default function AutoDMCampaigns() {
               <p className="text-sm text-muted-foreground">Manage your DM campaigns</p>
             </div>
 
-            <div className="grid grid-cols-1 gap-3">
-              {campaigns.map((campaign) => (
-                <Card key={campaign.id} className="p-4 border-white/10 bg-white/5 backdrop-blur-xl">
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="font-medium text-white">{campaign.name}</h3>
-                    <Badge variant={campaign.status === 'active' ? 'default' : campaign.status === 'completed' ? 'secondary' : 'outline'} className="text-[10px]">
-                      {campaign.status}
-                    </Badge>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <p className="text-xs text-muted-foreground">Total Contacts</p>
-                      <p className="text-white font-medium">{campaign.contacts}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">Messages Sent</p>
-                      <p className="text-white font-medium">{campaign.sent}</p>
-                    </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
+            {isLoading ? (
+              <div className="flex items-center justify-center py-20">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 gap-3">
+                {conversations.length === 0 ? (
+                  <Card className="p-8 border-white/10 bg-white/5 backdrop-blur-xl text-center">
+                    <p className="text-muted-foreground">No conversations available</p>
+                  </Card>
+                ) : (
+                  conversations.map((conv) => (
+                    <Card key={conv.id} className="p-4 border-white/10 bg-white/5 backdrop-blur-xl">
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="font-medium text-white">{conv.username || conv.id}</h3>
+                        <Badge variant={conv.status === 'active' ? 'default' : 'secondary'} className="text-[10px]">
+                          {conv.status}
+                        </Badge>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <p className="text-xs text-muted-foreground">Messages</p>
+                          <p className="text-white font-medium">{conv.messageCount || 0}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">Last Activity</p>
+                          <p className="text-white font-medium">{new Date(conv.lastMessageAt).toLocaleDateString()}</p>
+                        </div>
+                      </div>
+                    </Card>
+                  ))
+                )}
+              </div>
+            )}
           </div>
         </main>
       </div>

@@ -1,15 +1,21 @@
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-
-const contentLog = [
-  { id: "C001", title: "Tech Innovation Breakthrough", category: "Technology", views: 125000, engagement: "8.4%", status: "viral" },
-  { id: "C002", title: "Sports Championship Finals", category: "Sports", views: 98000, engagement: "6.2%", status: "trending" },
-  { id: "C003", title: "Entertainment News Update", category: "Entertainment", views: 234000, engagement: "12.1%", status: "viral" },
-  { id: "C004", title: "Politics Breaking News", category: "Politics", views: 45000, engagement: "3.8%", status: "normal" },
-];
+import { useViralBotContent } from "@/hooks/useViralBotApi";
+import { Loader2 } from "lucide-react";
 
 export default function ViralBotContentTracking() {
+  const { data: content = [], isLoading } = useViralBotContent();
+  
+  const contentLog = content.map(item => ({
+    id: item.id,
+    title: item.content || 'Unknown',
+    category: item.type || 'Unknown',
+    views: item.views || 0,
+    engagement: item.views > 0 ? `${Math.min(100, (item.views / 100).toFixed(1))}%` : "0%",
+    status: item.views > 50 ? 'viral' : item.views > 20 ? 'trending' : 'normal' as 'viral' | 'trending' | 'normal'
+  }));
+
   return (
     <div className="flex h-screen w-full bg-background text-foreground overflow-hidden font-sans selection:bg-primary/20 relative">
       <div className="noise-overlay" />
@@ -29,6 +35,11 @@ export default function ViralBotContentTracking() {
               <p className="text-sm text-muted-foreground">Monitor trending content across platforms</p>
             </div>
 
+            {isLoading ? (
+              <div className="flex items-center justify-center py-20">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : (
             <Card className="border-white/10 bg-white/5 backdrop-blur-xl">
               <div className="overflow-x-auto">
                 <table className="w-full text-xs text-muted-foreground">
@@ -59,6 +70,7 @@ export default function ViralBotContentTracking() {
                 </table>
               </div>
             </Card>
+            )}
           </div>
         </main>
       </div>

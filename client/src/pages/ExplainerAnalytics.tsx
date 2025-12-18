@@ -2,34 +2,18 @@ import { Sidebar } from "@/components/dashboard/Sidebar";
 import { Card } from "@/components/ui/card";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from "recharts";
 import { MessageSquare, Users, Loader2, ArrowDownLeft, ArrowUpRight } from "lucide-react";
-import { useStats, useHealth, useConversations } from "@/hooks/useExplainerApi";
-
-const mockLearningData = [
-  { day: "Mon", sessions: 45, completions: 38 },
-  { day: "Tue", sessions: 52, completions: 45 },
-  { day: "Wed", sessions: 48, completions: 41 },
-  { day: "Thu", sessions: 61, completions: 55 },
-  { day: "Fri", sessions: 55, completions: 48 },
-  { day: "Sat", sessions: 38, completions: 32 },
-  { day: "Sun", sessions: 42, completions: 36 },
-];
-
-const mockEngagementData = [
-  { time: "8AM", users: 12 },
-  { time: "10AM", users: 28 },
-  { time: "12PM", users: 45 },
-  { time: "2PM", users: 38 },
-  { time: "4PM", users: 52 },
-  { time: "6PM", users: 35 },
-  { time: "8PM", users: 22 },
-];
+import { useStats, useHealth, useConversations, useAnalytics } from "@/hooks/useExplainerApi";
 
 export default function ExplainerAnalytics() {
   const { data: stats, isLoading: statsLoading } = useStats();
   const { data: health, isLoading: healthLoading } = useHealth();
   const { data: conversations, isLoading: convsLoading } = useConversations();
+  const { data: analytics, isLoading: analyticsLoading } = useAnalytics();
   
-  const isLoading = statsLoading || healthLoading || convsLoading;
+  const isLoading = statsLoading || healthLoading || convsLoading || analyticsLoading;
+  
+  const learningData = analytics?.learningData || [];
+  const engagementData = analytics?.engagementData || [];
   
   const totalMessages = (stats?.totalReceived || 0) + (stats?.totalSent || 0);
   const todayMessages = (stats?.todayReceived || 0) + (stats?.todaySent || 0);
@@ -121,7 +105,7 @@ export default function ExplainerAnalytics() {
                     <h3 className="text-sm font-semibold text-white mb-6">Weekly Activity Trend</h3>
                     <div className="h-[300px] w-full">
                       <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={mockLearningData}>
+                        <LineChart data={learningData}>
                           <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" vertical={false} />
                           <XAxis dataKey="day" stroke="rgba(255,255,255,0.5)" style={{ fontSize: '12px' }} tickLine={false} axisLine={false} />
                           <YAxis stroke="rgba(255,255,255,0.5)" style={{ fontSize: '12px' }} tickLine={false} axisLine={false} />
@@ -140,7 +124,7 @@ export default function ExplainerAnalytics() {
                     <h3 className="text-sm font-semibold text-white mb-6">Daily Engagement Pattern</h3>
                     <div className="h-[300px] w-full">
                       <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart data={mockEngagementData}>
+                        <AreaChart data={engagementData}>
                           <defs>
                             <linearGradient id="colorUsers" x1="0" y1="0" x2="0" y2="1">
                               <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>

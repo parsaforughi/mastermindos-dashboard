@@ -1,9 +1,35 @@
 import { drizzle } from "drizzle-orm/neon-http";
 import { neon } from "@neondatabase/serverless";
 import * as schema from "@shared/schema";
-import { eq, desc, sql, count } from "drizzle-orm";
+import { eq, desc, sql, count, and, gte, lte } from "drizzle-orm";
+import { config } from "dotenv";
+import { fileURLToPath } from "url";
+import { dirname, resolve } from "path";
 
-const sqlClient = neon(process.env.DATABASE_URL || "");
+// Load .env file from project root
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+config({ path: resolve(__dirname, "../.env") });
+
+const databaseUrl = process.env.DATABASE_URL;
+if (!databaseUrl) {
+  console.warn("WARNING: DATABASE_URL not set. Database operations will fail.");
+}
+
+// Validate DATABASE_URL format for Neon
+let sqlClient;
+try {
+  if (databaseUrl && databaseUrl.startsWith("postgresql://")) {
+    sqlClient = neon(databaseUrl);
+  } else {
+    console.warn("WARNING: Invalid DATABASE_URL format. Using empty string (operations will fail).");
+    sqlClient = neon("");
+  }
+} catch (error) {
+  console.error("ERROR: Failed to initialize database client:", error);
+  sqlClient = neon("");
+}
+
 export const db = drizzle(sqlClient, { schema });
 
 export interface IStorage {
@@ -45,6 +71,25 @@ export interface IStorage {
     activeUsers: number;
     errorCount: number;
   }>;
+
+  // Analytics Events
+  createAnalyticsEvent(event: schema.InsertAnalyticsEvent): Promise<schema.AnalyticsEvent>;
+  getAnalyticsEvents(filters?: {
+    source?: string;
+    platform?: string;
+    eventType?: string;
+    telegramId?: number;
+    startDate?: Date;
+    endDate?: Date;
+    limit?: number;
+  }): Promise<schema.AnalyticsEvent[]>;
+  getAnalyticsEventCount(filters?: {
+    source?: string;
+    platform?: string;
+    eventType?: string;
+    startDate?: Date;
+    endDate?: Date;
+  }): Promise<number>;
 }
 
 export class DrizzleStorage implements IStorage {
@@ -221,6 +266,85 @@ export class DrizzleStorage implements IStorage {
       activeUsers: convResult?.count || 0,
       errorCount: errorResult?.count || 0,
     };
+  }
+
+  async createAnalyticsEvent(event: schema.InsertAnalyticsEvent): Promise<schema.AnalyticsEvent> {
+    const [result] = await db.insert(schema.analyticsEvents).values(event).returning();
+    return result;
+  }
+
+  async getAnalyticsEvents(filters?: {
+    source?: string;
+    platform?: string;
+    eventType?: string;
+    telegramId?: number;
+    startDate?: Date;
+    endDate?: Date;
+    limit?: number;
+  }): Promise<schema.AnalyticsEvent[]> {
+    const conditions = [];
+    if (filters?.source) {
+      conditions.push(eq(schema.analyticsEvents.source, filters.source));
+    }
+    if (filters?.platform) {
+      conditions.push(eq(schema.analyticsEvents.platform, filters.platform));
+    }
+    if (filters?.eventType) {
+      conditions.push(eq(schema.analyticsEvents.eventType, filters.eventType));
+    }
+    if (filters?.telegramId) {
+      conditions.push(eq(schema.analyticsEvents.telegramId, filters.telegramId));
+    }
+    if (filters?.startDate) {
+      conditions.push(gte(schema.analyticsEvents.createdAt, filters.startDate));
+    }
+    if (filters?.endDate) {
+      conditions.push(lte(schema.analyticsEvents.createdAt, filters.endDate));
+    }
+
+    let query = db.select().from(schema.analyticsEvents);
+    if (conditions.length > 0) {
+      query = query.where(and(...conditions));
+    }
+    query = query.orderBy(desc(schema.analyticsEvents.createdAt));
+    if (filters?.limit) {
+      query = query.limit(filters.limit);
+    }
+
+    return await query;
+  }
+
+  async getAnalyticsEventCount(filters?: {
+    source?: string;
+    platform?: string;
+    eventType?: string;
+    startDate?: Date;
+    endDate?: Date;
+  }): Promise<number> {
+    const conditions = [];
+    if (filters?.source) {
+      conditions.push(eq(schema.analyticsEvents.source, filters.source));
+    }
+    if (filters?.platform) {
+      conditions.push(eq(schema.analyticsEvents.platform, filters.platform));
+    }
+    if (filters?.eventType) {
+      conditions.push(eq(schema.analyticsEvents.eventType, filters.eventType));
+    }
+    if (filters?.startDate) {
+      conditions.push(gte(schema.analyticsEvents.createdAt, filters.startDate));
+    }
+    if (filters?.endDate) {
+      conditions.push(lte(schema.analyticsEvents.createdAt, filters.endDate));
+    }
+
+    let query = db.select({ count: count() }).from(schema.analyticsEvents);
+    if (conditions.length > 0) {
+      query = query.where(and(...conditions));
+    }
+
+    const result = await query;
+    return result[0]?.count || 0;
   }
 }
 

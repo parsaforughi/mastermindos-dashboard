@@ -128,6 +128,14 @@ export function useLiveLogs() {
   return { logs, connected };
 }
 
+export function useAnalytics() {
+  return useQuery<{ learningData: Array<{ day: string; sessions: number; completions: number }>; engagementData: Array<{ time: string; users: number }> }>({
+    queryKey: ["explainer", "analytics"],
+    queryFn: () => explainerApi.getAnalytics(),
+    refetchInterval: 30000,
+  });
+}
+
 export type { 
   ExplainerConversation, 
   ExplainerMessage, 

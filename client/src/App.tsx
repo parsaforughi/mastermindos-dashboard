@@ -41,6 +41,14 @@ import VIPRewards from "@/pages/VIPRewards";
 import VIPUserEngagement from "@/pages/VIPUserEngagement";
 import VIPSettings from "@/pages/VIPSettings";
 
+import InstagramDMDashboard from "@/pages/InstagramDMDashboard";
+import InstagramDMCampaigns from "@/pages/InstagramDMCampaigns";
+import InstagramDMAccounts from "@/pages/InstagramDMAccounts";
+import InstagramDMLogs from "@/pages/InstagramDMLogs";
+import InstagramDMSettings from "@/pages/InstagramDMSettings";
+
+import CollaminShelftalkerDashboard from "@/pages/CollaminShelftalkerDashboard";
+
 function Router() {
   return (
     <Switch>
@@ -88,6 +96,16 @@ function Router() {
       <Route path="/dashboard/vip-passport/analytics" component={VIPRewards} />
       <Route path="/dashboard/vip-passport/knowledge" component={VIPUserEngagement} />
       <Route path="/dashboard/vip-passport/settings" component={VIPSettings} />
+      
+      {/* Instagram DM Bot Dashboard Routes */}
+      <Route path="/dashboard/instagram-dm" component={InstagramDMDashboard} />
+      <Route path="/dashboard/instagram-dm/campaigns" component={InstagramDMCampaigns} />
+      <Route path="/dashboard/instagram-dm/accounts" component={InstagramDMAccounts} />
+      <Route path="/dashboard/instagram-dm/logs" component={InstagramDMLogs} />
+      <Route path="/dashboard/instagram-dm/settings" component={InstagramDMSettings} />
+      
+      {/* Collamin Shelftalker Dashboard Routes */}
+      <Route path="/dashboard/collamin-shelftalker" component={CollaminShelftalkerDashboard} />
       
       <Route component={NotFound} />
     </Switch>

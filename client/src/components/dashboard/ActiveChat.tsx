@@ -97,7 +97,7 @@ export function ActiveChat({ conversationId }: { conversationId: string }) {
                 // API may use: from="bot"/"user", direction="inbound"/"outbound", or type
                 const msgAny = msg as any;
                 const isBot = msg.from === 'bot' || 
-                              msg.from === 'outbound' || 
+                              (msgAny.from === 'outbound') || 
                               msgAny.direction === 'outbound' ||
                               msgAny.type === 'outbound' ||
                               msgAny.sender === 'bot';
