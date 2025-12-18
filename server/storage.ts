@@ -3,13 +3,18 @@ import { neon } from "@neondatabase/serverless";
 import * as schema from "@shared/schema";
 import { eq, desc, sql, count, and, gte, lte } from "drizzle-orm";
 import { config } from "dotenv";
-import { fileURLToPath } from "url";
-import { dirname, resolve } from "path";
+import { resolve } from "path";
 
-// Load .env file from project root
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-config({ path: resolve(__dirname, "../.env") });
+// Load .env file from project root (only in development)
+// In production, environment variables are set directly
+// Use process.cwd() which works in both ESM and CommonJS contexts
+if (process.env.NODE_ENV !== "production") {
+  try {
+    config({ path: resolve(process.cwd(), ".env") });
+  } catch (error) {
+    // Silently fail if .env file doesn't exist (e.g., in production)
+  }
+}
 
 const databaseUrl = process.env.DATABASE_URL;
 if (!databaseUrl) {
