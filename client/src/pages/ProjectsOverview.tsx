@@ -15,7 +15,6 @@ import {
   Shield,
   Database,
   Target,
-  Brain,
   Mail,
   Snowflake,
   Crown,
@@ -27,32 +26,6 @@ import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 
 const projects = [
-  { 
-    id: "explainer", 
-    name: "Explainer", 
-    type: "Education AI", 
-    icon: Brain,
-    color: "text-purple-400",
-    gradient: "from-purple-400 to-pink-600",
-    stats: { users: "843", activity: "Moderate" },
-    status: "active",
-    description: "Adaptive learning assistant with multi-modal explanation capabilities.",
-    isDashboard: true,
-    href: "/dashboard/explainer"
-  },
-  { 
-    id: "auto-dm", 
-    name: "Auto DM", 
-    type: "Marketing Automation", 
-    icon: Send,
-    color: "text-green-400",
-    gradient: "from-green-400 to-emerald-600",
-    stats: { users: "2.1M", activity: "Extreme" },
-    status: "active",
-    description: "High-volume direct messaging neural network for campaign scaling.",
-    isDashboard: true,
-    href: "/dashboard/auto-dm"
-  },
   { 
     id: "viral-bot", 
     name: "Viral TB", 
@@ -93,6 +66,19 @@ const projects = [
     href: "/dashboard/vip-passport"
   },
   { 
+    id: "affiliate-bot", 
+    name: "Affiliate Bot", 
+    type: "Instagram Automation", 
+    icon: MessageSquare,
+    color: "text-blue-400",
+    gradient: "from-blue-400 to-indigo-600",
+    stats: { users: "Active", activity: "High" },
+    status: "active",
+    description: "Real-time Instagram DM bot for affiliate marketing and customer engagement.",
+    isDashboard: true,
+    href: "/dashboard/affiliate-bot"
+  },
+  { 
     id: "instagram-dm", 
     name: "Instagram DM Bot", 
     type: "Bulk Messaging", 
@@ -107,7 +93,7 @@ const projects = [
   },
   { 
     id: "collamin-shelftalker", 
-    name: "Collamin Shelftalker", 
+    name: "Collamin ShelfTalker", 
     type: "Aging Simulation", 
     icon: Sparkles,
     color: "text-teal-400",
@@ -150,7 +136,10 @@ function OrbitalNode({ project, index, total, radius = 280 }: { project: any, in
           <div className="animate-float" style={{ animationDelay: `${index * 1}s` }}>
              
             {/* The Planet Node */}
-            <div className="relative w-32 h-32">
+            <div className={cn(
+              "relative",
+              project.name.length > 15 ? "w-36 h-36" : "w-32 h-32"
+            )}>
                 {/* Glow Effect */}
                 <div className={cn(
                   "absolute inset-0 rounded-full blur-[30px] opacity-20 group-hover:opacity-60 transition-opacity duration-500",
@@ -158,14 +147,26 @@ function OrbitalNode({ project, index, total, radius = 280 }: { project: any, in
                 )} />
                 
                 {/* Core Circle */}
-                <div className="absolute inset-0 rounded-full bg-black/80 border border-white/10 backdrop-blur-xl flex flex-col items-center justify-center gap-2 group-hover:scale-110 transition-transform duration-500 shadow-2xl overflow-hidden">
+                <div className={cn(
+                  "absolute inset-0 rounded-full bg-black/80 border border-white/10 backdrop-blur-xl flex flex-col items-center justify-center group-hover:scale-110 transition-transform duration-500 shadow-2xl overflow-hidden",
+                  project.name.length > 15 ? "gap-1 px-2 py-1" : "gap-2 px-2"
+                )}>
                    <div className={cn(
                      "absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-500 bg-gradient-to-br",
                      project.gradient
                    )} />
                    
-                   <project.icon className={cn("w-8 h-8 transition-all duration-500", project.color)} />
-                   <span className="text-[10px] font-bold uppercase tracking-widest text-white/80">{project.name}</span>
+                   <project.icon className={cn(
+                     "transition-all duration-500 flex-shrink-0",
+                     project.color,
+                     project.name.length > 15 ? "w-6 h-6" : "w-8 h-8"
+                   )} />
+                   <span className={cn(
+                     "font-bold uppercase text-white/80 text-center leading-tight",
+                     project.name.length > 15 
+                       ? "text-[8px] tracking-tight px-0.5" 
+                       : "text-[10px] tracking-widest px-1"
+                   )}>{project.name}</span>
                    
                    {/* Status Ring */}
                    <div className={cn(

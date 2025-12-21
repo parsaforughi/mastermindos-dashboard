@@ -11,7 +11,6 @@ import {
   Globe,
   Send,
   Smartphone,
-  Brain,
   Crown,
   TrendingUp,
   Target,
@@ -26,41 +25,25 @@ import { Link, useLocation, useRoute } from "wouter";
 const PROJECT_ICONS: Record<string, any> = {
   "ice-ball": Globe,
   "iceball-bot": Globe,
-  "explainer": Brain,
-  "auto-dm": Send,
   "viral-bot": Smartphone,
   "vip-passport": Crown,
   "instagram-dm": MessageSquare,
-  "collamin-shelftalker": Sparkles
+  "collamin-shelftalker": Sparkles,
+  "affiliate-bot": MessageSquare
 };
 
 const PROJECT_NAMES: Record<string, string> = {
   "ice-ball": "Ice Ball",
   "iceball-bot": "Iceball",
-  "explainer": "Explainer",
-  "auto-dm": "Auto DM",
   "viral-bot": "Viral Bot",
   "vip-passport": "VIP Passport",
   "instagram-dm": "Instagram DM",
-  "collamin-shelftalker": "Collamin Shelftalker"
+  "collamin-shelftalker": "Collamin ShelfTalker",
+  "affiliate-bot": "Affiliate Bot"
 };
 
 const getNavItemsForProject = (botId: string, basePath: string) => {
   const projectNavs: Record<string, any[]> = {
-    "explainer": [
-      { icon: LayoutDashboard, label: "Overview", href: `${basePath}` },
-      { icon: MessageSquare, label: "Conversations", href: `${basePath}/conversations` },
-      { icon: Activity, label: "Analytics", href: `${basePath}/analytics` },
-      { icon: Database, label: "Knowledge Base", href: `${basePath}/knowledge` },
-      { icon: Cpu, label: "Settings", href: `${basePath}/settings` },
-    ],
-    "auto-dm": [
-      { icon: LayoutDashboard, label: "Overview", href: `${basePath}` },
-      { icon: Send, label: "Campaigns", href: `${basePath}/conversations` },
-      { icon: Activity, label: "Engagement", href: `${basePath}/analytics` },
-      { icon: Target, label: "Audience", href: `${basePath}/knowledge` },
-      { icon: Cpu, label: "Campaign Settings", href: `${basePath}/settings` },
-    ],
     "viral-bot": [
       { icon: LayoutDashboard, label: "Overview", href: `${basePath}` },
       { icon: TrendingUp, label: "Content Tracking", href: `${basePath}/conversations` },
@@ -89,6 +72,12 @@ const getNavItemsForProject = (botId: string, basePath: string) => {
       { icon: Activity, label: "Logs", href: `${basePath}/logs` },
       { icon: Cpu, label: "Settings", href: `${basePath}/settings` },
     ],
+    "affiliate-bot": [
+      { icon: LayoutDashboard, label: "Overview", href: `${basePath}` },
+      { icon: MessageSquare, label: "Conversations", href: `${basePath}/conversations` },
+      { icon: Activity, label: "Logs", href: `${basePath}/logs` },
+      { icon: Cpu, label: "Settings", href: `${basePath}/settings` },
+    ],
   };
 
   return projectNavs[botId] || [
@@ -105,8 +94,8 @@ export function Sidebar() {
   // Extract the botId from the path
   // Path format: /bot/:id/page or /dashboard/:id
   const pathParts = location.split('/').filter(Boolean);
-  let botId = 'explainer'; // Default
-  let basePath = '/bot/explainer';
+  let botId = 'viral-bot'; // Default
+  let basePath = '/bot/viral-bot';
   let isDashboard = false;
   
   if (pathParts[0] === 'bot') {

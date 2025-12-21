@@ -10,18 +10,6 @@ import Conversations from "@/pages/Conversations";
 import Analytics from "@/pages/Analytics";
 import KnowledgeBase from "@/pages/KnowledgeBase";
 import Settings from "@/pages/Settings";
-import ExplainerDashboard from "@/pages/ExplainerDashboard";
-import ExplainerConversations from "@/pages/ExplainerConversations";
-import ExplainerLearningModules from "@/pages/ExplainerLearningModules";
-import ExplainerAnalytics from "@/pages/ExplainerAnalytics";
-import ExplainerKnowledge from "@/pages/ExplainerKnowledge";
-import ExplainerSettings from "@/pages/ExplainerSettings";
-
-import AutoDMDashboard from "@/pages/AutoDMDashboard";
-import AutoDMCampaigns from "@/pages/AutoDMCampaigns";
-import AutoDMEngagement from "@/pages/AutoDMEngagement";
-import AutoDMAudience from "@/pages/AutoDMAudience";
-import AutoDMSettings from "@/pages/AutoDMSettings";
 
 import ViralBotDashboard from "@/pages/ViralBotDashboard";
 import ViralBotAnalytics from "@/pages/ViralBotAnalytics";
@@ -49,6 +37,12 @@ import InstagramDMSettings from "@/pages/InstagramDMSettings";
 
 import CollaminShelftalkerDashboard from "@/pages/CollaminShelftalkerDashboard";
 
+import AffiliateBotDashboard from "@/pages/AffiliateBotDashboard";
+import AffiliateBotConversations from "@/pages/AffiliateBotConversations";
+import AffiliateBotConversationDetail from "@/pages/AffiliateBotConversationDetail";
+import AffiliateBotLogs from "@/pages/AffiliateBotLogs";
+import AffiliateBotSettings from "@/pages/AffiliateBotSettings";
+
 function Router() {
   return (
     <Switch>
@@ -61,20 +55,6 @@ function Router() {
       <Route path="/bot/:id/analytics" component={Analytics} />
       <Route path="/bot/:id/knowledge" component={KnowledgeBase} />
       <Route path="/bot/:id/settings" component={Settings} />
-      
-      {/* Explainer Dashboard Routes */}
-      <Route path="/dashboard/explainer" component={ExplainerDashboard} />
-      <Route path="/dashboard/explainer/conversations" component={ExplainerConversations} />
-      <Route path="/dashboard/explainer/analytics" component={ExplainerAnalytics} />
-      <Route path="/dashboard/explainer/knowledge" component={ExplainerKnowledge} />
-      <Route path="/dashboard/explainer/settings" component={ExplainerSettings} />
-      
-      {/* Auto DM Dashboard Routes */}
-      <Route path="/dashboard/auto-dm" component={AutoDMDashboard} />
-      <Route path="/dashboard/auto-dm/conversations" component={AutoDMCampaigns} />
-      <Route path="/dashboard/auto-dm/analytics" component={AutoDMEngagement} />
-      <Route path="/dashboard/auto-dm/knowledge" component={AutoDMAudience} />
-      <Route path="/dashboard/auto-dm/settings" component={AutoDMSettings} />
       
       {/* Viral Bot Routes */}
       <Route path="/dashboard/viral-bot" component={ViralBotDashboard} />
@@ -106,6 +86,13 @@ function Router() {
       
       {/* Collamin Shelftalker Dashboard Routes */}
       <Route path="/dashboard/collamin-shelftalker" component={CollaminShelftalkerDashboard} />
+      
+      {/* Affiliate Bot Dashboard Routes */}
+      <Route path="/dashboard/affiliate-bot" component={AffiliateBotDashboard} />
+      <Route path="/dashboard/affiliate-bot/conversations" component={AffiliateBotConversations} />
+      <Route path="/dashboard/affiliate-bot/conversations/:id" component={AffiliateBotConversationDetail} />
+      <Route path="/dashboard/affiliate-bot/logs" component={AffiliateBotLogs} />
+      <Route path="/dashboard/affiliate-bot/settings" component={AffiliateBotSettings} />
       
       <Route component={NotFound} />
     </Switch>
