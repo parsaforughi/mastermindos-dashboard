@@ -10,8 +10,9 @@ import { Switch } from "@/components/ui/switch";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, Save, Power, Pause, Play, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { API_CONFIG } from "@/lib/apiConfig";
 
-const API_URL = "http://localhost:3001";
+const API_URL = API_CONFIG.AFFILIATE_BOT_API || "http://localhost:3001";
 
 export default function AffiliateBotSettings() {
   const [, setLocation] = useLocation();

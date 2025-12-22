@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { Menu, X } from "lucide-react";
+import { API_CONFIG } from "@/lib/apiConfig";
 
-const API_URL = "http://localhost:3001";
+const API_URL = API_CONFIG.AFFILIATE_BOT_API || "http://localhost:3001";
 
 interface Stats {
   totalConversations: number;
