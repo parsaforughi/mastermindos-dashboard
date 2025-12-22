@@ -20,6 +20,25 @@ export async function registerRoutes(
   // ============ STATS & HEALTH ============
   app.get("/api/stats", async (req, res) => {
     try {
+      // Check if this is an Affiliate Bot request (by checking referer or user-agent)
+      // For now, we'll try to proxy to affiliate bot API if available
+      const AFFILIATE_BOT_API_URL = process.env.AFFILIATE_BOT_API_URL || 'http://localhost:3001';
+      
+      try {
+        // Try to fetch from affiliate bot API first
+        const response = await fetch(`${AFFILIATE_BOT_API_URL}/api/stats`, {
+          signal: AbortSignal.timeout(2000), // 2 second timeout
+        });
+        if (response.ok) {
+          const data = await response.json();
+          return res.json(data);
+        }
+      } catch (proxyError) {
+        // If affiliate bot API is not available, fall through to main stats
+        console.log("Affiliate Bot API not available, using main stats");
+      }
+
+      // Main dashboard stats (requires database)
       const stats = await storage.getStats();
       const session = await storage.getDefaultSession();
       
@@ -34,7 +53,23 @@ export async function registerRoutes(
         uptime: Math.floor((Date.now() - botStatus.uptime) / 1000),
       });
     } catch (error) {
-      res.status(500).json({ error: "Failed to fetch stats" });
+      console.error("Stats error:", error);
+      // Return safe defaults instead of 500 error
+      res.json({
+        totalMessages: 0,
+        totalConversations: 0,
+        totalReceived: 0,
+        totalSent: 0,
+        todayReceived: 0,
+        todaySent: 0,
+        activeUsers: 0,
+        errorCount: 0,
+        responseRate: 0,
+        avgResponseTime: "0s",
+        botActive: false,
+        botStatus: { running: false, paused: false },
+        uptime: 0,
+      });
     }
   });
 
@@ -60,6 +95,21 @@ export async function registerRoutes(
   // ============ BOT CONTROL ============
   app.get("/api/bot/status", async (req, res) => {
     try {
+      // Try Affiliate Bot API first (if available)
+      const AFFILIATE_BOT_API_URL = process.env.AFFILIATE_BOT_API_URL || 'http://localhost:3001';
+      try {
+        const response = await fetch(`${AFFILIATE_BOT_API_URL}/api/bot/status`, {
+          signal: AbortSignal.timeout(2000),
+        });
+        if (response.ok) {
+          const data = await response.json();
+          return res.json(data);
+        }
+      } catch (proxyError) {
+        // Fall through to main bot status
+      }
+
+      // Main dashboard bot status
       const session = await storage.getDefaultSession();
       res.json({
         active: session.active,
@@ -70,7 +120,8 @@ export async function registerRoutes(
         lastReset: botStatus.lastReset,
       });
     } catch (error) {
-      res.status(500).json({ error: "Failed to fetch bot status" });
+      console.error("Bot status error:", error);
+      res.json({ status: { running: false, paused: false } });
     }
   });
 
@@ -207,10 +258,26 @@ export async function registerRoutes(
   // ============ CONVERSATIONS ============
   app.get("/api/conversations", async (req, res) => {
     try {
+      // Try Affiliate Bot API first (if available)
+      const AFFILIATE_BOT_API_URL = process.env.AFFILIATE_BOT_API_URL || 'http://localhost:3001';
+      try {
+        const response = await fetch(`${AFFILIATE_BOT_API_URL}/api/conversations`, {
+          signal: AbortSignal.timeout(2000),
+        });
+        if (response.ok) {
+          const data = await response.json();
+          return res.json(data);
+        }
+      } catch (proxyError) {
+        // Fall through to main conversations
+      }
+
+      // Main dashboard conversations
       const conversations = await storage.getAllConversations();
       res.json(conversations);
     } catch (error) {
-      res.status(500).json({ error: "Failed to fetch conversations" });
+      console.error("Conversations error:", error);
+      res.json([]); // Return empty array instead of error
     }
   });
 
@@ -296,8 +363,28 @@ export async function registerRoutes(
   });
 
   // Alternative endpoint for events/message (for compatibility)
+  // This endpoint is used by Affiliate Bot, so proxy to affiliate bot API first
   app.post("/api/events/message", async (req, res) => {
     try {
+      const AFFILIATE_BOT_API_URL = process.env.AFFILIATE_BOT_API_URL || 'http://localhost:3001';
+      
+      // Try affiliate bot API first
+      try {
+        const response = await fetch(`${AFFILIATE_BOT_API_URL}/api/events/message`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(req.body),
+          signal: AbortSignal.timeout(2000),
+        });
+        if (response.ok) {
+          const data = await response.json();
+          return res.json(data);
+        }
+      } catch (proxyError) {
+        // Fall through to main message creation
+      }
+
+      // Main dashboard message creation
       const { conversationId, sender, content, from, text } = req.body;
       const actualSender = sender || from || "user";
       const actualContent = content || text || "";
@@ -324,7 +411,49 @@ export async function registerRoutes(
       
       res.json({ ok: true, message });
     } catch (error) {
+      console.error("Events/message error:", error);
       res.status(500).json({ error: "Failed to create message" });
+    }
+  });
+
+  // Proxy /api/events/log for affiliate bot
+  app.post("/api/events/log", async (req, res) => {
+    try {
+      const AFFILIATE_BOT_API_URL = process.env.AFFILIATE_BOT_API_URL || 'http://localhost:3001';
+      
+      // Try affiliate bot API first
+      try {
+        const response = await fetch(`${AFFILIATE_BOT_API_URL}/api/events/log`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(req.body),
+          signal: AbortSignal.timeout(2000),
+        });
+        if (response.ok) {
+          const data = await response.json();
+          return res.json(data);
+        }
+      } catch (proxyError) {
+        // Fall through to main log creation
+      }
+
+      // Main dashboard log creation
+      const session = await storage.getDefaultSession();
+      const { type, message, details, level } = req.body;
+      const log = await storage.createLog({
+        sessionId: session.id,
+        type: type || level || "info",
+        message: message || details || "",
+        details: details || message || "",
+      });
+      
+      // Broadcast to SSE clients
+      broadcastToClients("logs", "log", log);
+      
+      res.json({ ok: true, log });
+    } catch (error) {
+      console.error("Events/log error:", error);
+      res.status(500).json({ error: "Failed to create log" });
     }
   });
 
@@ -934,6 +1063,174 @@ export async function registerRoutes(
       console.error("Usage error:", error);
       res.status(500).json({ error: "Failed to fetch usage stats" });
     }
+  });
+
+  // ============ AFFILIATE BOT API PROXY ============
+  // Proxy requests to the Affiliate Bot API server
+  const AFFILIATE_BOT_API_URL = process.env.AFFILIATE_BOT_API_URL || 'http://localhost:3001';
+  
+  // Proxy /api/conversations/:id for affiliate bot (plural, different from main /api/conversation/:id)
+  app.get("/api/conversations/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      
+      // Try affiliate bot API first
+      try {
+        const response = await fetch(`${AFFILIATE_BOT_API_URL}/api/conversations/${encodeURIComponent(id)}`, {
+          signal: AbortSignal.timeout(2000),
+        });
+        if (response.ok) {
+          const data = await response.json();
+          return res.json(data);
+        }
+      } catch (proxyError) {
+        // Fall through to main conversation (singular route)
+      }
+
+      // Try main dashboard conversation (singular route)
+      try {
+        const conversation = await storage.getConversation(id);
+        if (conversation) {
+          return res.json(conversation);
+        }
+      } catch (error) {
+        // Ignore
+      }
+
+      res.status(404).json({ error: "Conversation not found" });
+    } catch (error) {
+      console.error("Conversation detail error:", error);
+      res.status(500).json({ error: "Failed to fetch conversation" });
+    }
+  });
+
+  // Proxy /api/bot/pause, /api/bot/resume, /api/bot/stop for affiliate bot
+  app.post("/api/bot/pause", async (req, res) => {
+    try {
+      const response = await fetch(`${AFFILIATE_BOT_API_URL}/api/bot/pause`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        signal: AbortSignal.timeout(2000),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        return res.json(data);
+      }
+    } catch (proxyError) {
+      // Fall through to main bot control
+    }
+
+    // Main dashboard bot control
+    botStatus.paused = true;
+    res.json({ ok: true, status: botStatus });
+  });
+
+  app.post("/api/bot/resume", async (req, res) => {
+    try {
+      const response = await fetch(`${AFFILIATE_BOT_API_URL}/api/bot/resume`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        signal: AbortSignal.timeout(2000),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        return res.json(data);
+      }
+    } catch (proxyError) {
+      // Fall through to main bot control
+    }
+
+    // Main dashboard bot control
+    botStatus.paused = false;
+    res.json({ ok: true, status: botStatus });
+  });
+
+  app.post("/api/bot/stop", async (req, res) => {
+    try {
+      const response = await fetch(`${AFFILIATE_BOT_API_URL}/api/bot/stop`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        signal: AbortSignal.timeout(2000),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        return res.json(data);
+      }
+    } catch (proxyError) {
+      // Fall through to main bot control
+    }
+
+    // Main dashboard bot control
+    botStatus.active = false;
+    botStatus.paused = true;
+    res.json({ ok: true, status: botStatus });
+  });
+
+  // Proxy /api/settings/prompt and /api/settings/model for affiliate bot
+  app.get("/api/settings/prompt", async (req, res) => {
+    try {
+      const response = await fetch(`${AFFILIATE_BOT_API_URL}/api/settings/prompt`, {
+        signal: AbortSignal.timeout(2000),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        return res.json(data);
+      }
+    } catch (proxyError) {
+      // Return default if affiliate bot API not available
+    }
+    res.json({ prompt: "" });
+  });
+
+  app.post("/api/settings/prompt", async (req, res) => {
+    try {
+      const response = await fetch(`${AFFILIATE_BOT_API_URL}/api/settings/prompt`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(req.body),
+        signal: AbortSignal.timeout(2000),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        return res.json(data);
+      }
+    } catch (proxyError) {
+      // Return error if affiliate bot API not available
+    }
+    res.status(500).json({ error: "Failed to update prompt" });
+  });
+
+  app.get("/api/settings/model", async (req, res) => {
+    try {
+      const response = await fetch(`${AFFILIATE_BOT_API_URL}/api/settings/model`, {
+        signal: AbortSignal.timeout(2000),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        return res.json(data);
+      }
+    } catch (proxyError) {
+      // Return default if affiliate bot API not available
+    }
+    res.json({ model: "gpt-5.1" });
+  });
+
+  app.post("/api/settings/model", async (req, res) => {
+    try {
+      const response = await fetch(`${AFFILIATE_BOT_API_URL}/api/settings/model`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(req.body),
+        signal: AbortSignal.timeout(2000),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        return res.json(data);
+      }
+    } catch (proxyError) {
+      // Return error if affiliate bot API not available
+    }
+    res.status(500).json({ error: "Failed to update model" });
   });
 
   return httpServer;
