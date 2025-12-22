@@ -1,19 +1,18 @@
 import { useState, useEffect } from "react";
-import { useLocation } from "wouter";
+import { Sidebar } from "@/components/dashboard/Sidebar";
+import { Menu, X } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, Save, Power, Pause, Play, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { Loader2, Save, Power, Pause, Play, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export default function AffiliateBotSettings() {
-  const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -196,14 +195,52 @@ export default function AffiliateBotSettings() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="flex h-screen w-full bg-background text-foreground overflow-hidden font-sans selection:bg-primary/20 relative">
+        <div className="relative z-10 flex h-full w-full">
+          <div className="hidden md:block">
+            <Sidebar />
+          </div>
+          <main className="flex-1 flex flex-col h-full overflow-hidden">
+            <div className="flex items-center justify-center h-full">
+              <Loader2 className="w-8 h-8 animate-spin text-primary" />
+            </div>
+          </main>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="flex-1 overflow-y-auto p-6 space-y-6">
+    <div className="flex h-screen w-full bg-background text-foreground overflow-hidden font-sans selection:bg-primary/20 relative">
+      <div className="noise-overlay" />
+      <div className="fixed inset-0 pointer-events-none z-0 bg-grid-pattern opacity-40" />
+
+      <div className="relative z-10 flex h-full w-full">
+        <div className="hidden md:block">
+          <Sidebar />
+        </div>
+
+        {sidebarOpen && (
+          <>
+            <div className="fixed inset-0 bg-black/50 z-30 md:hidden" onClick={() => setSidebarOpen(false)} />
+            <div className="fixed left-0 top-0 h-full z-40 md:hidden">
+              <Sidebar />
+            </div>
+          </>
+        )}
+
+        <main className="flex-1 flex flex-col h-full overflow-hidden">
+          <div className="md:hidden p-4 border-b border-white/5 bg-white/[0.02] backdrop-blur-xl flex items-center justify-between sticky top-0 z-20">
+            <h2 className="text-lg font-bold text-white">Settings</h2>
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+            >
+              {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+          </div>
+
+          <div className="flex-1 overflow-y-auto p-6 space-y-6">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Bot Settings</h1>
@@ -367,6 +404,9 @@ export default function AffiliateBotSettings() {
           </div>
         </CardContent>
       </Card>
+          </div>
+        </main>
+      </div>
     </div>
   );
 }
