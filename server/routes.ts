@@ -19,30 +19,29 @@ export async function registerRoutes(
 
   // ============ STATS & HEALTH ============
   app.get("/api/stats", async (req, res) => {
+    // Try Affiliate Bot API first (if available)
+    const AFFILIATE_BOT_API_URL = process.env.AFFILIATE_BOT_API_URL || 'http://localhost:3001';
+    
     try {
-      // Check if this is an Affiliate Bot request (by checking referer or user-agent)
-      // For now, we'll try to proxy to affiliate bot API if available
-      const AFFILIATE_BOT_API_URL = process.env.AFFILIATE_BOT_API_URL || 'http://localhost:3001';
-      
-      try {
-        // Try to fetch from affiliate bot API first
-        const response = await fetch(`${AFFILIATE_BOT_API_URL}/api/stats`, {
-          signal: AbortSignal.timeout(2000), // 2 second timeout
-        });
-        if (response.ok) {
-          const data = await response.json();
-          return res.json(data);
-        }
-      } catch (proxyError) {
-        // If affiliate bot API is not available, fall through to main stats
-        console.log("Affiliate Bot API not available, using main stats");
+      // Try to fetch from affiliate bot API first
+      const response = await fetch(`${AFFILIATE_BOT_API_URL}/api/stats`, {
+        signal: AbortSignal.timeout(1500), // 1.5 second timeout
+      });
+      if (response.ok) {
+        const data = await response.json();
+        return res.json(data);
       }
+    } catch (proxyError) {
+      // If affiliate bot API is not available, fall through to main stats
+      // Don't log in production to avoid noise
+    }
 
-      // Main dashboard stats (requires database)
+    // Main dashboard stats (requires database)
+    try {
       const stats = await storage.getStats();
       const session = await storage.getDefaultSession();
       
-      res.json({
+      return res.json({
         totalMessages: stats.totalMessages,
         totalConversations: stats.totalConversations,
         activeUsers: stats.activeUsers,
@@ -53,9 +52,8 @@ export async function registerRoutes(
         uptime: Math.floor((Date.now() - botStatus.uptime) / 1000),
       });
     } catch (error) {
-      console.error("Stats error:", error);
       // Return safe defaults instead of 500 error
-      res.json({
+      return res.json({
         totalMessages: 0,
         totalConversations: 0,
         totalReceived: 0,
@@ -94,24 +92,25 @@ export async function registerRoutes(
 
   // ============ BOT CONTROL ============
   app.get("/api/bot/status", async (req, res) => {
+    // Try Affiliate Bot API first (if available)
+    const AFFILIATE_BOT_API_URL = process.env.AFFILIATE_BOT_API_URL || 'http://localhost:3001';
+    
     try {
-      // Try Affiliate Bot API first (if available)
-      const AFFILIATE_BOT_API_URL = process.env.AFFILIATE_BOT_API_URL || 'http://localhost:3001';
-      try {
-        const response = await fetch(`${AFFILIATE_BOT_API_URL}/api/bot/status`, {
-          signal: AbortSignal.timeout(2000),
-        });
-        if (response.ok) {
-          const data = await response.json();
-          return res.json(data);
-        }
-      } catch (proxyError) {
-        // Fall through to main bot status
+      const response = await fetch(`${AFFILIATE_BOT_API_URL}/api/bot/status`, {
+        signal: AbortSignal.timeout(1500),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        return res.json(data);
       }
+    } catch (proxyError) {
+      // Fall through to main bot status
+    }
 
-      // Main dashboard bot status
+    // Main dashboard bot status
+    try {
       const session = await storage.getDefaultSession();
-      res.json({
+      return res.json({
         active: session.active,
         paused: botStatus.paused,
         model: session.model,
@@ -120,8 +119,8 @@ export async function registerRoutes(
         lastReset: botStatus.lastReset,
       });
     } catch (error) {
-      console.error("Bot status error:", error);
-      res.json({ status: { running: false, paused: false } });
+      // Return safe defaults
+      return res.json({ status: { running: false, paused: false } });
     }
   });
 
@@ -257,27 +256,28 @@ export async function registerRoutes(
 
   // ============ CONVERSATIONS ============
   app.get("/api/conversations", async (req, res) => {
+    // Try Affiliate Bot API first (if available)
+    const AFFILIATE_BOT_API_URL = process.env.AFFILIATE_BOT_API_URL || 'http://localhost:3001';
+    
     try {
-      // Try Affiliate Bot API first (if available)
-      const AFFILIATE_BOT_API_URL = process.env.AFFILIATE_BOT_API_URL || 'http://localhost:3001';
-      try {
-        const response = await fetch(`${AFFILIATE_BOT_API_URL}/api/conversations`, {
-          signal: AbortSignal.timeout(2000),
-        });
-        if (response.ok) {
-          const data = await response.json();
-          return res.json(data);
-        }
-      } catch (proxyError) {
-        // Fall through to main conversations
+      const response = await fetch(`${AFFILIATE_BOT_API_URL}/api/conversations`, {
+        signal: AbortSignal.timeout(1500),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        return res.json(data);
       }
+    } catch (proxyError) {
+      // Fall through to main conversations
+    }
 
-      // Main dashboard conversations
+    // Main dashboard conversations
+    try {
       const conversations = await storage.getAllConversations();
-      res.json(conversations);
+      return res.json(conversations);
     } catch (error) {
-      console.error("Conversations error:", error);
-      res.json([]); // Return empty array instead of error
+      // Return empty array instead of error
+      return res.json([]);
     }
   });
 
@@ -318,9 +318,10 @@ export async function registerRoutes(
     try {
       const conversation = await storage.getConversation(req.params.id);
       if (!conversation) return res.status(404).json({ error: "Conversation not found" });
-      res.json(conversation);
+      return res.json(conversation);
     } catch (error) {
-      res.status(500).json({ error: "Failed to fetch conversation" });
+      // Return 404 instead of 500 for better UX
+      return res.status(404).json({ error: "Conversation not found" });
     }
   });
 
