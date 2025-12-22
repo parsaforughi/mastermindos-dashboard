@@ -2,9 +2,6 @@ import { useState, useEffect, useRef } from "react";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { Menu, X } from "lucide-react";
 import { Link, useRoute } from "wouter";
-import { API_CONFIG } from "@/lib/apiConfig";
-
-const API_URL = API_CONFIG.AFFILIATE_BOT_API || "http://localhost:3001";
 
 interface Message {
   id: string;
@@ -42,7 +39,7 @@ export default function AffiliateBotConversationDetail() {
 
     const fetchConversation = async () => {
       try {
-        const res = await fetch(`${API_URL}/api/conversations/${encodeURIComponent(conversationId)}`);
+        const res = await fetch(`/api/conversations/${encodeURIComponent(conversationId)}`);
         if (!res.ok) {
           throw new Error("Conversation not found");
         }
@@ -58,7 +55,7 @@ export default function AffiliateBotConversationDetail() {
     fetchConversation();
     const interval = setInterval(fetchConversation, 2000);
 
-    const eventSource = new EventSource(`${API_URL}/api/sse/live-messages`);
+    const eventSource = new EventSource("/api/sse/live-messages");
     eventSource.addEventListener("message", (event) => {
       const data = JSON.parse(event.data);
       if (data.message && data.message.conversationId === conversationId) {

@@ -1,9 +1,6 @@
 import { useState, useEffect } from "react";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { Menu, X } from "lucide-react";
-import { API_CONFIG } from "@/lib/apiConfig";
-
-const API_URL = API_CONFIG.AFFILIATE_BOT_API || "http://localhost:3001";
 
 interface Stats {
   totalConversations: number;
@@ -25,7 +22,7 @@ export default function AffiliateBotDashboard() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await fetch(`${API_URL}/api/stats`);
+        const res = await fetch("/api/stats");
         const data = await res.json();
         setStats(data);
       } catch (err) {

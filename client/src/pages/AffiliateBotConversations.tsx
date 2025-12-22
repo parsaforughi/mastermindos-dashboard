@@ -2,9 +2,6 @@ import { useState, useEffect } from "react";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { Menu, X } from "lucide-react";
 import { Link } from "wouter";
-import { API_CONFIG } from "@/lib/apiConfig";
-
-const API_URL = API_CONFIG.AFFILIATE_BOT_API || "http://localhost:3001";
 
 interface Conversation {
   id: string;
@@ -27,7 +24,7 @@ export default function AffiliateBotConversations() {
   useEffect(() => {
     const fetchConversations = async () => {
       try {
-        const res = await fetch(`${API_URL}/api/conversations`);
+        const res = await fetch("/api/conversations");
         const data = await res.json();
         setConversations(data);
       } catch (err) {
@@ -40,7 +37,7 @@ export default function AffiliateBotConversations() {
     fetchConversations();
     const interval = setInterval(fetchConversations, 3000);
 
-    const eventSource = new EventSource(`${API_URL}/api/sse/live-messages`);
+    const eventSource = new EventSource("/api/sse/live-messages");
     eventSource.addEventListener("message", () => {
       fetchConversations();
     });

@@ -2,9 +2,6 @@ import { useState, useEffect, useRef } from "react";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { Menu, X } from "lucide-react";
 import { Link } from "wouter";
-import { API_CONFIG } from "@/lib/apiConfig";
-
-const API_URL = API_CONFIG.AFFILIATE_BOT_API || "http://localhost:3001";
 
 interface LogEntry {
   id: string;
@@ -20,7 +17,7 @@ export default function AffiliateBotLogs() {
   const logsEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const eventSource = new EventSource(`${API_URL}/api/sse/logs`);
+    const eventSource = new EventSource("/api/sse/logs");
 
     eventSource.addEventListener("log", (event) => {
       const logEntry = JSON.parse(event.data);

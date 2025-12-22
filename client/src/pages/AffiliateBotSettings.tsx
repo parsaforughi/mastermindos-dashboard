@@ -10,9 +10,6 @@ import { Switch } from "@/components/ui/switch";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, Save, Power, Pause, Play, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { API_CONFIG } from "@/lib/apiConfig";
-
-const API_URL = API_CONFIG.AFFILIATE_BOT_API || "http://localhost:3001";
 
 export default function AffiliateBotSettings() {
   const [, setLocation] = useLocation();
@@ -39,8 +36,8 @@ export default function AffiliateBotSettings() {
       setLoading(true);
       
       const [promptRes, modelRes] = await Promise.all([
-        fetch(`${API_URL}/api/settings/prompt`),
-        fetch(`${API_URL}/api/settings/model`)
+        fetch("/api/settings/prompt"),
+        fetch("/api/settings/model")
       ]);
       
       if (promptRes.ok) {
@@ -68,7 +65,7 @@ export default function AffiliateBotSettings() {
 
   const loadBotStatus = async () => {
     try {
-      const res = await fetch(`${API_URL}/api/bot/status`);
+      const res = await fetch("/api/bot/status");
       if (res.ok) {
         const data = await res.json();
         setBotStatus(data.status || { running: true, paused: false });
@@ -81,7 +78,7 @@ export default function AffiliateBotSettings() {
   const handleSavePrompt = async () => {
     try {
       setSaving(true);
-      const res = await fetch(`${API_URL}/api/settings/prompt`, {
+      const res = await fetch("/api/settings/prompt", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt: tempPrompt })
@@ -110,7 +107,7 @@ export default function AffiliateBotSettings() {
   const handleSaveModel = async () => {
     try {
       setSaving(true);
-      const res = await fetch(`${API_URL}/api/settings/model`, {
+      const res = await fetch("/api/settings/model", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ model: tempModel })
@@ -138,7 +135,7 @@ export default function AffiliateBotSettings() {
 
   const handlePause = async () => {
     try {
-      const res = await fetch(`${API_URL}/api/bot/pause`, { method: "POST" });
+      const res = await fetch("/api/bot/pause", { method: "POST" });
       if (res.ok) {
         await loadBotStatus();
         toast({
@@ -157,7 +154,7 @@ export default function AffiliateBotSettings() {
 
   const handleResume = async () => {
     try {
-      const res = await fetch(`${API_URL}/api/bot/resume`, { method: "POST" });
+      const res = await fetch("/api/bot/resume", { method: "POST" });
       if (res.ok) {
         await loadBotStatus();
         toast({
@@ -180,7 +177,7 @@ export default function AffiliateBotSettings() {
     }
     
     try {
-      const res = await fetch(`${API_URL}/api/bot/stop`, { method: "POST" });
+      const res = await fetch("/api/bot/stop", { method: "POST" });
       if (res.ok) {
         await loadBotStatus();
         toast({

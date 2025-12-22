@@ -6,7 +6,6 @@ export const API_CONFIG = {
   ICEBALL_API: import.meta.env.VITE_ICEBALL_API,
   INSTAGRAM_DM_API: import.meta.env.VITE_INSTAGRAM_DM_API || 'http://localhost:8080/api',
   COLLAMIN_API: import.meta.env.VITE_COLLAMIN_API || 'http://localhost:3001',
-  AFFILIATE_BOT_API: import.meta.env.VITE_AFFILIATE_BOT_API || 'https://mastermindos-dashboard-production.up.railway.app',
 };
 
 
