@@ -1070,6 +1070,42 @@ export async function registerRoutes(
   // Proxy requests to the Affiliate Bot API server
   const AFFILIATE_BOT_API_URL = process.env.AFFILIATE_BOT_API_URL || 'http://localhost:3001';
   
+  // Test endpoint to verify connection to affiliate bot API
+  app.get("/api/affiliate-bot/test", async (req, res) => {
+    try {
+      const testUrl = `${AFFILIATE_BOT_API_URL}/api/health`;
+      console.log(`[Affiliate Bot Test] Attempting to connect to: ${testUrl}`);
+      
+      const response = await fetch(testUrl, {
+        signal: AbortSignal.timeout(5000),
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        return res.json({
+          success: true,
+          message: 'Connected to Affiliate Bot API',
+          url: AFFILIATE_BOT_API_URL,
+          data: data
+        });
+      } else {
+        return res.json({
+          success: false,
+          message: `Affiliate Bot API returned status ${response.status}`,
+          url: AFFILIATE_BOT_API_URL
+        });
+      }
+    } catch (error: any) {
+      console.error('[Affiliate Bot Test] Error:', error.message);
+      return res.json({
+        success: false,
+        message: `Failed to connect: ${error.message}`,
+        url: AFFILIATE_BOT_API_URL,
+        error: error.message
+      });
+    }
+  });
+  
   // Proxy /api/conversations/:id for affiliate bot (plural, different from main /api/conversation/:id)
   app.get("/api/conversations/:id", async (req, res) => {
     try {
@@ -1232,6 +1268,164 @@ export async function registerRoutes(
       // Return error if affiliate bot API not available
     }
     res.status(500).json({ error: "Failed to update model" });
+  });
+
+  // ============================================
+  // SSE PROXY ROUTES FOR AFFILIATE BOT
+  // ============================================
+  
+  // Proxy /api/sse/live-messages for affiliate bot
+  app.get("/api/sse/live-messages", async (req, res) => {
+    const AFFILIATE_BOT_API_URL = process.env.AFFILIATE_BOT_API_URL || 'http://localhost:3001';
+    
+    try {
+      // Set SSE headers
+      res.setHeader('Content-Type', 'text/event-stream');
+      res.setHeader('Cache-Control', 'no-cache');
+      res.setHeader('Connection', 'keep-alive');
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.flushHeaders();
+
+      // Connect to affiliate bot's SSE endpoint using http/https module for better streaming
+      const http = require('http');
+      const https = require('https');
+      const url = require('url');
+      const upstreamUrl = new URL(`${AFFILIATE_BOT_API_URL}/api/sse/live-messages`);
+      const isHttps = upstreamUrl.protocol === 'https:';
+      const httpModule = isHttps ? https : http;
+      
+      const upstreamReq = httpModule.request({
+        hostname: upstreamUrl.hostname,
+        port: upstreamUrl.port || (isHttps ? 443 : 80),
+        path: upstreamUrl.pathname + upstreamUrl.search,
+        method: 'GET',
+        headers: {
+          'Accept': 'text/event-stream',
+          'Cache-Control': 'no-cache',
+        },
+        rejectUnauthorized: false, // Allow self-signed certs for tunnels
+      }, (upstreamRes) => {
+        // Forward headers
+        if (upstreamRes.statusCode !== 200) {
+          res.write(`event: error\n`);
+          res.write(`data: ${JSON.stringify({ error: `Upstream returned ${upstreamRes.statusCode}` })}\n\n`);
+          return res.end();
+        }
+
+        // Pipe upstream response to client
+        upstreamRes.on('data', (chunk) => {
+          res.write(chunk);
+        });
+
+        upstreamRes.on('end', () => {
+          res.end();
+        });
+
+        upstreamRes.on('error', (err) => {
+          console.error('Upstream SSE error:', err);
+          res.end();
+        });
+      });
+
+      upstreamReq.on('error', (err) => {
+        console.error('SSE proxy connection error:', err);
+        res.write(`event: error\n`);
+        res.write(`data: ${JSON.stringify({ error: 'Failed to connect to bot API' })}\n\n`);
+        res.end();
+      });
+
+      upstreamReq.end();
+
+      // Handle client disconnect
+      req.on('close', () => {
+        upstreamReq.destroy();
+        res.end();
+      });
+
+    } catch (error) {
+      console.error('SSE live-messages proxy error:', error);
+      res.setHeader('Content-Type', 'text/event-stream');
+      res.write(`event: error\n`);
+      res.write(`data: ${JSON.stringify({ error: 'Failed to proxy SSE' })}\n\n`);
+      res.end();
+    }
+  });
+
+  // Proxy /api/sse/logs for affiliate bot
+  app.get("/api/sse/logs", async (req, res) => {
+    const AFFILIATE_BOT_API_URL = process.env.AFFILIATE_BOT_API_URL || 'http://localhost:3001';
+    
+    try {
+      // Set SSE headers
+      res.setHeader('Content-Type', 'text/event-stream');
+      res.setHeader('Cache-Control', 'no-cache');
+      res.setHeader('Connection', 'keep-alive');
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.flushHeaders();
+
+      // Connect to affiliate bot's SSE endpoint using http/https module for better streaming
+      const http = require('http');
+      const https = require('https');
+      const url = require('url');
+      const upstreamUrl = new URL(`${AFFILIATE_BOT_API_URL}/api/sse/logs`);
+      const isHttps = upstreamUrl.protocol === 'https:';
+      const httpModule = isHttps ? https : http;
+      
+      const upstreamReq = httpModule.request({
+        hostname: upstreamUrl.hostname,
+        port: upstreamUrl.port || (isHttps ? 443 : 80),
+        path: upstreamUrl.pathname + upstreamUrl.search,
+        method: 'GET',
+        headers: {
+          'Accept': 'text/event-stream',
+          'Cache-Control': 'no-cache',
+        },
+        rejectUnauthorized: false, // Allow self-signed certs for tunnels
+      }, (upstreamRes) => {
+        // Forward headers
+        if (upstreamRes.statusCode !== 200) {
+          res.write(`event: error\n`);
+          res.write(`data: ${JSON.stringify({ error: `Upstream returned ${upstreamRes.statusCode}` })}\n\n`);
+          return res.end();
+        }
+
+        // Pipe upstream response to client
+        upstreamRes.on('data', (chunk) => {
+          res.write(chunk);
+        });
+
+        upstreamRes.on('end', () => {
+          res.end();
+        });
+
+        upstreamRes.on('error', (err) => {
+          console.error('Upstream SSE error:', err);
+          res.end();
+        });
+      });
+
+      upstreamReq.on('error', (err) => {
+        console.error('SSE proxy connection error:', err);
+        res.write(`event: error\n`);
+        res.write(`data: ${JSON.stringify({ error: 'Failed to connect to bot API' })}\n\n`);
+        res.end();
+      });
+
+      upstreamReq.end();
+
+      // Handle client disconnect
+      req.on('close', () => {
+        upstreamReq.destroy();
+        res.end();
+      });
+
+    } catch (error) {
+      console.error('SSE logs proxy error:', error);
+      res.setHeader('Content-Type', 'text/event-stream');
+      res.write(`event: error\n`);
+      res.write(`data: ${JSON.stringify({ error: 'Failed to proxy SSE' })}\n\n`);
+      res.end();
+    }
   });
 
   return httpServer;
