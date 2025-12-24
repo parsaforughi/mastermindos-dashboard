@@ -1105,63 +1105,67 @@ export async function registerRoutes(
   app.get("/api/conversations/:id", async (req, res) => {
     try {
       const { id } = req.params;
-      // Decode and clean the ID (remove RTL marks and normalize)
-      let decodedId = decodeURIComponent(id);
-      // Remove zero-width characters (RTL marks, etc.)
-      decodedId = decodedId.replace(/[\u200B-\u200D\uFEFF\u200E\u200F]/g, '').trim();
+      // Decode the ID (keep original for first attempt)
+      const originalId = decodeURIComponent(id);
+      // Also create a cleaned version (remove RTL marks)
+      const cleanedId = originalId.replace(/[\u200B-\u200D\uFEFF\u200E\u200F]/g, '').trim();
       
-      console.log(`[affiliate-bot] Fetching conversation: ${decodedId}`);
+      console.log(`[affiliate-bot] Fetching conversation - original: "${originalId}", cleaned: "${cleanedId}"`);
       
       const AFFILIATE_BOT_API_URL = process.env.AFFILIATE_BOT_API_URL || 'http://localhost:3001';
       
-      // Try affiliate bot API first
-      try {
-        // Clean and re-encode the ID for the API call
-        const cleanId = decodedId;
-        const affiliateUrl = `${AFFILIATE_BOT_API_URL}/api/conversations/${encodeURIComponent(cleanId)}`;
-        console.log(`[affiliate-bot] Proxying to: ${affiliateUrl}`);
-        
-        const response = await fetch(affiliateUrl, {
-          signal: AbortSignal.timeout(5000), // Increased timeout to 5 seconds
-          headers: {
-            'Accept': 'application/json',
-          },
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          console.log(`[affiliate-bot] Successfully fetched conversation: ${decodedId}`);
-          return res.json(data);
-        } else if (response.status === 404) {
-          console.log(`[affiliate-bot] Conversation not found in affiliate bot: ${decodedId}`);
-          // Don't return 404 yet, try main storage
-        } else {
-          console.log(`[affiliate-bot] Affiliate bot returned ${response.status} for conversation: ${decodedId}`);
-          // For non-404 errors, still try main storage as fallback
+      // Try affiliate bot API first - try both original and cleaned IDs
+      const idsToTry = originalId !== cleanedId ? [originalId, cleanedId] : [originalId];
+      
+      for (const tryId of idsToTry) {
+        try {
+          const affiliateUrl = `${AFFILIATE_BOT_API_URL}/api/conversations/${encodeURIComponent(tryId)}`;
+          console.log(`[affiliate-bot] Trying affiliate bot API with ID: "${tryId}"`);
+          
+          const response = await fetch(affiliateUrl, {
+            signal: AbortSignal.timeout(5000),
+            headers: {
+              'Accept': 'application/json',
+            },
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            console.log(`[affiliate-bot] Successfully fetched conversation: "${tryId}"`);
+            return res.json(data);
+          } else if (response.status === 404) {
+            console.log(`[affiliate-bot] Conversation not found with ID: "${tryId}"`);
+            // Continue to next ID or fallback
+          } else {
+            console.log(`[affiliate-bot] Affiliate bot returned ${response.status} for: "${tryId}"`);
+          }
+        } catch (proxyError: any) {
+          // Only log if it's not a timeout or connection error (these are expected)
+          if (proxyError.name !== 'AbortError' && proxyError.code !== 'ECONNREFUSED') {
+            console.error(`[affiliate-bot] Proxy error for "${tryId}":`, proxyError.message);
+          }
         }
-      } catch (proxyError: any) {
-        // Only log if it's not a timeout or connection error (these are expected)
-        if (proxyError.name !== 'AbortError' && proxyError.code !== 'ECONNREFUSED') {
-          console.error(`[affiliate-bot] Proxy error for conversation ${decodedId}:`, proxyError.message);
-        }
-        // Fall through to main conversation (singular route)
       }
 
-      // Try main dashboard conversation (singular route)
+      // Try main dashboard conversation (singular route) - skip if database connection fails
       try {
-        const conversation = await storage.getConversation(decodedId);
+        const conversation = await storage.getConversation(cleanedId);
         if (conversation) {
-          console.log(`[affiliate-bot] Found conversation in main storage: ${decodedId}`);
+          console.log(`[affiliate-bot] Found conversation in main storage: "${cleanedId}"`);
           return res.json(conversation);
         }
       } catch (error: any) {
-        // Only log if it's a real error, not just "not found"
-        if (error.message && !error.message.includes('not found')) {
+        // Only log if it's a real error, not just "not found" or database connection issues
+        if (error.message && 
+            !error.message.includes('not found') && 
+            !error.message.includes('database') &&
+            !error.message.includes('fetch failed')) {
           console.error(`[affiliate-bot] Main storage error:`, error.message);
         }
+        // Silently continue if database connection fails (expected in some deployments)
       }
 
-      console.log(`[affiliate-bot] Conversation not found: ${decodedId}`);
+      console.log(`[affiliate-bot] Conversation not found after trying all variants`);
       res.status(404).json({ error: "Conversation not found" });
     } catch (error: any) {
       console.error("[affiliate-bot] Conversation detail error:", error);
