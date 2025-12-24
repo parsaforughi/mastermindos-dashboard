@@ -1112,6 +1112,8 @@ export async function registerRoutes(
       
       console.log(`[affiliate-bot] Fetching conversation: ${decodedId}`);
       
+      const AFFILIATE_BOT_API_URL = process.env.AFFILIATE_BOT_API_URL || 'http://localhost:3001';
+      
       // Try affiliate bot API first
       try {
         // Clean and re-encode the ID for the API call
