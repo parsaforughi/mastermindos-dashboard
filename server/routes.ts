@@ -1110,13 +1110,18 @@ export async function registerRoutes(
   app.get("/api/conversations/:id", async (req, res) => {
     try {
       const { id } = req.params;
-      const decodedId = decodeURIComponent(id);
+      // Decode and clean the ID (remove RTL marks and normalize)
+      let decodedId = decodeURIComponent(id);
+      // Remove zero-width characters (RTL marks, etc.)
+      decodedId = decodedId.replace(/[\u200B-\u200D\uFEFF\u200E\u200F]/g, '').trim();
       
       console.log(`[affiliate-bot] Fetching conversation: ${decodedId}`);
       
       // Try affiliate bot API first
       try {
-        const affiliateUrl = `${AFFILIATE_BOT_API_URL}/api/conversations/${encodeURIComponent(decodedId)}`;
+        // Clean and re-encode the ID for the API call
+        const cleanId = decodedId;
+        const affiliateUrl = `${AFFILIATE_BOT_API_URL}/api/conversations/${encodeURIComponent(cleanId)}`;
         console.log(`[affiliate-bot] Proxying to: ${affiliateUrl}`);
         
         const response = await fetch(affiliateUrl, {
@@ -1130,11 +1135,18 @@ export async function registerRoutes(
           const data = await response.json();
           console.log(`[affiliate-bot] Successfully fetched conversation: ${decodedId}`);
           return res.json(data);
+        } else if (response.status === 404) {
+          console.log(`[affiliate-bot] Conversation not found in affiliate bot: ${decodedId}`);
+          // Don't return 404 yet, try main storage
         } else {
           console.log(`[affiliate-bot] Affiliate bot returned ${response.status} for conversation: ${decodedId}`);
+          // For non-404 errors, still try main storage as fallback
         }
       } catch (proxyError: any) {
-        console.error(`[affiliate-bot] Proxy error for conversation ${decodedId}:`, proxyError.message);
+        // Only log if it's not a timeout or connection error (these are expected)
+        if (proxyError.name !== 'AbortError' && proxyError.code !== 'ECONNREFUSED') {
+          console.error(`[affiliate-bot] Proxy error for conversation ${decodedId}:`, proxyError.message);
+        }
         // Fall through to main conversation (singular route)
       }
 
@@ -1145,15 +1157,19 @@ export async function registerRoutes(
           console.log(`[affiliate-bot] Found conversation in main storage: ${decodedId}`);
           return res.json(conversation);
         }
-      } catch (error) {
-        console.error(`[affiliate-bot] Main storage error:`, error);
+      } catch (error: any) {
+        // Only log if it's a real error, not just "not found"
+        if (error.message && !error.message.includes('not found')) {
+          console.error(`[affiliate-bot] Main storage error:`, error.message);
+        }
       }
 
       console.log(`[affiliate-bot] Conversation not found: ${decodedId}`);
       res.status(404).json({ error: "Conversation not found" });
     } catch (error: any) {
       console.error("[affiliate-bot] Conversation detail error:", error);
-      res.status(500).json({ error: "Failed to fetch conversation", details: error.message });
+      // Return 404 instead of 500 for better UX
+      res.status(404).json({ error: "Conversation not found", details: error.message });
     }
   });
 
