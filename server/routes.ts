@@ -1323,39 +1323,83 @@ export async function registerRoutes(
       }, (upstreamRes) => {
         // Forward headers
         if (upstreamRes.statusCode !== 200) {
-          res.write(`event: error\n`);
-          res.write(`data: ${JSON.stringify({ error: `Upstream returned ${upstreamRes.statusCode}` })}\n\n`);
-          return res.end();
+          if (!res.destroyed && !res.writableEnded) {
+            res.write(`event: error\n`);
+            res.write(`data: ${JSON.stringify({ error: `Upstream returned ${upstreamRes.statusCode}` })}\n\n`);
+            res.end();
+          }
+          return;
         }
 
         // Pipe upstream response to client
         upstreamRes.on('data', (chunk) => {
-          res.write(chunk);
+          try {
+            if (!res.destroyed && !res.writableEnded) {
+              res.write(chunk);
+            }
+          } catch (err) {
+            // Client disconnected, ignore
+          }
         });
 
         upstreamRes.on('end', () => {
-          res.end();
+          if (!res.destroyed && !res.writableEnded) {
+            res.end();
+          }
         });
 
         upstreamRes.on('error', (err) => {
-          console.error('Upstream SSE error:', err);
-          res.end();
+          // Only log if not a connection reset (common with SSE)
+          if (err.code !== 'ECONNRESET' && err.code !== 'EPIPE') {
+            console.error('Upstream SSE error:', err.message);
+          }
+          if (!res.destroyed && !res.writableEnded) {
+            res.end();
+          }
         });
       });
 
       upstreamReq.on('error', (err) => {
-        console.error('SSE proxy connection error:', err);
-        res.write(`event: error\n`);
-        res.write(`data: ${JSON.stringify({ error: 'Failed to connect to bot API' })}\n\n`);
-        res.end();
+        // Only log if not a connection reset (common with SSE)
+        if (err.code !== 'ECONNRESET' && err.code !== 'EPIPE') {
+          console.error('SSE proxy connection error:', err.message);
+        }
+        if (!res.destroyed && !res.writableEnded) {
+          try {
+            res.write(`event: error\n`);
+            res.write(`data: ${JSON.stringify({ error: 'Failed to connect to bot API' })}\n\n`);
+            res.end();
+          } catch (e) {
+            // Client already disconnected
+          }
+        }
       });
 
       upstreamReq.end();
 
       // Handle client disconnect
       req.on('close', () => {
-        upstreamReq.destroy();
-        res.end();
+        try {
+          upstreamReq.destroy();
+        } catch (e) {
+          // Ignore errors when destroying
+        }
+        if (!res.destroyed && !res.writableEnded) {
+          res.end();
+        }
+      });
+
+      // Handle response errors
+      res.on('error', (err) => {
+        // Only log if not a connection reset (common with SSE)
+        if (err.code !== 'ECONNRESET' && err.code !== 'EPIPE') {
+          console.error('SSE response error:', err.message);
+        }
+        try {
+          upstreamReq.destroy();
+        } catch (e) {
+          // Ignore
+        }
       });
 
     } catch (error) {
@@ -1400,39 +1444,83 @@ export async function registerRoutes(
       }, (upstreamRes) => {
         // Forward headers
         if (upstreamRes.statusCode !== 200) {
-          res.write(`event: error\n`);
-          res.write(`data: ${JSON.stringify({ error: `Upstream returned ${upstreamRes.statusCode}` })}\n\n`);
-          return res.end();
+          if (!res.destroyed && !res.writableEnded) {
+            res.write(`event: error\n`);
+            res.write(`data: ${JSON.stringify({ error: `Upstream returned ${upstreamRes.statusCode}` })}\n\n`);
+            res.end();
+          }
+          return;
         }
 
         // Pipe upstream response to client
         upstreamRes.on('data', (chunk) => {
-          res.write(chunk);
+          try {
+            if (!res.destroyed && !res.writableEnded) {
+              res.write(chunk);
+            }
+          } catch (err) {
+            // Client disconnected, ignore
+          }
         });
 
         upstreamRes.on('end', () => {
-          res.end();
+          if (!res.destroyed && !res.writableEnded) {
+            res.end();
+          }
         });
 
         upstreamRes.on('error', (err) => {
-          console.error('Upstream SSE error:', err);
-          res.end();
+          // Only log if not a connection reset (common with SSE)
+          if (err.code !== 'ECONNRESET' && err.code !== 'EPIPE') {
+            console.error('Upstream SSE error:', err.message);
+          }
+          if (!res.destroyed && !res.writableEnded) {
+            res.end();
+          }
         });
       });
 
       upstreamReq.on('error', (err) => {
-        console.error('SSE proxy connection error:', err);
-        res.write(`event: error\n`);
-        res.write(`data: ${JSON.stringify({ error: 'Failed to connect to bot API' })}\n\n`);
-        res.end();
+        // Only log if not a connection reset (common with SSE)
+        if (err.code !== 'ECONNRESET' && err.code !== 'EPIPE') {
+          console.error('SSE proxy connection error:', err.message);
+        }
+        if (!res.destroyed && !res.writableEnded) {
+          try {
+            res.write(`event: error\n`);
+            res.write(`data: ${JSON.stringify({ error: 'Failed to connect to bot API' })}\n\n`);
+            res.end();
+          } catch (e) {
+            // Client already disconnected
+          }
+        }
       });
 
       upstreamReq.end();
 
       // Handle client disconnect
       req.on('close', () => {
-        upstreamReq.destroy();
-        res.end();
+        try {
+          upstreamReq.destroy();
+        } catch (e) {
+          // Ignore errors when destroying
+        }
+        if (!res.destroyed && !res.writableEnded) {
+          res.end();
+        }
+      });
+
+      // Handle response errors
+      res.on('error', (err) => {
+        // Only log if not a connection reset (common with SSE)
+        if (err.code !== 'ECONNRESET' && err.code !== 'EPIPE') {
+          console.error('SSE response error:', err.message);
+        }
+        try {
+          upstreamReq.destroy();
+        } catch (e) {
+          // Ignore
+        }
       });
 
     } catch (error) {
