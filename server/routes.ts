@@ -305,14 +305,9 @@ export async function registerRoutes(
     }
   });
 
-  app.get("/api/conversations/:sessionId", async (req, res) => {
-    try {
-      const conversations = await storage.getConversationsBySession(req.params.sessionId);
-      res.json(conversations);
-    } catch (error) {
-      res.status(500).json({ error: "Failed to fetch conversations" });
-    }
-  });
+  // NOTE: /api/conversations/:id for affiliate bot must come BEFORE /api/conversations/:sessionId
+  // because Express matches routes in order and both use the same pattern
+  // The affiliate bot route is defined later in the file (around line 1110)
 
   app.get("/api/conversation/:id", async (req, res) => {
     try {
