@@ -1110,34 +1110,50 @@ export async function registerRoutes(
   app.get("/api/conversations/:id", async (req, res) => {
     try {
       const { id } = req.params;
+      const decodedId = decodeURIComponent(id);
+      
+      console.log(`[affiliate-bot] Fetching conversation: ${decodedId}`);
       
       // Try affiliate bot API first
       try {
-        const response = await fetch(`${AFFILIATE_BOT_API_URL}/api/conversations/${encodeURIComponent(id)}`, {
-          signal: AbortSignal.timeout(2000),
+        const affiliateUrl = `${AFFILIATE_BOT_API_URL}/api/conversations/${encodeURIComponent(decodedId)}`;
+        console.log(`[affiliate-bot] Proxying to: ${affiliateUrl}`);
+        
+        const response = await fetch(affiliateUrl, {
+          signal: AbortSignal.timeout(5000), // Increased timeout to 5 seconds
+          headers: {
+            'Accept': 'application/json',
+          },
         });
+        
         if (response.ok) {
           const data = await response.json();
+          console.log(`[affiliate-bot] Successfully fetched conversation: ${decodedId}`);
           return res.json(data);
+        } else {
+          console.log(`[affiliate-bot] Affiliate bot returned ${response.status} for conversation: ${decodedId}`);
         }
-      } catch (proxyError) {
+      } catch (proxyError: any) {
+        console.error(`[affiliate-bot] Proxy error for conversation ${decodedId}:`, proxyError.message);
         // Fall through to main conversation (singular route)
       }
 
       // Try main dashboard conversation (singular route)
       try {
-        const conversation = await storage.getConversation(id);
+        const conversation = await storage.getConversation(decodedId);
         if (conversation) {
+          console.log(`[affiliate-bot] Found conversation in main storage: ${decodedId}`);
           return res.json(conversation);
         }
       } catch (error) {
-        // Ignore
+        console.error(`[affiliate-bot] Main storage error:`, error);
       }
 
+      console.log(`[affiliate-bot] Conversation not found: ${decodedId}`);
       res.status(404).json({ error: "Conversation not found" });
-    } catch (error) {
-      console.error("Conversation detail error:", error);
-      res.status(500).json({ error: "Failed to fetch conversation" });
+    } catch (error: any) {
+      console.error("[affiliate-bot] Conversation detail error:", error);
+      res.status(500).json({ error: "Failed to fetch conversation", details: error.message });
     }
   });
 
