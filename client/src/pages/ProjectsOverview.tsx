@@ -53,6 +53,19 @@ const projects = [
     href: "/dashboard/iceball-bot"
   },
   { 
+    id: "iceball-trend-generator", 
+    name: "Iceball Trend Generator", 
+    type: "Image Generation", 
+    icon: Snowflake,
+    color: "text-cyan-400",
+    gradient: "from-cyan-400 to-blue-600",
+    stats: { users: "Active", activity: "High" },
+    status: "active",
+    description: "Winter portrait generation with NanoBanana API.",
+    isDashboard: true,
+    href: "/dashboard/iceball-trend-generator"
+  },
+  { 
     id: "vip-passport", 
     name: "VIP Passport", 
     type: "Engagement", 

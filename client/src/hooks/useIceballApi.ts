@@ -1,19 +1,27 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { iceballApi, IceballHealth, IceballStats } from "@/lib/iceballApi";
+import { iceballApi, type IceballHealth, type IceballStats, type IceballGeneration } from "@/lib/iceballApi";
 
 export function useIceballHealth() {
   return useQuery<IceballHealth>({
-    queryKey: ["iceball", "health"],
+    queryKey: ["iceball-trend", "health"],
     queryFn: () => iceballApi.getHealth(),
-    refetchInterval: 10000,
+    refetchInterval: 30000,
   });
 }
 
 export function useIceballStats() {
   return useQuery<IceballStats>({
-    queryKey: ["iceball", "stats"],
+    queryKey: ["iceball-trend", "stats"],
     queryFn: () => iceballApi.getStats(),
     refetchInterval: 10000,
+  });
+}
+
+export function useIceballGenerations(limit: number = 50) {
+  return useQuery<IceballGeneration[]>({
+    queryKey: ["iceball-trend", "generations", limit],
+    queryFn: () => iceballApi.getGenerations(limit),
+    refetchInterval: 15000,
   });
 }
 

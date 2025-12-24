@@ -1337,7 +1337,7 @@ export async function registerRoutes(
           'Cache-Control': 'no-cache',
         },
         rejectUnauthorized: false, // Allow self-signed certs for tunnels
-      }, (upstreamRes) => {
+      }, (upstreamRes: any) => {
         // Forward headers
         if (upstreamRes.statusCode !== 200) {
           if (!res.destroyed && !res.writableEnded) {
@@ -1349,7 +1349,7 @@ export async function registerRoutes(
         }
 
         // Pipe upstream response to client
-        upstreamRes.on('data', (chunk) => {
+        upstreamRes.on('data', (chunk: any) => {
           try {
             if (!res.destroyed && !res.writableEnded) {
               res.write(chunk);
@@ -1365,7 +1365,7 @@ export async function registerRoutes(
           }
         });
 
-        upstreamRes.on('error', (err) => {
+        upstreamRes.on('error', (err: any) => {
           // Only log if not a connection reset (common with SSE)
           if (err.code !== 'ECONNRESET' && err.code !== 'EPIPE') {
             console.error('Upstream SSE error:', err.message);
@@ -1376,7 +1376,7 @@ export async function registerRoutes(
         });
       });
 
-      upstreamReq.on('error', (err) => {
+      upstreamReq.on('error', (err: any) => {
         // Only log if not a connection reset (common with SSE)
         if (err.code !== 'ECONNRESET' && err.code !== 'EPIPE') {
           console.error('SSE proxy connection error:', err.message);
@@ -1407,7 +1407,7 @@ export async function registerRoutes(
       });
 
       // Handle response errors
-      res.on('error', (err) => {
+      res.on('error', (err: any) => {
         // Only log if not a connection reset (common with SSE)
         if (err.code !== 'ECONNRESET' && err.code !== 'EPIPE') {
           console.error('SSE response error:', err.message);
@@ -1458,7 +1458,7 @@ export async function registerRoutes(
           'Cache-Control': 'no-cache',
         },
         rejectUnauthorized: false, // Allow self-signed certs for tunnels
-      }, (upstreamRes) => {
+      }, (upstreamRes: any) => {
         // Forward headers
         if (upstreamRes.statusCode !== 200) {
           if (!res.destroyed && !res.writableEnded) {
@@ -1470,7 +1470,7 @@ export async function registerRoutes(
         }
 
         // Pipe upstream response to client
-        upstreamRes.on('data', (chunk) => {
+        upstreamRes.on('data', (chunk: any) => {
           try {
             if (!res.destroyed && !res.writableEnded) {
               res.write(chunk);
@@ -1486,7 +1486,7 @@ export async function registerRoutes(
           }
         });
 
-        upstreamRes.on('error', (err) => {
+        upstreamRes.on('error', (err: any) => {
           // Only log if not a connection reset (common with SSE)
           if (err.code !== 'ECONNRESET' && err.code !== 'EPIPE') {
             console.error('Upstream SSE error:', err.message);
@@ -1497,7 +1497,7 @@ export async function registerRoutes(
         });
       });
 
-      upstreamReq.on('error', (err) => {
+      upstreamReq.on('error', (err: any) => {
         // Only log if not a connection reset (common with SSE)
         if (err.code !== 'ECONNRESET' && err.code !== 'EPIPE') {
           console.error('SSE proxy connection error:', err.message);
@@ -1528,7 +1528,7 @@ export async function registerRoutes(
       });
 
       // Handle response errors
-      res.on('error', (err) => {
+      res.on('error', (err: any) => {
         // Only log if not a connection reset (common with SSE)
         if (err.code !== 'ECONNRESET' && err.code !== 'EPIPE') {
           console.error('SSE response error:', err.message);
@@ -1546,6 +1546,99 @@ export async function registerRoutes(
       res.write(`event: error\n`);
       res.write(`data: ${JSON.stringify({ error: 'Failed to proxy SSE' })}\n\n`);
       res.end();
+    }
+  });
+
+  // ============================================
+  // ICEBALL TREND GENERATOR API PROXY ROUTES
+  // ============================================
+  
+  const ICEBALL_TREND_API_URL = process.env.ICEBALL_TREND_API_URL || 'https://iceball-trend-generator.onrender.com';
+  
+  // Health check for Iceball Trend Generator
+  app.get("/api/iceball-trend/health", async (req, res) => {
+    try {
+      const response = await fetch(`${ICEBALL_TREND_API_URL}/api/health`, {
+        signal: AbortSignal.timeout(3000),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        return res.json(data);
+      }
+      return res.json({ status: "unknown", online: false });
+    } catch (error: any) {
+      return res.json({ status: "unknown", online: false, error: error.message });
+    }
+  });
+  
+  // Stats for Iceball Trend Generator
+  app.get("/api/iceball-trend/stats", async (req, res) => {
+    try {
+      const response = await fetch(`${ICEBALL_TREND_API_URL}/api/stats`, {
+        signal: AbortSignal.timeout(3000),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        return res.json(data);
+      }
+      // Return default stats if API not available
+      return res.json({
+        totalGenerations: 0,
+        successfulGenerations: 0,
+        failedGenerations: 0,
+        averageProcessingTime: 0,
+        todayGenerations: 0,
+        last24Hours: 0,
+      });
+    } catch (error: any) {
+      return res.json({
+        totalGenerations: 0,
+        successfulGenerations: 0,
+        failedGenerations: 0,
+        averageProcessingTime: 0,
+        todayGenerations: 0,
+        last24Hours: 0,
+      });
+    }
+  });
+  
+  // Get recent generations
+  app.get("/api/iceball-trend/generations", async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 50;
+      const response = await fetch(`${ICEBALL_TREND_API_URL}/api/generations?limit=${limit}`, {
+        signal: AbortSignal.timeout(3000),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        return res.json(data);
+      }
+      return res.json([]);
+    } catch (error: any) {
+      return res.json([]);
+    }
+  });
+  
+  // Generate image (proxy to Iceball Trend Generator)
+  app.post("/api/iceball-trend/generate", async (req, res) => {
+    try {
+      // This endpoint should receive FormData with image file
+      // We'll proxy it to the actual API
+      const formData = new FormData();
+      
+      // Get the file from the request
+      if (!req.body || !req.body.image) {
+        return res.status(400).json({ error: "Image file is required" });
+      }
+      
+      // Note: For file uploads, we might need to use multer or similar
+      // For now, we'll return an error suggesting direct API call
+      return res.status(501).json({ 
+        error: "File upload proxy not implemented. Please call the Iceball Trend Generator API directly.",
+        directUrl: `${ICEBALL_TREND_API_URL}/api/generate`
+      });
+    } catch (error: any) {
+      return res.status(500).json({ error: error.message });
     }
   });
 

@@ -22,6 +22,7 @@ import IceballAnalytics from "@/pages/IceballAnalytics";
 import IceballImageProcessing from "@/pages/IceballImageProcessing";
 import IceballDataModels from "@/pages/IceballDataModels";
 import IceballSystemConfig from "@/pages/IceballSystemConfig";
+import IceballTrendGeneratorDashboard from "@/pages/IceballTrendGeneratorDashboard";
 
 import VIPPassportDashboard from "@/pages/VIPPassportDashboard";
 import VIPMissions from "@/pages/VIPMissions";
@@ -93,6 +94,9 @@ function Router() {
       <Route path="/dashboard/affiliate-bot/conversations/:id" component={AffiliateBotConversationDetail} />
       <Route path="/dashboard/affiliate-bot/logs" component={AffiliateBotLogs} />
       <Route path="/dashboard/affiliate-bot/settings" component={AffiliateBotSettings} />
+      
+      {/* Iceball Trend Generator Dashboard Routes */}
+      <Route path="/dashboard/iceball-trend-generator" component={IceballTrendGeneratorDashboard} />
       
       <Route component={NotFound} />
     </Switch>

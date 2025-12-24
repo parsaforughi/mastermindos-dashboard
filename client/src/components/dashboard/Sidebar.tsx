@@ -25,6 +25,7 @@ import { Link, useLocation, useRoute } from "wouter";
 const PROJECT_ICONS: Record<string, any> = {
   "ice-ball": Globe,
   "iceball-bot": Globe,
+  "iceball-trend-generator": Snowflake,
   "viral-bot": Smartphone,
   "vip-passport": Crown,
   "instagram-dm": MessageSquare,
@@ -35,6 +36,7 @@ const PROJECT_ICONS: Record<string, any> = {
 const PROJECT_NAMES: Record<string, string> = {
   "ice-ball": "Ice Ball",
   "iceball-bot": "Iceball",
+  "iceball-trend-generator": "Iceball Trend Generator",
   "viral-bot": "Viral Bot",
   "vip-passport": "VIP Passport",
   "instagram-dm": "Instagram DM",
@@ -77,6 +79,9 @@ const getNavItemsForProject = (botId: string, basePath: string) => {
       { icon: MessageSquare, label: "Conversations", href: `${basePath}/conversations` },
       { icon: Activity, label: "Logs", href: `${basePath}/logs` },
       { icon: Cpu, label: "Settings", href: `${basePath}/settings` },
+    ],
+    "iceball-trend-generator": [
+      { icon: LayoutDashboard, label: "Dashboard", href: `${basePath}` },
     ],
   };
 
