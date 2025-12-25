@@ -1574,11 +1574,20 @@ export async function registerRoutes(
   // Stats for Iceball Trend Generator
   app.get("/api/iceball-trend/stats", async (req, res) => {
     try {
-      const response = await fetch(`${ICEBALL_TREND_API_URL}/api/stats`, {
+      // Disable caching
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+      
+      const response = await fetch(`${ICEBALL_TREND_API_URL}/api/stats?t=${Date.now()}`, {
         signal: AbortSignal.timeout(3000),
+        headers: {
+          'Cache-Control': 'no-cache',
+        },
       });
       if (response.ok) {
         const data = await response.json();
+        console.log("📊 Proxy returning stats:", data);
         return res.json(data);
       }
       // Return default stats if API not available
@@ -1591,6 +1600,7 @@ export async function registerRoutes(
         last24Hours: 0,
       });
     } catch (error: any) {
+      console.error("❌ Error proxying stats:", error.message);
       return res.json({
         totalGenerations: 0,
         successfulGenerations: 0,

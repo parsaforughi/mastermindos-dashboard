@@ -13,7 +13,9 @@ export function useIceballStats() {
   return useQuery<IceballStats>({
     queryKey: ["iceball-trend", "stats"],
     queryFn: () => iceballApi.getStats(),
-    refetchInterval: 10000,
+    refetchInterval: 5000, // Refresh every 5 seconds instead of 10
+    staleTime: 0, // Always consider data stale
+    cacheTime: 0, // Don't cache
   });
 }
 
