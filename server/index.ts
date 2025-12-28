@@ -98,11 +98,19 @@ app.use((req, res, next) => {
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
   const port = parseInt(process.env.PORT || "5000", 10);
+  
+  // Log environment info for debugging
+  log(`NODE_ENV: ${process.env.NODE_ENV}`);
+  log(`PORT: ${port}`);
+  log(`ICEBALL_TREND_API_URL: ${process.env.ICEBALL_TREND_API_URL || 'not set (using default)'}`);
+  log(`AFFILIATE_BOT_API_URL: ${process.env.AFFILIATE_BOT_API_URL || 'not set (using default)'}`);
+  
   httpServer.listen(
     port,
     "0.0.0.0",
     () => {
       log(`serving on port ${port}`);
+      log(`Server is ready to accept connections`);
     },
   );
 })();
