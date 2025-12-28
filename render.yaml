@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: mastermindos-dashboard
+    env: node
+    plan: free
+    region: oregon
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      # Iceball Trend Generator API
+      - key: ICEBALL_TREND_API_URL
+        value: https://iceball-trend-generator.onrender.com
+      # Affiliate Bot API (if running)
+      - key: AFFILIATE_BOT_API_URL
+        sync: false
+      # Database URL (if using Neon)
+      - key: DATABASE_URL
+        sync: false
+
