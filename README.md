@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/og.png" alt="MastermindOS — Seylane command surface" width="100%" />
+  <img src="docs/og.png" alt="Seylane MastermindOS Dashboard" width="100%" />
 </p>
 
 # MastermindOS
