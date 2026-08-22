@@ -149,21 +149,21 @@ GET /messages?conversationId=arman_rahimi
     "id": "arman_rahimi_0",
     "conversationId": "arman_rahimi",
     "from": "user",
-    "text": "سلام",
+    "text": "Hello",
     "createdAt": "2025-12-01T09:32:59.000Z"
   },
   {
     "id": "arman_rahimi_1",
     "conversationId": "arman_rahimi",
     "from": "bot",
-    "text": "سلام! خوش اومدی به لوکسیرانا 🌿",
+    "text": "Hello! Welcome to Luxirana",
     "createdAt": "2025-12-01T09:33:05.000Z"
   },
   {
     "id": "arman_rahimi_2",
     "conversationId": "arman_rahimi",
     "from": "user",
-    "text": "چندتا برند دارید؟",
+    "text": "How many brands do you have?",
     "createdAt": "2025-12-01T09:33:12.000Z"
   }
 ]
@@ -201,7 +201,7 @@ Content-Type: application/json
   "conversationId": "arman_rahimi",
   "id": "msg_1234567890",
   "from": "user",
-  "text": "میسویک چیه؟",
+  "text": "What is Miswak?",
   "createdAt": "2025-12-01T09:35:00.000Z"
 }
 ```
@@ -256,7 +256,7 @@ curl -X POST https://bdcd0c9f-392c-4eca-a76a-4ab4fdca9994-00-2hisy5qmiaduo.spock
     "conversationId": "arman_rahimi",
     "id": "msg_12345",
     "from": "user",
-    "text": "سلام",
+    "text": "Hello",
     "createdAt": "2025-12-01T09:35:00.000Z"
   }'
 ```
@@ -292,7 +292,7 @@ data: {"type":"connected","timestamp":"2025-12-01T09:33:14.123Z"}
 **2. Incoming Message Events:**
 ```
 event: message
-data: {"type":"message","message":{"id":"msg_123","conversationId":"arman_rahimi","from":"user","text":"سلام","createdAt":"2025-12-01T09:35:00.000Z"}}
+data: {"type":"message","message":{"id":"msg_123","conversationId":"arman_rahimi","from":"user","text":"Hello","createdAt":"2025-12-01T09:35:00.000Z"}}
 
 ```
 
@@ -413,7 +413,7 @@ async function sendUserMessage(conversationId, messageText) {
 }
 
 // Usage
-sendUserMessage('arman_rahimi', 'چندتا برند دارید؟');
+sendUserMessage('arman_rahimi', 'How many brands do you have?');
 ```
 
 ### Example 2: Get All Conversations

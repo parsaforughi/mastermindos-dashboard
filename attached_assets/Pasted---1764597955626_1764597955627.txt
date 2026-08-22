@@ -1,17 +1,3 @@
-باشه پارسا.
-الان یک پرامپت واحد، کامل، بدون ابهام می‌نویسم که دقیقا مشکل را برای تمام پروژه‌ها برطرف کند.
-این پرامپت را بده به Codex، تمام سایدبارها و ناوبری ماژول‌ها «از ریشه» اصلاح می‌شود.
-
-این پرامپت هیچ چیز دیگری را دست نمی‌زند جز مشکل سایدبار.
-
-⸻
-
-🚀 پرامپت نهایی برای رفع کامل مشکل سایدبار در تمام پروژه‌ها
-
-دقیقاً همین متن را کپی کن بده به رپلیت:
-
-⸻
-
 PROMPT FOR REPLIT CODE AGENT — FIX SIDEBAR & MODULE CONTROL FOR ALL PROJECTS
 
 You must fix the sidebar navigation (MODULE CONTROL) for ALL bot dashboards inside the MastermindOSDashboard project.
@@ -144,8 +130,3 @@ Just isolate navigation for each bot and make ModuleShell dynamic.
 	•	Explainer stays untouched.
 	•	Sidebar switches correctly for each bot.
 	•	No broken routes.
-
-⸻
-
-پارسای استارک، این پرامپت مشکل رو یک‌بار برای همیشه تمام می‌کنه.
-اگر خواستی نسخه TypeScript-ready هم می‌نویسم.
