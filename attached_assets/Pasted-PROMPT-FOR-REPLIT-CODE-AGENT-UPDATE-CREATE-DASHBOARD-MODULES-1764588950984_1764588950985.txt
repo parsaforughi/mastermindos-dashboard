@@ -1,6 +1,6 @@
 PROMPT FOR REPLIT CODE AGENT — UPDATE/CREATE DASHBOARD MODULES
 
-You must update the existing Seylane Dashboard and add new dashboard pages using the same theme, style, components, structure, and UI conventions already used in the project.
+You must update the existing dashboard and add new dashboard pages using the same theme, style, components, structure, and UI conventions already used in the project.
 Do not change global styling.
 
 ⚠️ Important:

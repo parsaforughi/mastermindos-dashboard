@@ -138,7 +138,7 @@ export function ActiveChat({ conversationId }: { conversationId: string }) {
                               "text-[10px] text-muted-foreground/60 font-mono block px-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300",
                               isBot ? "text-right" : "text-left"
                             )}>
-                                {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {isBot ? 'ربات' : 'کاربر'}
+                                {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {isBot ? 'Bot' : 'User'}
                             </span>
                         </div>
                     </div>

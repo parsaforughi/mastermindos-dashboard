@@ -40,7 +40,7 @@ const PROJECT_NAMES: Record<string, string> = {
   "viral-bot": "Viral Bot",
   "vip-passport": "VIP Passport",
   "instagram-dm": "Instagram DM",
-  "collamin-shelftalker": "Collamin ShelfTalker",
+  "collamin-shelftalker": "ShelfTalker",
   "affiliate-bot": "Affiliate Bot"
 };
 

@@ -106,7 +106,7 @@ const projects = [
   },
   { 
     id: "collamin-shelftalker", 
-    name: "Collamin ShelfTalker", 
+    name: "ShelfTalker", 
     type: "Aging Simulation", 
     icon: Sparkles,
     color: "text-teal-400",
@@ -259,7 +259,7 @@ export default function ProjectsOverview() {
               
               {/* Core Label */}
               <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 text-center w-40">
-                 <div className="text-xs font-mono text-primary/80 tracking-[0.2em]">SEYLANE AI</div>
+                 <div className="text-xs font-mono text-primary/80 tracking-[0.2em]">MASTERMIND OS</div>
                  <div className="text-[10px] text-muted-foreground">Processing Nodes</div>
               </div>
            </div>
