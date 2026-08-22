@@ -6,7 +6,7 @@ All backend projects have been successfully integrated with the Mastermind OS Da
 
 ## Integrated Projects
 
-### 1. ✅ Explainer Bot (`seylane-explainer-bot`)
+### 1. ✅ Explainer Bot
 - **Port**: 5050
 - **Base URL**: `http://localhost:5050`
 - **Status**: Fully integrated
@@ -19,7 +19,7 @@ All backend projects have been successfully integrated with the Mastermind OS Da
   - `GET /live-messages` - SSE stream for messages
   - `GET /logs` - SSE stream for logs
 
-### 2. ✅ VIP Passport (`seylane-vip/backend`)
+### 2. ✅ VIP Passport
 - **Port**: 4000
 - **Base URL**: `http://localhost:4000/api`
 - **Status**: Fully integrated
@@ -31,7 +31,7 @@ All backend projects have been successfully integrated with the Mastermind OS Da
   - `GET /purchases` - List rewards (requires auth)
   - `GET /stats` - Statistics (NEW - created)
 
-### 3. ✅ Auto DM Bot (`seylane-bot-v4`)
+### 3. ✅ Auto DM Bot
 - **Port**: 7070
 - **Base URL**: `http://localhost:7070/api`
 - **Status**: Fully integrated with CORS enabled
@@ -115,7 +115,7 @@ All backend servers now have CORS enabled:
 
 ### VIP Backend
 - **NEW**: `GET /api/stats` - Returns statistics (totalUsers, activeUsers, totalPoints, missionsCompleted, rewardsRedeemed)
-- **File**: `seylane-vip/backend/src/api/stats.ts`
+- **File**: VIP Passport backend stats route
 
 ### Viral Bot
 - **NEW**: `GET /api/health` - Health check endpoint
@@ -139,7 +139,7 @@ VITE_ICEBALL_API=http://localhost:3002/api
 
 ### 1. Explainer Bot
 ```bash
-cd seylane-explainer-bot/explainer-api
+cd explainer-bot/explainer-api
 npm install
 node server.js
 # Runs on port 5050
@@ -147,7 +147,7 @@ node server.js
 
 ### 2. VIP Passport Backend
 ```bash
-cd seylane-vip/backend
+cd vip-passport/backend
 npm install
 npx prisma migrate dev
 npm run dev
@@ -156,7 +156,7 @@ npm run dev
 
 ### 3. Auto DM Bot
 ```bash
-cd seylane-bot-v4
+cd auto-dm-bot
 npm install
 npm run dev
 # Runs on port 7070
@@ -268,18 +268,18 @@ PORT=3001 npm run dev
 - `client/src/hooks/useAutoDmApi.ts`
 - `client/src/hooks/useViralBotApi.ts`
 - `client/src/hooks/useIceballApi.ts`
-- `seylane-vip/backend/src/api/stats.ts`
+- VIP Passport backend stats route
 
 ### Modified
 - `client/src/lib/explainerApi.ts` - Updated to use localhost
 - `client/src/pages/ExplainerDashboard.tsx` - Removed mock data
 - `client/src/pages/VIPPassportDashboard.tsx` - Connected to real API
 - `client/src/pages/AutoDMDashboard.tsx` - Connected to real API
-- `seylane-bot-v4/src/server/http.ts` - Added CORS
-- `seylane-bot-v4/package.json` - Added cors dependency
+- Auto DM bot HTTP server - Added CORS
+- Auto DM bot package.json - Added cors dependency
 - `telegram-viral-bot/src/server.ts` - Added API endpoints and CORS
 - `telegram-viral-bot/package.json` - Added cors dependency
-- `seylane-vip/backend/src/api/index.ts` - Added stats route
+- VIP Passport backend API index - Added stats route
 
 ---
 

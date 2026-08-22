@@ -1,12 +1,12 @@
 <p align="center">
-  <img src="docs/og.png" alt="Seylane MastermindOS Dashboard" width="100%" />
+  <img src="docs/og.png" alt="MastermindOS Dashboard" width="100%" />
 </p>
 
 # MastermindOS
 
-Seylane command surface. Dark orbital console for the live project dashboards — not the 2021 Mastermind game, not that org.
+Dark orbital console for the live project dashboards — not the 2021 Mastermind game, not that org.
 
-The home view is labeled **SYSTEM ONLINE / MASTERMIND OS / SEYLANE AI**. The core sits in the center. Seven nodes orbit it. Each node opens a project with its own Module Control sidebar.
+The home view is labeled **SYSTEM ONLINE / MASTERMIND OS**. The core sits in the center. Seven nodes orbit it. Each node opens a project with its own Module Control sidebar.
 
 ## Nodes on the orbit
 
@@ -20,7 +20,7 @@ Copied from the selector in `client/src/pages/ProjectsOverview.tsx`. Nothing els
 | VIP Passport | Engagement | VIP missions, rewards, and user engagement platform | `/dashboard/vip-passport` |
 | Affiliate Bot | Instagram Automation | Real-time Instagram DM bot for affiliate marketing and customer engagement | `/dashboard/affiliate-bot` |
 | Instagram DM Bot | Bulk Messaging | Bulk Instagram DM campaigns with Google Sheets integration | `/dashboard/instagram-dm` |
-| Collamin ShelfTalker | Aging Simulation | 20-year aging simulation and story image generation for skincare marketing | `/dashboard/collamin-shelftalker` |
+| ShelfTalker | Aging Simulation | 20-year aging simulation and story image generation for skincare marketing | `/dashboard/collamin-shelftalker` |
 
 ## Module Control
 
@@ -39,7 +39,7 @@ A shared `/bot/:id` shell also exists (inbox, analytics, knowledge, settings) fo
 
 One Express process serves the React client (Vite, Wouter, TanStack Query, dark glass UI). The same process exposes `/api` for health, stats, sessions, conversations, messages, logs, and SSE (`/api/live-messages`, `/api/live-logs`). When `DATABASE_URL` is set, Drizzle talks to PostgreSQL (`shared/schema.ts`: users, sessions, conversations, messages, logs, analytics events).
 
-Some dashboards also call or proxy sibling Seylane services when those URLs are set. If a sibling is down, the server falls back to local storage or empty stats — it does not invent a live fleet.
+Some dashboards also call or proxy sibling product services when those URLs are set. If a sibling is down, the server falls back to local storage or empty stats — it does not invent a live fleet.
 
 ## Run
 

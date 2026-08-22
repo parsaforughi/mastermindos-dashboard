@@ -18,7 +18,7 @@ export default function ExplainerSettings() {
 
   const [model, setModel] = useState("gpt-4o");
   const [temperature, setTemperature] = useState("0.7");
-  const [systemPrompt, setSystemPrompt] = useState("You are Luxirana's helpful assistant. Help customers learn about our natural skincare products.");
+  const [systemPrompt, setSystemPrompt] = useState("You are a helpful assistant. Help customers learn about the products.");
 
   const isLoading = healthLoading || statsLoading;
   const isConnected = health?.status === 'ok';

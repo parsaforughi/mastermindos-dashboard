@@ -1,4 +1,4 @@
-# Seylane Explainer AI - Complete API Documentation
+# Explainer AI - Complete API Documentation
 
 ## Base URL
 
@@ -109,9 +109,9 @@ GET /conversations
     "outboundCount": 4
   },
   {
-    "id": "shop_luxirana",
-    "userId": "shop_luxirana",
-    "username": "shop_luxirana",
+    "id": "shop_demo",
+    "userId": "shop_demo",
+    "username": "shop_demo",
     "lastMessageAt": "2025-12-01T08:15:23.000Z",
     "inboundCount": 23,
     "outboundCount": 22
@@ -156,7 +156,7 @@ GET /messages?conversationId=arman_rahimi
     "id": "arman_rahimi_1",
     "conversationId": "arman_rahimi",
     "from": "bot",
-    "text": "Hello! Welcome to Luxirana",
+    "text": "Hello! Welcome",
     "createdAt": "2025-12-01T09:33:05.000Z"
   },
   {
@@ -539,4 +539,4 @@ All endpoints support CORS with:
 
 **Last Updated:** December 1, 2025
 **API Version:** 1.0
-**Bot Version:** Seylane Explainer AI v3.10
+**Bot Version:** Explainer AI v3.10
